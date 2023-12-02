@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
 
 class CubeConundrum
 {
@@ -17,9 +16,6 @@ class CubeConundrum
 
         string[] lines = File.ReadAllLines(fileName);
 
-        string rollsPattern = @"(\d+) (\w+)";
-        Regex rollsRegex = new Regex(rollsPattern, RegexOptions.Compiled);
-
         int total = 0;
         foreach (string line in lines)
         {
@@ -34,11 +30,12 @@ class CubeConundrum
             int foundRedCubes = 0;
             int foundGreenCubes = 0;
             int foundBlueCubes = 0;
-            MatchCollection rollsMatches = rollsRegex.Matches(roll);
-            foreach (Match rollMatch in rollsMatches)
+            string[] rollsMatches = roll.Trim().Split(',');
+            foreach (string rollMatch in rollsMatches)
             {
-              int cubeCount = int.Parse(rollMatch.Groups[1].Value);
-              string cubeColour = rollMatch.Groups[2].Value;
+              string[] resultParts = rollMatch.Trim().Split(' ');
+              int cubeCount = int.Parse(resultParts[0]);
+              string cubeColour = resultParts[1];
               switch (cubeColour)
               {
                 case "red":
