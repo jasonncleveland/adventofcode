@@ -27,7 +27,7 @@ class IfYouGiveASeedAFertilizer
         {
           if (line.StartsWith("seeds"))
           {
-            string[] seedValues = line.Split(':')[1].Trim().Split(' ');
+            string[] seedValues = line.Split(':')[1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
             foreach (string seedValue in seedValues)
             {
               seeds.Add(long.Parse(seedValue));
