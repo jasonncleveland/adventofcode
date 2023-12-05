@@ -36,7 +36,7 @@ class CubeConundrum
             string[] rollsMatches = roll.Trim().Split(',');
             foreach (string rollMatch in rollsMatches)
             {
-              string[] resultParts = rollMatch.Trim().Split(' ');
+              string[] resultParts = rollMatch.Split(' ', StringSplitOptions.RemoveEmptyEntries);
               int cubeCount = int.Parse(resultParts[0]);
               string cubeColour = resultParts[1];
               switch (cubeColour)
