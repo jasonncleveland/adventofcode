@@ -76,7 +76,7 @@ class IfYouGiveASeedAFertilizer
         while (true)
         {
           // Map the location to seed
-          long mappedSeed = mapValueRec(lowestLocation, "location", "seed", reverseAlmanac);
+          long mappedSeed = mapValueIter(lowestLocation, "location", "seed", reverseAlmanac);
           // Check seeds to see if we have a match
           bool foundMatch = false;
           for (int i = 1; i < seeds.Count; i += 2)
@@ -100,6 +100,29 @@ class IfYouGiveASeedAFertilizer
         Console.WriteLine($"Elapsed Time: {stopWatch.ElapsedMilliseconds} ms");
       }
     }
+  }
+
+  static long mapValueIter(long value, string source, string destination, Dictionary<string, AlmanacEntry> almanac)
+  {
+    AlmanacEntry entry = almanac[source];
+    long mappedValue = value;
+    while (true)
+    {
+      foreach (MappingEntry mapEntry in entry.Mappings)
+      {
+        if (mappedValue >= mapEntry.SourceLowerBound && mappedValue <= mapEntry.SourceUpperBound)
+        {
+          long difference = mapEntry.DestinationLowerBound - mapEntry.SourceLowerBound;
+          mappedValue += difference;
+          break;
+        }
+      }
+
+      if (entry.Destination == destination) break;
+
+      entry = almanac[entry.Destination];
+    }
+    return mappedValue;
   }
 
   static long mapValueRec(long value, string source, string destination, Dictionary<string, AlmanacEntry> almanac)
