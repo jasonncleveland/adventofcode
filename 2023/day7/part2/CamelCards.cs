@@ -85,8 +85,8 @@ class HandDetails: IComparable<HandDetails>
 
   public int CompareTo(HandDetails other)
   {
-    CardHand ourHandType = this.getHandType();
-    CardHand theirHandType = other.getHandType();
+    CardHand ourHandType = this.GetHandType();
+    CardHand theirHandType = other.GetHandType();
     int result = 0;
     if (ourHandType == theirHandType)
     {
@@ -108,7 +108,7 @@ class HandDetails: IComparable<HandDetails>
     return result;
   }
 
-  public CardHand getHandType()
+  public CardHand GetHandType()
   {
     Dictionary<char, int> cardCounts = new Dictionary<char, int>();
     int jokerCount = 0;
