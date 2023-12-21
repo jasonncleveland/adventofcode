@@ -46,11 +46,19 @@ class PulsePropagation
           modules.Add(moduleName, new Module(moduleName, moduleType, new List<string>(outputs)));
         }
 
+        Module targetModule = null;
+
         // Set expected inputs for all modules
         foreach (Module module in modules.Values)
         {
           foreach (string outputName in module.Outputs)
           {
+            // Find module outputting to target module rx
+            if (outputName == "rx")
+            {
+              targetModule = module;
+            }
+
             if (!modules.ContainsKey(outputName))
             {
               continue;
@@ -60,20 +68,26 @@ class PulsePropagation
           }
         }
 
+        if (targetModule == null)
+        {
+          throw new Exception($"Unable to find target output module 'rx'");
+        }
+
         /**
          * This puzzle required inspecting the problem input manually to find a pattern.
          * The target is a low pulse to the module rx.
+         * This code makes the assumption that the module outputting to rx is a conjunction module.
          * The module rx is fed from a conjunction module which requires a high pulse from all of its inputs.
          * We need to calculate how many button presses it takes before a high pulse is sent from each input.
          * Once these lengths are found, we can calculate the LCM to get the fewest number of button presses.
          */
-        List<string> hardcodedTargetModules = new List<string>() { "vd", "ns", "bh", "dl" };
+        List<string> targetModules = new List<string>(targetModule.Inputs);
         Dictionary<string, long> loopLengths = new Dictionary<string, long>();
         for (int buttonPress = 0;; buttonPress++)
         {
           try
           {
-            pushTheButton(modules, hardcodedTargetModules, ref loopLengths, buttonPress + 1);
+            pushTheButton(modules, targetModules, ref loopLengths, buttonPress + 1);
           }
           catch (FoundDesiredState)
           {
