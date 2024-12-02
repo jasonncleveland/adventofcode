@@ -70,11 +70,28 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        Dictionary<string, Luggage> luggage = parseInput(lines);
 
-        // TODO: Implement logic to solve part 2
+        Luggage sgb = luggage["shiny gold"];
 
-        return total;
+        int bagCount = 0;
+        Queue<Luggage> bagsToCheck = new();
+        bagsToCheck.Enqueue(sgb);
+        while (bagsToCheck.Count > 0)
+        {
+            Luggage bagToCheck = bagsToCheck.Dequeue();
+
+            foreach ((Luggage item, int count) in bagToCheck.Contains)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    bagsToCheck.Enqueue(item);
+                    bagCount++;
+                }
+            }
+        }
+
+        return bagCount;
     }
 
     static Dictionary<string, Luggage> parseInput(string[] lines)
@@ -105,9 +122,8 @@ public class Program
                         luggage.Add(childName, new Luggage(childName));
                     }
                     Luggage childItem = luggage[childName];
-                    childItem.Count = childCount;
                     childItem.AddContainedIn(parentItem);
-                    parentItem.AddContains(childItem);
+                    parentItem.AddContains(childItem, childCount);
                 }
             }
         }
@@ -118,9 +134,8 @@ public class Program
 public class Luggage
 {
     public string Name { get; }
-    public int Count { get; set; }
     public HashSet<Luggage> ContainedIn { get; } = [];
-    public HashSet<Luggage> Contains { get; } = [];
+    public List<(Luggage, int)> Contains { get; } = [];
 
     public Luggage(string name)
     {
@@ -132,8 +147,8 @@ public class Luggage
         ContainedIn.Add(item);
     }
 
-    public void AddContains(Luggage item)
+    public void AddContains(Luggage item, int count)
     {
-        Contains.Add(item);
+        Contains.Add((item, count));
     }
 }
