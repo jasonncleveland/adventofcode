@@ -12,18 +12,22 @@ public class Program
             if (File.Exists(fileName))
             {
                 Stopwatch stopWatch = new Stopwatch();
-
+                stopWatch.Start();
                 string[] lines = File.ReadAllLines(fileName);
+                stopWatch.Stop();
+                Console.WriteLine($"File read ({stopWatch.Elapsed.TotalMilliseconds} ms)");
 
-                stopWatch.Start();
+                Stopwatch part1Timer = new Stopwatch();
+                part1Timer.Start();
                 long part1 = SolvePart1(lines);
-                stopWatch.Stop();
-                Console.WriteLine($"Part 1: {part1} ({stopWatch.ElapsedMilliseconds} ms)");
+                part1Timer.Stop();
+                Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
 
-                stopWatch.Start();
+                Stopwatch part2Timer = new Stopwatch();
+                part2Timer.Start();
                 long part2 = SolvePart2(lines);
-                stopWatch.Stop();
-                Console.WriteLine($"Part 2: {part2} ({stopWatch.ElapsedMilliseconds} ms)");
+                part2Timer.Stop();
+                Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
             else
             {
