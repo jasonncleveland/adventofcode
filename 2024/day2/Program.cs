@@ -1,0 +1,56 @@
+using System;
+using System.Diagnostics;
+using System.IO;
+
+public class Program
+{
+    static void Main(string[] args)
+    {
+        if (args.Length > 0)
+        {
+            string fileName = args[0];
+            if (File.Exists(fileName))
+            {
+                Stopwatch stopWatch = new Stopwatch();
+
+                string[] lines = File.ReadAllLines(fileName);
+
+                stopWatch.Start();
+                long part1 = SolvePart1(lines);
+                stopWatch.Stop();
+                Console.WriteLine($"Part 1: {part1} ({stopWatch.ElapsedMilliseconds} ms)");
+
+                stopWatch.Start();
+                long part2 = SolvePart2(lines);
+                stopWatch.Stop();
+                Console.WriteLine($"Part 2: {part2} ({stopWatch.ElapsedMilliseconds} ms)");
+            }
+            else
+            {
+                throw new ArgumentException("Invalid file name provided. Please provide a valid file name.");
+            }
+        }
+        else
+        {
+            throw new ArgumentException("Input data file name not provided. Please provide the file name as an argument: dotnet run <file-name>");
+        }
+    }
+
+    static long SolvePart1(string[] lines)
+    {
+        long total = 0;
+
+        // TODO: Implement logic to solve part 1
+
+        return total;
+    }
+
+    static long SolvePart2(string[] lines)
+    {
+        long total = 0;
+
+        // TODO: Implement logic to solve part 2
+
+        return total;
+    }
+}
