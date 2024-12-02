@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -59,11 +60,29 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        long min = long.MaxValue;
+        long max = long.MinValue;
+        long foundSeatId = 0;
 
-        // TODO: Implement logic to solve part 2
+        List<long> seatIds = new();
+        foreach (string line in lines)
+        {
+            (long seatColumn, long seatRow) = parseBoardingPass(line);
+            long seatId = seatColumn * 8 + seatRow;
+            seatIds.Add(seatId);
+            if (seatId > max) max = seatId;
+            if (seatId < min) min = seatId;
+        }
 
-        return total;
+        for (long i = min; i < max; i++)
+        {
+            if (seatIds.Contains(i - 1) && !seatIds.Contains(i) && seatIds.Contains(i + 1))
+            {
+                foundSeatId = i;
+            }
+        }
+
+        return foundSeatId;
     }
 
     static (long, long) parseBoardingPass(string boardingPass)
