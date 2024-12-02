@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.IO;
 
 public class Program
@@ -14,18 +15,22 @@ public class Program
             {
                 Stopwatch stopWatch = new Stopwatch();
 
+                stopWatch.Start();
                 string[] lines = File.ReadAllLines(fileName);
+                stopWatch.Stop();
+                Console.WriteLine($"File read ({stopWatch.Elapsed.TotalMilliseconds} ms)");
 
-                stopWatch.Start();
+                Stopwatch part1Timer = new Stopwatch();
+                part1Timer.Start();
                 long part1 = SolvePart1(lines);
-                stopWatch.Stop();
-                Console.WriteLine($"Part 1: {part1} ({stopWatch.ElapsedMilliseconds} ms)");
+                part1Timer.Stop();
+                Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
 
-                stopWatch.Reset();
-                stopWatch.Start();
+                Stopwatch part2Timer = new Stopwatch();
+                part2Timer.Start();
                 long part2 = SolvePart2(lines);
-                stopWatch.Stop();
-                Console.WriteLine($"Part 2: {part2} ({stopWatch.ElapsedMilliseconds} ms)");
+                part2Timer.Stop();
+                Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
             else
             {
@@ -61,7 +66,38 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        List<List<int>> reports = parseInput(lines);
+        foreach (List<int> report in reports)
+        {
+            if (report.Count < 2)
+            {
+                Console.WriteLine($"Found report with <2 levels: {string.Join(",", report)}");
+                continue;
+            }
+
+            Queue<int> levelQueue = new(report);
+            if (checkReport(levelQueue))
+            {
+                total++;
+                continue;
+            }
+
+            // Brute force the solution by checkin every combination with one item removed
+            // Exit early if we find a valid solution because "optimization"
+            for (int i = 0; i < report.Count; i++)
+            {
+                var left = report.Slice(0, i);
+                var right = report.Slice(i + 1, report.Count - i - 1);
+                var combined = left.Concat(right);
+                levelQueue = new(combined);
+
+                if (checkReport(levelQueue))
+                {
+                    total++;
+                    break;
+                }
+            }
+        }
 
         return total;
     }
