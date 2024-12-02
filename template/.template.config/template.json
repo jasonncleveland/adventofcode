@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Jason Cleveland",
+  "classifications": [ "Common", "Console" ],
+  "identity": "AdventOfCode.DaySolution",
+  "name": "Advent of Code Day Solution",
+  "shortName": "daysolution",
+  "sourceName":"daysolution",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  }
+}
