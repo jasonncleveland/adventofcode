@@ -66,7 +66,31 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        List<List<string>> groupedInput = groupInput(lines);
+        foreach (List<string> group in groupedInput)
+        {
+            int commonAnswersCount = 0;
+            Dictionary<char, int> occurences = new();
+            foreach (string line in group)
+            {
+                foreach (char character in line)
+                {
+                    if (!occurences.ContainsKey(character))
+                    {
+                        occurences.Add(character, 0);
+                    }
+                    occurences[character] += 1;
+                }
+            }
+            foreach ((char character, int foundCount) in occurences)
+            {
+                if (foundCount == group.Count)
+                {
+                    commonAnswersCount++;
+                }
+            }
+            total += commonAnswersCount;
+        }
 
         return total;
     }
