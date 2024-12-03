@@ -67,7 +67,36 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        string pattern = @"mul\((?<left>\d+),(?<right>\d+)\)|(?<start>do\(\))|(?<stop>don\'t\(\))";
+        Regex regex = new Regex(pattern, RegexOptions.Compiled);
+
+        // The multiplication disable carries over between lines
+        bool enableMultiplication = true;
+        foreach (string line in lines)
+        {
+            MatchCollection matches = regex.Matches(line);
+        
+            foreach (Match match in matches)
+            {
+                if (!string.IsNullOrEmpty(match.Groups["left"].Value) && !string.IsNullOrEmpty(match.Groups["right"].Value))
+                {
+                    if (enableMultiplication)
+                    {
+                        int left = int.Parse(match.Groups["left"].Value);
+                        int right = int.Parse(match.Groups["right"].Value);
+                        total += left * right;
+                    }
+                }
+                else if (!string.IsNullOrEmpty(match.Groups["start"].Value))
+                {
+                    enableMultiplication = true;
+                }
+                else if (!string.IsNullOrEmpty(match.Groups["stop"].Value))
+                {
+                    enableMultiplication = false;
+                }
+            }
+        }
 
         return total;
     }
