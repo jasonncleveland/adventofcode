@@ -70,7 +70,19 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        List<List<char>> grid = parseInput(lines);
+
+        for (int row = 0; row < grid.Count; row++)
+        {
+            for (int column = 0; column < grid[row].Count; column++)
+            {
+                if (grid[row][column] == 'A')
+                {
+                    bool result = findMasCross(grid, row, column);
+                    if (result) total++;
+                }
+            }
+        }
 
         return total;
     }
@@ -139,6 +151,57 @@ public class Program
 
         (int nextRow, int nextColumn) = direction.GetCoordinates(row, column);
         return findXmasRec(grid, nextRow, nextColumn, direction, nextLetter);
+    }
+
+    static bool findMasCross(List<List<char>> grid, int row, int column)
+    {
+        HashSet<char> uniqueCharacters = new();
+
+        char northWestChar = getCharAt(grid, row - 1, column - 1);
+        char northEastChar = getCharAt(grid, row - 1, column + 1);
+        char southWestChar = getCharAt(grid, row + 1, column - 1);
+        char southEastChar = getCharAt(grid, row + 1, column + 1);
+
+        uniqueCharacters.Add(northWestChar);
+        uniqueCharacters.Add(northEastChar);
+        uniqueCharacters.Add(southWestChar);
+        uniqueCharacters.Add(southEastChar);
+
+        if (uniqueCharacters.Count != 2 || !uniqueCharacters.Contains('M') || !uniqueCharacters.Contains('S'))
+        {
+            return false;
+        }
+
+        /**
+         * M S      S M
+         *  A   OR   A
+         * M S      S M
+         */
+        if (northWestChar == southWestChar && northEastChar == southEastChar && northWestChar != northEastChar)
+        {
+            return true;
+        }
+        /**
+         * M M      S S
+         *  A   OR   A
+         * S S      M M
+         */
+        if (northWestChar == northEastChar && southWestChar == southEastChar && northWestChar != southWestChar)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    static char getCharAt(List<List<char>> grid, int row, int column)
+    {
+        if (row < 0 || row > grid.Count - 1 || column < 0 || column > grid[row].Count - 1)
+        {
+            // Out of bounds
+            return '\0';
+        }
+        return grid[row][column];
     }
 }
 
