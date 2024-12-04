@@ -45,18 +45,16 @@ public class Program
     {
         long total = 0;
 
-        List<List<char>> grid = parseInput(lines);
-
-        for (int row = 0; row < grid.Count; row++)
+        for (int row = 0; row < lines.Length; row++)
         {
-            for (int column = 0; column < grid[row].Count; column++)
+            for (int column = 0; column < lines[row].Length; column++)
             {
-                if (grid[row][column] == 'X')
+                if (lines[row][column] == 'X')
                 {
                     foreach (Direction direction in Enum.GetValues(typeof(Direction)))
                     {
                         (int nextRow, int nextColumn) = direction.GetCoordinates(row, column);
-                        bool result = findXmasRec(grid, nextRow, nextColumn, direction, 'X');
+                        bool result = findXmasRec(lines, nextRow, nextColumn, direction, 'X');
                         if (result) total++;
                     }
                 }
@@ -70,15 +68,13 @@ public class Program
     {
         long total = 0;
 
-        List<List<char>> grid = parseInput(lines);
-
-        for (int row = 0; row < grid.Count; row++)
+        for (int row = 0; row < lines.Length; row++)
         {
-            for (int column = 0; column < grid[row].Count; column++)
+            for (int column = 0; column < lines[row].Length; column++)
             {
-                if (grid[row][column] == 'A')
+                if (lines[row][column] == 'A')
                 {
-                    bool result = findMasCross(grid, row, column);
+                    bool result = findMasCross(lines, row, column);
                     if (result) total++;
                 }
             }
@@ -87,30 +83,14 @@ public class Program
         return total;
     }
 
-    static List<List<char>> parseInput(string[] lines)
-    {
-        List<List<char>> rows = new();
-
-        foreach (string line in lines)
-        {
-            List<char> row = new();
-            foreach (char character in line)
-            {
-                row.Add(character);
-            }
-            rows.Add(row);
-        }
-        return rows;
-    }
-
-    static bool findXmasRec(List<List<char>> grid, int row, int column, Direction direction, char character)
+    static bool findXmasRec(string[] grid, int row, int column, Direction direction, char character)
     {
         if (character == 'S')
         {
             // Base case
             return true;
         }
-        if (row < 0 || row > grid.Count - 1 || column < 0 || column > grid[row].Count - 1)
+        if (row < 0 || row > grid.Length - 1 || column < 0 || column > grid[row].Length - 1)
         {
             // Out of bounds
             return false;
@@ -153,7 +133,7 @@ public class Program
         return findXmasRec(grid, nextRow, nextColumn, direction, nextLetter);
     }
 
-    static bool findMasCross(List<List<char>> grid, int row, int column)
+    static bool findMasCross(string[] grid, int row, int column)
     {
         HashSet<char> uniqueCharacters = new();
 
@@ -194,9 +174,9 @@ public class Program
         return false;
     }
 
-    static char getCharAt(List<List<char>> grid, int row, int column)
+    static char getCharAt(string[] grid, int row, int column)
     {
-        if (row < 0 || row > grid.Count - 1 || column < 0 || column > grid[row].Count - 1)
+        if (row < 0 || row > grid.Length - 1 || column < 0 || column > grid[row].Length - 1)
         {
             // Out of bounds
             return '\0';
