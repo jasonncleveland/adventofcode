@@ -47,35 +47,18 @@ public class Program
 
         (Dictionary<int, List<int>> pageOrderingRules, List<List<int>> updates) = parseInput(lines);
 
-        foreach (List<int> pages in updates)
-        {
-            if (pages.Count % 2 == 0)
-            {
-                Console.WriteLine($"Pages: {string.Join(",", pages)} contains an even number of entries");
-            }
-            bool isValid = true;
-            for (int i = 0; i < pages.Count; i++)
-            {
-                int page = pages[i];
-                if (!pageOrderingRules.ContainsKey(page))
-                {
-                    continue;
-                };
-                foreach (int followingPage in pageOrderingRules[page])
-                {
-                    if (pages.Contains(followingPage) && pages.IndexOf(followingPage) < i)
-                    {
-                        isValid = false;
-                        break;
-                    }
-                }
-                if (!isValid) break;
-            }
+        (List<List<int>> correctlyOrderedUpdates, _) = getSortedUpdates(pageOrderingRules, updates);
 
-            if (isValid)
+        foreach (List<int> pages in correctlyOrderedUpdates)
+        {
+            if (pages.Count % 2 == 1)
             {
                 int middleIndex = pages.Count / 2;
                 total += pages[middleIndex];
+            }
+            else
+            {
+                throw new Exception($"Pages: {string.Join(",", pages)} contains an even number of entries");
             }
         }
 
@@ -86,7 +69,52 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        (Dictionary<int, List<int>> pageOrderingRules, List<List<int>> updates) = parseInput(lines);
+
+        (_, List<List<int>> incorrectlyOrderedUpdates) = getSortedUpdates(pageOrderingRules, updates);
+
+        foreach (List<int> pages in incorrectlyOrderedUpdates)
+        {
+            // -1 before, 0 equal, 1 after
+            pages.Sort((page1, page2) =>
+            {
+                if (pageOrderingRules.ContainsKey(page1))
+                {
+                    var rules = pageOrderingRules[page1];
+                    if (rules.Contains(page2))
+                    {
+                        return -1;
+                    }
+                    else
+                    {
+                        return 1;
+                    }
+                }
+                if (pageOrderingRules.ContainsKey(page2))
+                {
+                    var rules = pageOrderingRules[page2];
+                    if (rules.Contains(page1))
+                    {
+                        return 1;
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+                return 0;
+            });
+
+            if (pages.Count % 2 == 1)
+            {
+                int middleIndex = pages.Count / 2;
+                total += pages[middleIndex];
+            }
+            else
+            {
+                throw new Exception($"Pages: {string.Join(",", pages)} contains an even number of entries");
+            }
+        }
 
         return total;
     }
@@ -129,5 +157,44 @@ public class Program
             }
         }
         return (pageOrderingRules, updates);
+    }
+
+    static (List<List<int>>, List<List<int>>) getSortedUpdates(Dictionary<int, List<int>> pageOrderingRules, List<List<int>> updates)
+    {
+        List<List<int>> correctlyOrderedUpdates = new();
+        List<List<int>> incorrectlyOrderedUpdates = new();
+
+        foreach (List<int> pages in updates)
+        {
+            bool isValid = true;
+            for (int i = 0; i < pages.Count; i++)
+            {
+                int page = pages[i];
+                if (!pageOrderingRules.ContainsKey(page))
+                {
+                    continue;
+                };
+                foreach (int followingPage in pageOrderingRules[page])
+                {
+                    if (pages.Contains(followingPage) && pages.IndexOf(followingPage) < i)
+                    {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (!isValid) break;
+            }
+
+            if (isValid)
+            {
+                correctlyOrderedUpdates.Add(pages);
+            }
+            else
+            {
+                incorrectlyOrderedUpdates.Add(pages);
+            }
+        }
+
+        return (correctlyOrderedUpdates, incorrectlyOrderedUpdates);
     }
 }
