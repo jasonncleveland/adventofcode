@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -44,7 +45,39 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 1
+        (Dictionary<int, List<int>> pageOrderingRules, List<List<int>> updates) = parseInput(lines);
+
+        foreach (List<int> pages in updates)
+        {
+            if (pages.Count % 2 == 0)
+            {
+                Console.WriteLine($"Pages: {string.Join(",", pages)} contains an even number of entries");
+            }
+            bool isValid = true;
+            for (int i = 0; i < pages.Count; i++)
+            {
+                int page = pages[i];
+                if (!pageOrderingRules.ContainsKey(page))
+                {
+                    continue;
+                };
+                foreach (int followingPage in pageOrderingRules[page])
+                {
+                    if (pages.Contains(followingPage) && pages.IndexOf(followingPage) < i)
+                    {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (!isValid) break;
+            }
+
+            if (isValid)
+            {
+                int middleIndex = pages.Count / 2;
+                total += pages[middleIndex];
+            }
+        }
 
         return total;
     }
@@ -56,5 +89,45 @@ public class Program
         // TODO: Implement logic to solve part 2
 
         return total;
+    }
+
+    static (Dictionary<int, List<int>>, List<List<int>>) parseInput(string[] lines)
+    {
+        Dictionary<int, List<int>> pageOrderingRules = new();
+        List<List<int>> updates = new();
+        bool isPart1 = true;
+        foreach (string line in lines)
+        {
+            if (string.IsNullOrEmpty(line))
+            {
+                isPart1 = false;
+            }
+            else
+            {
+                if (isPart1)
+                {
+                    List<int> pageOrder = new();
+                    string[] lineParts = line.Split('|');
+                    int firstPage = int.Parse(lineParts[0]);
+                    int secondPage = int.Parse(lineParts[1]);
+                    if (!pageOrderingRules.ContainsKey(firstPage))
+                    {
+                        pageOrderingRules.Add(firstPage, new List<int>());
+                    }
+                    pageOrderingRules[firstPage].Add(secondPage);
+                }
+                else
+                {
+                    List<int> pages = new();
+                    string[] lineParts = line.Split(',');
+                    foreach (string linePart in lineParts)
+                    {
+                        pages.Add(int.Parse(linePart));
+                    }
+                    updates.Add(pages);
+                }
+            }
+        }
+        return (pageOrderingRules, updates);
     }
 }
