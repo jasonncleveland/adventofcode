@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -42,11 +43,58 @@ public class Program
 
     static long SolvePart1(string[] lines)
     {
-        long total = 0;
+        (int row, int column) guardPosition = (0, 0);
+        for (int row = 0; row < lines.Length; row++)
+        {
+            for (int column = 0; column < lines[row].Length; column++)
+            {
+                if (lines[row][column] == '^')
+                {
+                    guardPosition = (row, column);
+                }
+            }
+        }
 
-        // TODO: Implement logic to solve part 1
+        HashSet< (int, int)> visited = new();
+        Direction direction = Direction.Up;
+        int newRow = guardPosition.row;
+        int newColumn = guardPosition.column;
+        while (true)
+        {
+            (newRow, newColumn) = direction.GetNextPosition(guardPosition.row, guardPosition.column);
+            if (newRow < 0 || newRow > lines.Length - 1 || newColumn < 0 || newColumn > lines[newRow].Length - 1)
+            {
+                break;
+            }
+            if (lines[newRow][newColumn] == '#')
+            {
+                switch (direction)
+                {
+                    case Direction.Up:
+                        direction = Direction.Right;
+                        break;
+                    case Direction.Down:
+                        direction = Direction.Left;
+                        break;
+                    case Direction.Left:
+                        direction = Direction.Up;
+                        break;
+                    case Direction.Right:
+                        direction = Direction.Down;
+                        break;
+                }
+                (newRow, newColumn) = direction.GetNextPosition(guardPosition.row, guardPosition.column);
+            }
 
-        return total;
+            if (newRow < 0 || newRow > lines.Length - 1 || newColumn < 0 || newColumn > lines[newRow].Length - 1)
+            {
+                break;
+            }
+            guardPosition = (newRow, newColumn);
+            visited.Add(guardPosition);
+        }
+
+        return visited.Count;
     }
 
     static long SolvePart2(string[] lines)
@@ -56,5 +104,33 @@ public class Program
         // TODO: Implement logic to solve part 2
 
         return total;
+    }
+}
+
+enum Direction
+{
+    Up,
+    Down,
+    Left,
+    Right
+}
+
+static class DirectionMethods
+{
+    public static (int, int) GetNextPosition(this Direction direction, int row, int column)
+    {
+        switch (direction)
+        {
+            case Direction.Up:
+                return (row - 1, column);
+            case Direction.Down:
+                return (row + 1, column);
+            case Direction.Left:
+                return (row, column - 1);
+            case Direction.Right:
+                return (row, column + 1);
+            default:
+                throw new Exception($"Invalid directiomn given {direction}");
+        }
     }
 }
