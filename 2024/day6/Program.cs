@@ -62,28 +62,16 @@ public class Program
         while (true)
         {
             (newRow, newColumn) = direction.GetNextPosition(guardPosition.row, guardPosition.column);
+            // Stop if we are out of bounds
             if (newRow < 0 || newRow > lines.Length - 1 || newColumn < 0 || newColumn > lines[newRow].Length - 1)
             {
                 break;
             }
+            // If we reach an obstacle, turn right 90 degrees
             if (lines[newRow][newColumn] == '#')
             {
-                switch (direction)
-                {
-                    case Direction.Up:
-                        direction = Direction.Right;
-                        break;
-                    case Direction.Down:
-                        direction = Direction.Left;
-                        break;
-                    case Direction.Left:
-                        direction = Direction.Up;
-                        break;
-                    case Direction.Right:
-                        direction = Direction.Down;
-                        break;
-                }
-                (newRow, newColumn) = direction.GetNextPosition(guardPosition.row, guardPosition.column);
+                direction = direction.GetNextDirection();
+                continue;
             }
 
             if (newRow < 0 || newRow > lines.Length - 1 || newColumn < 0 || newColumn > lines[newRow].Length - 1)
@@ -101,9 +89,89 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        // Get the guard starting postion
+        (int row, int column) guardStartingPosition = (0, 0);
+        for (int row = 0; row < lines.Length; row++)
+        {
+            for (int column = 0; column < lines[row].Length; column++)
+            {
+                if (lines[row][column] == '^')
+                {
+                    guardStartingPosition = (row, column);
+                }
+            }
+        }
+        (int row, int column) guardPosition = guardStartingPosition;
 
+        // Get the list of visited positions
+        HashSet<(int, int)> visited = new();
+        HashSet<(int, int, Direction)> visitedWithDirection = new();
+        Direction direction = Direction.Up;
+        int newRow = guardPosition.row;
+        int newColumn = guardPosition.column;
+        while (true)
+        {
+            (newRow, newColumn) = direction.GetNextPosition(guardPosition.row, guardPosition.column);
+            // Stop if we are out of bounds
+            if (newRow < 0 || newRow > lines.Length - 1 || newColumn < 0 || newColumn > lines[newRow].Length - 1)
+            {
+                break;
+            }
+            // If we reach an obstacle, turn right 90 degrees
+            if (lines[newRow][newColumn] == '#')
+            {
+                // Change direction
+                direction = direction.GetNextDirection();
+                continue;
+            }
+
+            guardPosition = (newRow, newColumn);
+            visited.Add((newRow, newColumn));
+        }
+        guardPosition = guardStartingPosition;
+        foreach ((int, int) obstaclePosition in visited)
+        {
+            bool loopDetected = detectLoop(lines, guardPosition, obstaclePosition);
+            if (loopDetected)
+            {
+                total += 1;
+            }
+        }
         return total;
+    }
+
+    static bool detectLoop(string[] lines, (int row, int column) startPosition, (int row, int column) obstaclePosition)
+    {
+        (int row, int column) guardPosition = startPosition;
+        HashSet<(int, int, Direction)> visitedWithDirection = new();
+        Direction direction = Direction.Up;
+        int newRow = guardPosition.row;
+        int newColumn = guardPosition.column;
+        bool hasLoop = false;
+        while (true)
+        {
+            (newRow, newColumn) = direction.GetNextPosition(guardPosition.row, guardPosition.column);
+            if (newRow < 0 || newRow > lines.Length - 1 || newColumn < 0 || newColumn > lines[newRow].Length - 1)
+            {
+                break;
+            }
+            // If we reach an obstacle, turn right 90 degrees
+            if (lines[newRow][newColumn] == '#' || newRow == obstaclePosition.row && newColumn == obstaclePosition.column)
+            {
+                // Change direction
+                direction = direction.GetNextDirection();
+                continue;
+            }
+
+            guardPosition = (newRow, newColumn);
+            if (visitedWithDirection.Contains((newRow, newColumn, direction)))
+            {
+                hasLoop = true;
+                break;
+            }
+            visitedWithDirection.Add((newRow, newColumn, direction));
+        }
+        return hasLoop;
     }
 }
 
@@ -129,6 +197,23 @@ static class DirectionMethods
                 return (row, column - 1);
             case Direction.Right:
                 return (row, column + 1);
+            default:
+                throw new Exception($"Invalid directiomn given {direction}");
+        }
+    }
+
+    public static Direction GetNextDirection(this Direction direction)
+    {
+        switch (direction)
+        {
+            case Direction.Up:
+                return Direction.Right;
+            case Direction.Down:
+                return Direction.Left;
+            case Direction.Left:
+                return Direction.Up;
+            case Direction.Right:
+                return Direction.Down;
             default:
                 throw new Exception($"Invalid directiomn given {direction}");
         }
