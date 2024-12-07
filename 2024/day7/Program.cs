@@ -133,11 +133,21 @@ public class Program
             bool isConcatValid = false;
             if (allowConcat)
             {
-                long concatenatedNumber = long.Parse(workingTotal.ToString() + number.ToString());
+                long concatenatedNumber = concatNumbers(workingTotal, number);
                 isConcatValid = validateEquationRec(testValue, new List<long>(numbersCopy), allowConcat, concatenatedNumber);
             }
             isValid = isAddValid || isMultiplyValid || isConcatValid;
         }
         return isValid;
+    }
+
+    static long concatNumbers(long x, long y)
+    {
+        long pow = 10;
+        while (y >= pow)
+        {
+            pow *= 10;
+        }
+        return x * pow + y;
     }
 }
