@@ -45,18 +45,7 @@ public class Program
     {
         long total = 0;
 
-        List<(long, List<long>)> equations = new();
-        foreach (string line in lines)
-        {
-            string[] lineParts = line.Split(':');
-            long testValue = long.Parse(lineParts[0]);
-            List<long> numbers = new List<long>();
-            foreach (string number in lineParts[1].Split(' ', StringSplitOptions.RemoveEmptyEntries))
-            {
-                numbers.Add(long.Parse(number));
-            }
-            equations.Add((testValue, numbers));
-        }
+        List<(long, List<long>)> equations = parseInput(lines);
 
         foreach ((long testValue, List<long> numbers) in equations)
         {
@@ -74,18 +63,47 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        List<(long, List<long>)> equations = parseInput(lines);
+
+        foreach ((long testValue, List<long> numbers) in equations)
+        {
+            bool result = validateEquationRec(testValue, numbers, true);
+            if (result)
+            {
+                total += testValue;
+            }
+        }
 
         return total;
     }
 
-    static bool validateEquationRec(long testValue, List<long> numbers, long workingTotal = 0, string equation = "")
+    static List<(long, List<long>)> parseInput(string[] lines)
     {
-        if (workingTotal == testValue && numbers.Count == 0)
+        List<(long, List<long>)> equations = new();
+        foreach (string line in lines)
+        {
+            string[] lineParts = line.Split(':');
+            long testValue = long.Parse(lineParts[0]);
+            List<long> numbers = new List<long>();
+            foreach (string number in lineParts[1].Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            {
+                numbers.Add(long.Parse(number));
+            }
+            equations.Add((testValue, numbers));
+        }
+
+        return equations;
+    }
+
+    static bool validateEquationRec(long testValue, List<long> numbers, bool allowConcat = false, long workingTotal = 0)
+    {
+        List<long> numbersCopy = new(numbers);
+
+        if (workingTotal == testValue && numbersCopy.Count == 0)
         {
             return true;
         }
-        if (numbers.Count == 0)
+        if (numbersCopy.Count == 0)
         {
             return false;
         }
@@ -94,23 +112,31 @@ public class Program
             return false;
         }
 
-        long number = numbers[0];
-        numbers.RemoveAt(0);
+        long number = numbersCopy[0];
+        numbersCopy.RemoveAt(0);
 
         bool isValid = false;
         if (workingTotal == 0)
         {
-            // Attempt to add the numbers
-            isValid = validateEquationRec(testValue, new List<long>(numbers), number, $"{number}");
+            // The first number does not have an operation
+            isValid = validateEquationRec(testValue, new List<long>(numbersCopy), allowConcat, number);
         }
         else
         {
-            // Attempt to add the numbers
-            bool isAddValid = validateEquationRec(testValue, new List<long>(numbers), workingTotal + number, equation + $" + {number}");
+            // Attempt to add the numbers (+)
+            bool isAddValid = validateEquationRec(testValue, new List<long>(numbersCopy), allowConcat, workingTotal + number);
 
-            // Attempt to multiple the numbers
-            bool isMultiplyValid = validateEquationRec(testValue, new List<long>(numbers), workingTotal * number, equation + $" * {number}");
-            isValid = isAddValid || isMultiplyValid;
+            // Attempt to multiple the numbers (*)
+            bool isMultiplyValid = validateEquationRec(testValue, new List<long>(numbersCopy), allowConcat, workingTotal * number);
+
+            // Attempt to concatenate the numbers (||)
+            bool isConcatValid = false;
+            if (allowConcat)
+            {
+                long concatenatedNumber = long.Parse(workingTotal.ToString() + number.ToString());
+                isConcatValid = validateEquationRec(testValue, new List<long>(numbersCopy), allowConcat, concatenatedNumber);
+            }
+            isValid = isAddValid || isMultiplyValid || isConcatValid;
         }
         return isValid;
     }
