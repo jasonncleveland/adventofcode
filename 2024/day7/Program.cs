@@ -99,13 +99,9 @@ public class Program
     {
         List<long> numbersCopy = new(numbers);
 
-        if (workingTotal == testValue && numbersCopy.Count == 0)
-        {
-            return true;
-        }
         if (numbersCopy.Count == 0)
         {
-            return false;
+            return workingTotal == testValue;
         }
         if (workingTotal > testValue)
         {
@@ -115,30 +111,40 @@ public class Program
         long number = numbersCopy[0];
         numbersCopy.RemoveAt(0);
 
-        bool isValid = false;
         if (workingTotal == 0)
         {
             // The first number does not have an operation
-            isValid = validateEquationRec(testValue, new List<long>(numbersCopy), allowConcat, number);
+            return validateEquationRec(testValue, new List<long>(numbersCopy), allowConcat, number);
         }
         else
         {
             // Attempt to add the numbers (+)
             bool isAddValid = validateEquationRec(testValue, new List<long>(numbersCopy), allowConcat, workingTotal + number);
+            if (isAddValid)
+            {
+                return true;
+            }
 
             // Attempt to multiple the numbers (*)
             bool isMultiplyValid = validateEquationRec(testValue, new List<long>(numbersCopy), allowConcat, workingTotal * number);
+            if (isMultiplyValid)
+            {
+                return true;
+            }
 
             // Attempt to concatenate the numbers (||)
-            bool isConcatValid = false;
             if (allowConcat)
             {
                 long concatenatedNumber = concatNumbers(workingTotal, number);
-                isConcatValid = validateEquationRec(testValue, new List<long>(numbersCopy), allowConcat, concatenatedNumber);
+                bool isConcatValid = validateEquationRec(testValue, new List<long>(numbersCopy), allowConcat, concatenatedNumber);
+                if (isConcatValid)
+                {
+                    return true;
+                }
             }
-            isValid = isAddValid || isMultiplyValid || isConcatValid;
+
+            return false;
         }
-        return isValid;
     }
 
     static long concatNumbers(long x, long y)
