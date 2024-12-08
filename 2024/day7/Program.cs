@@ -20,13 +20,13 @@ public class Program
 
                 Stopwatch part1Timer = new Stopwatch();
                 part1Timer.Start();
-                long part1 = SolvePart1(lines);
+                long part1 = SolvePart1Rev(lines);
                 part1Timer.Stop();
                 Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                long part2 = SolvePart2(lines);
+                long part2 = SolvePart2Rev(lines);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
@@ -59,6 +59,25 @@ public class Program
         return total;
     }
 
+    static long SolvePart1Rev(string[] lines)
+    {
+        long total = 0;
+
+        List<(long, List<long>)> equations = parseInput(lines);
+
+        foreach ((long testValue, List<long> numbers) in equations)
+        {
+            numbers.Reverse();
+            bool result = validateEquationRevRec(testValue, numbers);
+            if (result)
+            {
+                total += testValue;
+            }
+        }
+
+        return total;
+    }
+
     static long SolvePart2(string[] lines)
     {
         long total = 0;
@@ -68,6 +87,25 @@ public class Program
         foreach ((long testValue, List<long> numbers) in equations)
         {
             bool result = validateEquationRec(testValue, numbers, true);
+            if (result)
+            {
+                total += testValue;
+            }
+        }
+
+        return total;
+    }
+
+    static long SolvePart2Rev(string[] lines)
+    {
+        long total = 0;
+
+        List<(long, List<long>)> equations = parseInput(lines);
+
+        foreach ((long testValue, List<long> numbers) in equations)
+        {
+            numbers.Reverse();
+            bool result = validateEquationRevRec(testValue, numbers, true);
             if (result)
             {
                 total += testValue;
@@ -145,6 +183,51 @@ public class Program
 
             return false;
         }
+    }
+
+    static bool validateEquationRevRec(long testValue, List<long> numbers, bool allowConcat = false)
+    {
+        List<long> numbersCopy = new(numbers);
+
+        if (numbersCopy.Count == 0)
+        {
+            return testValue == 0;
+        }
+
+        long number = numbersCopy[0];
+        numbersCopy.RemoveAt(0);
+
+        if (testValue - number >= 0)
+        {
+            // Attempt to subtract the numbers to determine if an add operation is valid (+)
+            bool isAddValid = validateEquationRevRec(testValue - number, new List<long>(numbersCopy), allowConcat);
+            if (isAddValid)
+            {
+                return true;
+            }
+        }
+        if (testValue % number == 0)
+        {
+            // Attempt to divide the numbers to determine if a multiply operation is valid (*)
+            bool isMultiplyValid = validateEquationRevRec(testValue / number, new List<long>(numbersCopy), allowConcat);
+            if (isMultiplyValid)
+            {
+                return true;
+            }
+        }
+        if (allowConcat && testValue.ToString().EndsWith(number.ToString()))
+        {
+            // Attempt to de-concatenate the numbers to determine if a concate operation is valid (||)
+            int digitCount = number.ToString().Length;
+            string stringNumber = testValue.ToString();
+            long deconcatenatedNumber = long.Parse(stringNumber.Remove(stringNumber.Length - digitCount, digitCount));
+            bool isConcatValid = validateEquationRevRec(deconcatenatedNumber, new List<long>(numbersCopy), allowConcat);
+            if (isConcatValid)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     static long concatNumbers(long x, long y)
