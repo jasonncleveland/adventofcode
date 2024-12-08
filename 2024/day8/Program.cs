@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -42,11 +43,50 @@ public class Program
 
     static long SolvePart1(string[] lines)
     {
-        long total = 0;
+        Dictionary<char, List<(int, int)>> items = new();
+        HashSet<(int, int)> uniqueLocations = new();
+        for (int row = 0; row < lines.Length; row++)
+        {
+            for (int column = 0; column < lines[row].Length; column++)
+            {
+                if (lines[row][column] != '.')
+                {
+                    if (!items.ContainsKey(lines[row][column]))
+                    {
+                        items.Add(lines[row][column], new List<(int, int)>());
+                    }
+                    items[lines[row][column]].Add((row, column));
+                }
+            }
+        }
 
-        // TODO: Implement logic to solve part 1
+        HashSet<(int, int)> antinodeLocations = new();
+        foreach (KeyValuePair<char, List<(int, int)>> item in items)
+        {
+            foreach ((int row, int column) firstLocation in item.Value)
+            {
+                foreach ((int row, int column) secondLocation in item.Value)
+                {
+                    if (firstLocation == secondLocation)
+                    {
+                        continue;
+                    }
 
-        return total;
+                    int rowDelta = secondLocation.row - firstLocation.row;
+                    int columnDelta = secondLocation.column - firstLocation.column;
+                    if (firstLocation.row - rowDelta >= 0 && firstLocation.row - rowDelta < lines.Length && firstLocation.column - columnDelta >= 0 && firstLocation.column - columnDelta < lines.Length)
+                    {
+                        antinodeLocations.Add((firstLocation.row - rowDelta, firstLocation.column - columnDelta));
+                    }
+                    if (secondLocation.row + rowDelta >= 0 && secondLocation.row + rowDelta < lines.Length && secondLocation.column + columnDelta >= 0 && secondLocation.column + columnDelta < lines.Length)
+                    {
+                        antinodeLocations.Add((secondLocation.row + rowDelta, secondLocation.column + columnDelta));
+                    }
+                }
+            }
+        }
+
+        return antinodeLocations.Count;
     }
 
     static long SolvePart2(string[] lines)
