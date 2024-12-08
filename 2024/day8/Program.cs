@@ -43,29 +43,14 @@ public class Program
 
     static long SolvePart1(string[] lines)
     {
-        Dictionary<char, List<(int, int)>> items = new();
-        HashSet<(int, int)> uniqueLocations = new();
-        for (int row = 0; row < lines.Length; row++)
-        {
-            for (int column = 0; column < lines[row].Length; column++)
-            {
-                if (lines[row][column] != '.')
-                {
-                    if (!items.ContainsKey(lines[row][column]))
-                    {
-                        items.Add(lines[row][column], new List<(int, int)>());
-                    }
-                    items[lines[row][column]].Add((row, column));
-                }
-            }
-        }
+        Dictionary<char, List<(int, int)>> antennaLocations = parseInput(lines);
 
         HashSet<(int, int)> antinodeLocations = new();
-        foreach (KeyValuePair<char, List<(int, int)>> item in items)
+        foreach (KeyValuePair<char, List<(int, int)>> antennaLocation in antennaLocations)
         {
-            foreach ((int row, int column) firstLocation in item.Value)
+            foreach ((int row, int column) firstLocation in antennaLocation.Value)
             {
-                foreach ((int row, int column) secondLocation in item.Value)
+                foreach ((int row, int column) secondLocation in antennaLocation.Value)
                 {
                     if (firstLocation == secondLocation)
                     {
@@ -91,10 +76,87 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        Dictionary<char, List<(int, int)>> antennaLocations = parseInput(lines);
 
-        // TODO: Implement logic to solve part 2
+        HashSet<(int, int)> antinodeLocations = new();
+        foreach (KeyValuePair<char, List<(int, int)>> antennaLocation in antennaLocations)
+        {
+            foreach ((int row, int column) firstLocation in antennaLocation.Value)
+            {
+                foreach ((int row, int column) secondLocation in antennaLocation.Value)
+                {
+                    if (firstLocation == secondLocation) continue;
 
-        return total;
+                    int rowDelta = secondLocation.row - firstLocation.row;
+                    int columnDelta = secondLocation.column - firstLocation.column;
+  
+                    antinodeLocations.UnionWith(getAntinodeLocations(firstLocation, rowDelta, columnDelta, lines.Length));
+                    antinodeLocations.UnionWith(getAntinodeLocations(secondLocation, rowDelta, columnDelta, lines.Length));
+                }
+            }
+        }
+
+        return antinodeLocations.Count;
+    }
+
+    static Dictionary<char, List<(int, int)>> parseInput(string[] lines)
+    {
+        Dictionary<char, List<(int, int)>> antennaLocations = new();
+
+        for (int row = 0; row < lines.Length; row++)
+        {
+            for (int column = 0; column < lines[row].Length; column++)
+            {
+                if (lines[row][column] != '.')
+                {
+                    if (!antennaLocations.ContainsKey(lines[row][column]))
+                    {
+                        antennaLocations.Add(lines[row][column], new List<(int, int)>());
+                    }
+                    antennaLocations[lines[row][column]].Add((row, column));
+                }
+            }
+        }
+
+        return antennaLocations;
+    }
+
+    static HashSet<(int, int)> getAntinodeLocations((int row, int column) location, int rowDelta, int columnDelta, int gridSize)
+    {
+        HashSet<(int, int)> uniqueLocations = new();
+
+        int currentRow, currentColumn;
+
+        // Subtract delta
+        currentRow = location.row;
+        currentColumn = location.column;
+        while (true)
+        {
+            currentRow -= rowDelta;
+            currentColumn -= columnDelta;
+            if (currentRow < 0 || currentRow > gridSize - 1 || currentColumn < 0 || currentColumn > gridSize - 1)
+            {
+                break;
+            }
+            (int row, int column) newLocation = (currentRow, currentColumn);
+            uniqueLocations.Add(newLocation);
+        }
+
+        // Add delta
+        currentRow = location.row;
+        currentColumn = location.column;
+        while (true)
+        {
+            currentRow += rowDelta;
+            currentColumn += columnDelta;
+            if (currentRow < 0 || currentRow > gridSize - 1 || currentColumn < 0 || currentColumn > gridSize - 1)
+            {
+                break;
+            }
+            (int row, int column) newLocation = (currentRow, currentColumn);
+            uniqueLocations.Add(newLocation);
+        }
+
+        return uniqueLocations;
     }
 }
