@@ -5,6 +5,9 @@ using System.IO;
 
 public class Program
 {
+    static long functionCalls;
+    static long functionCallsRev;
+
     static void Main(string[] args)
     {
         if (args.Length > 0)
@@ -18,17 +21,35 @@ public class Program
                 stopWatch.Stop();
                 Console.WriteLine($"File read ({stopWatch.Elapsed.TotalMilliseconds} ms)");
 
+                functionCalls = 0;
+                functionCallsRev = 0;
+
                 Stopwatch part1Timer = new Stopwatch();
                 part1Timer.Start();
-                long part1 = SolvePart1Rev(lines);
+                long part1 = SolvePart1(lines);
                 part1Timer.Stop();
-                Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
+                Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms) ({functionCalls})");
+
+                Stopwatch part1RevTimer = new Stopwatch();
+                part1RevTimer.Start();
+                long part1Rev = SolvePart1Rev(lines);
+                part1RevTimer.Stop();
+                Console.WriteLine($"Part 1 Rev: {part1Rev} ({part1RevTimer.Elapsed.TotalMilliseconds} ms) ({functionCallsRev})");
+
+                functionCalls = 0;
+                functionCallsRev = 0;
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                long part2 = SolvePart2Rev(lines);
+                long part2 = SolvePart2(lines);
                 part2Timer.Stop();
-                Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
+                Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms) ({functionCalls})");
+
+                Stopwatch part2RevTimer = new Stopwatch();
+                part2RevTimer.Start();
+                long part2Rev = SolvePart2Rev(lines);
+                part2RevTimer.Stop();
+                Console.WriteLine($"Part 2 Rev: {part2Rev} ({part2RevTimer.Elapsed.TotalMilliseconds} ms) ({functionCallsRev})");
             }
             else
             {
@@ -135,6 +156,8 @@ public class Program
 
     static bool validateEquationRec(long testValue, List<long> numbers, bool allowConcat = false, long workingTotal = 0)
     {
+        functionCalls += 1;
+
         List<long> numbersCopy = new(numbers);
 
         if (numbersCopy.Count == 0)
@@ -187,6 +210,8 @@ public class Program
 
     static bool validateEquationRevRec(long testValue, List<long> numbers, bool allowConcat = false)
     {
+        functionCallsRev += 1;
+
         List<long> numbersCopy = new(numbers);
 
         if (numbersCopy.Count == 0)
