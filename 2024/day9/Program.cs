@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -19,7 +20,7 @@ public class Program
 
                 Stopwatch part1Timer = new Stopwatch();
                 part1Timer.Start();
-                long part1 = SolvePart1(lines);
+                long part1 = SolvePart1(lines[0]);
                 part1Timer.Stop();
                 Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
 
@@ -40,13 +41,68 @@ public class Program
         }
     }
 
-    static long SolvePart1(string[] lines)
+    static long SolvePart1(string line)
     {
-        long total = 0;
+        List<int> output = new();
+        int fileId = 0;
+        for (int i = 0; i < line.Length; i++)
+        {
+            bool isFile = i % 2 == 0;
+            int number = line[i] - '0';
+            for (int j = 0; j < number; j++)
+            {
+                if (isFile)
+                {
+                    output.Add(fileId);
+                }
+                else
+                {
+                    output.Add(-1);
+                }
+            }
+            if (isFile)
+            {
+                fileId++;
+            }
+        }
 
-        // TODO: Implement logic to solve part 1
+        int dotIndex = output.IndexOf(-1);
+        if (dotIndex >= 0)
+        {
+            for (int i = output.Count - 1; i >= 0; i--)
+            {
+                if (output[i] == -1)
+                {
+                    continue;
+                }
+                if (i <= dotIndex)
+                {
+                    break;
+                }
 
-        return total;
+                if (output[i] != -1)
+                {
+                    output[dotIndex] = output[i];
+                    output[i] = -1;
+                    dotIndex = output.IndexOf(-1);
+                }
+
+                if (dotIndex < 0)
+                {
+                    break;
+                }
+            }
+        }
+
+        long checksum = 0;
+        for (int i = 0; i < output.Count; i++)
+        {
+            if (output[i] != -1)
+            {
+                checksum += i * output[i];
+            }
+        }
+        return checksum;
     }
 
     static long SolvePart2(string[] lines)
