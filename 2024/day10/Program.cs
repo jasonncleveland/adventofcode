@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -44,7 +45,19 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 1
+        List<(int, int)> trailHeads = new();
+        for (int row = 0; row < lines.Length; row++)
+        {
+            for (int column = 0; column < lines[row].Length; column++)
+            {
+                if (lines[row][column] == '0')
+                {
+                    HashSet<(int, int)> visited = new();
+                    HashSet<(int, int)> uniqueTops = findUniqueTopsRec(lines, row, column, visited);
+                    total += uniqueTops.Count;
+                }
+            }
+        }
 
         return total;
     }
@@ -56,5 +69,60 @@ public class Program
         // TODO: Implement logic to solve part 2
 
         return total;
+    }
+
+    static HashSet<(int, int)> findUniqueTopsRec(string[] map, int row, int column, HashSet<(int, int)> visited)
+    {
+        HashSet<(int, int)> tops = new();
+
+        if (map[row][column] == '9')
+        {
+            tops.Add((row, column));
+            return tops;
+        }
+
+        foreach (Direction direction in Enum.GetValues(typeof(Direction)))
+        {
+            (int nextRow, int nextColumn) = direction.GetNextPosition(row, column);
+            if (nextRow >= 0 && nextRow < map.Length && nextColumn >= 0 && nextColumn < map[nextRow].Length)
+            {
+                // Only check the next height if it is 1 greater than the current height and not visited before
+                if (map[nextRow][nextColumn] - map[row][column] == 1 && !visited.Contains((nextRow, nextColumn)))
+                {
+                    visited.Add((nextRow, nextColumn));
+                    tops.UnionWith(findUniqueTopsRec(map, nextRow, nextColumn, visited));
+                }
+            }
+        }
+
+        return tops;
+    }
+}
+
+enum Direction
+{
+    Up,
+    Down,
+    Left,
+    Right
+}
+
+static class DirectionMethods
+{
+    public static (int, int) GetNextPosition(this Direction direction, int row, int column)
+    {
+        switch (direction)
+        {
+            case Direction.Up:
+                return (row - 1, column);
+            case Direction.Down:
+                return (row + 1, column);
+            case Direction.Left:
+                return (row, column - 1);
+            case Direction.Right:
+                return (row, column + 1);
+            default:
+                throw new Exception($"Invalid directiomn given {direction}");
+        }
     }
 }
