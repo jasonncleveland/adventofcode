@@ -5,6 +5,12 @@ using System.IO;
 
 public class Program
 {
+    static Dictionary<(long number, long iteration), long> cache = new();
+    static long functionCalls = 0;
+    static long cacheHits = 0;
+    static long cacheMisses = 0;
+    
+
     static void Main(string[] args)
     {
         if (args.Length > 0)
@@ -26,9 +32,11 @@ public class Program
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                long part2 = SolvePart2(lines);
+                long part2 = SolvePart2(lines[0]);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
+
+                Console.WriteLine($"Recursive function calls with cache: {functionCalls}. Cache hits: {cacheHits}, Cache miss: {cacheMisses}, Cache items: {cache.Keys.Count}");
             }
             else
             {
@@ -43,49 +51,78 @@ public class Program
 
     static long SolvePart1(string line)
     {
+        long total = 0;
+
         string[] lineParts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         long[] numbers = new long[lineParts.Length];
         for (int i = 0; i < lineParts.Length; i++)
         {
             numbers[i] = long.Parse(lineParts[i]);
         }
-        
+
         int iterations = 25;
-        while (iterations-- > 0)
+        foreach (long number in numbers)
         {
-            List<long> newNumbers = new();
-            for (int i = 0; i < numbers.Length; i++)
-            {
-                long number = numbers[i];
-                long digits = getDigits(number);
-                if (number == 0)
-                {
-                    newNumbers.Add(1);
-                }
-                else if (digits % 2 == 0)
-                {
-                    (long left, long right) split = splitNumber(number, digits);
-                    newNumbers.Add(split.left);
-                    newNumbers.Add(split.right);
-                }
-                else
-                {
-                    newNumbers.Add(number * 2024);
-                }
-            }
-            numbers = newNumbers.ToArray();
+            total += countStonesRec(number, iterations);
         }
-        
-        return numbers.Length;
+
+        return total;
     }
 
-    static long SolvePart2(string[] lines)
+    static long SolvePart2(string line)
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        string[] lineParts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        long[] numbers = new long[lineParts.Length];
+        for (int i = 0; i < lineParts.Length; i++)
+        {
+            numbers[i] = long.Parse(lineParts[i]);
+        }
 
+        long iterations = 75;
+        foreach (long number in numbers)
+        {
+            total += countStonesRec(number, iterations);
+        }
         return total;
+    }
+
+    static long countStonesRec(long number, long iterations)
+    {
+        functionCalls++;
+        if (iterations == 0)
+        {
+            return 1;
+        }
+
+        if (cache.ContainsKey((number, iterations)))
+        {
+            cacheHits++;
+            return cache[(number, iterations)];
+        }
+        cacheMisses++;
+
+        long digits = getDigits(number);
+        if (number == 0)
+        {
+            long result = countStonesRec(1, iterations - 1);
+            cache.Add((number, iterations), result);
+            return result;
+        }
+        else if (digits % 2 == 0)
+        {
+            (long left, long right) split = splitNumber(number, digits);
+            long result = countStonesRec(split.left, iterations - 1) + countStonesRec(split.right, iterations - 1);
+            cache.Add((number, iterations), result);
+            return result;
+        }
+        else
+        {
+            long result = countStonesRec(number * 2024, iterations - 1);
+            cache.Add((number, iterations), result);
+            return result;
+        }
     }
 
     static long getDigits(long number)
