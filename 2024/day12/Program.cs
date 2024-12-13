@@ -53,7 +53,7 @@ public class Program
             {
                 if (!visited.Contains((row, column)))
                 {
-                    (int area, int perimeter) result = getGroupSizeRec(lines, row, column, visited);
+                    (int area, int perimeter, int size) result = getGroupSizeRec(lines, row, column, visited);
                     total += result.area * result.perimeter;
                 }
             }
@@ -75,126 +75,9 @@ public class Program
                 if (!visited.Contains((row, column)))
                 {
                     HashSet<(double, double)> visitedSides = new();
-                    (int area, int perimeter) result = getGroupSizeRec(lines, row, column, visitedSides);
-                    HashSet<(double, double)> points = new();
-                    foreach ((double row, double column) point in visitedSides)
-                    {
-                        points.Add((point.row - 0.5, point.column - 0.5));
-                        points.Add((point.row - 0.5, point.column + 0.5));
-                        points.Add((point.row + 0.5, point.column - 0.5));
-                        points.Add((point.row + 0.5, point.column + 0.5));
-                    }
-                    // Find valid points
-                    HashSet<(double, double)> validPoints = new();
-                    List<Line2d> validLines = new();
-                    HashSet<((double, double), (double, double))> checkedPoints = new();
-                    foreach ((double row, double column) first in points)
-                    {
-                        foreach ((double row, double column) second in points)
-                        {
-                            if (first == second || checkedPoints.Contains((first, second)) || checkedPoints.Contains((second, first))) continue;
-                            checkedPoints.Add((first, second));
-                            checkedPoints.Add((second, first));
-                            double rowDelta = second.row - first.row;
-                            double columnDelta = second.column - first.column;
-                            if (Math.Abs(rowDelta) + Math.Abs(columnDelta) == 1)
-                            {
-                                if (rowDelta != 0)
-                                {
-                                    if (visitedSides.Contains((second.row - rowDelta / 2, second.column - 0.5)) &&
-                                        visitedSides.Contains((second.row - rowDelta / 2, second.column + 0.5)))
-                                    {
-                                        // Line crosses an internal point
-                                        continue;
-                                    }
-                                    if (!visitedSides.Contains((second.row - rowDelta / 2, second.column - 0.5)) &&
-                                        !visitedSides.Contains((second.row - rowDelta / 2, second.column + 0.5)))
-                                    {
-                                        // Line is between two outside points
-                                        continue;
-                                    }
-                                }
-                                else if (columnDelta != 0)
-                                {
-                                    if (visitedSides.Contains((second.row - 0.5, second.column - columnDelta / 2)) &&
-                                        visitedSides.Contains((second.row + 0.5, second.column - columnDelta / 2)))
-                                    {
-                                        // Line crosses an internal point
-                                        continue;
-                                    }
-                                    if (!visitedSides.Contains((second.row - 0.5, second.column - columnDelta / 2)) &&
-                                        !visitedSides.Contains((second.row + 0.5, second.column - columnDelta / 2)))
-                                    {
-                                        // Line is between two outside points
-                                        continue;
-                                    }
-                                }
-                                validPoints.Add(first);
-                                validPoints.Add(second);
-                                Line2d line = new Line2d(first, second);
-                                validLines.Add(line);
-                            }
-                        }
-                    }
-
-                    // Find angles
-                    HashSet<(double row, double column, double angle)> uniqueAngles = new();
-                    Dictionary<(double, double, double), int> visitedAnglesMap = new();
-                    HashSet<(Line2d, Line2d)> checkedLines = new();
-                    foreach (Line2d first in validLines)
-                    {
-                        foreach (Line2d second in validLines)
-                        {
-                            if (first == second) continue;
-                            checkedLines.Add((first, second));
-                            checkedLines.Add((second, first));
-                            HashSet<(double, double)> uniquePoints = new();
-                            uniquePoints.Add(first.First);
-                            uniquePoints.Add(first.Second);
-                            uniquePoints.Add(second.First);
-                            uniquePoints.Add(second.Second);
-                            if (uniquePoints.Count != 3) continue;
-                            (double row, double column) p1;
-                            (double row, double column) p2;
-                            (double row, double column) p3;
-                            if (first.First == second.First)
-                            {
-                                p1 = first.First;
-                                p2 = first.Second;
-                                p3 = second.Second;
-                            }
-                            else if (first.First == second.Second)
-                            {
-                                p1 = first.First;
-                                p2 = first.Second;
-                                p3 = second.First;
-                            }
-                            else if (first.Second == second.Second)
-                            {
-                                p1 = first.Second;
-                                p2 = first.First;
-                                p3 = second.First;
-                            }
-                            else if (first.Second == second.First)
-                            {
-                                p1 = first.Second;
-                                p2 = first.First;
-                                p3 = second.Second;
-                            }
-                            else
-                            {
-                                throw new Exception($"Should not be here");
-                            }
-                            double angleInRadians = Math.Atan2(p3.row - p1.row, p3.column - p1.column) - Math.Atan2(p2.row - p1.row, p2.column - p1.column);
-                            double angleInDegrees = (180 / Math.PI) * angleInRadians;
-                            if (Math.Abs(angleInDegrees) == 90 || Math.Abs(angleInDegrees) == 270)
-                            {
-                                uniqueAngles.Add((p1.row, p1.column, angleInDegrees));
-                            }
-                        }
-                    }
+                    (int area, int perimeter, int size) result = getGroupSizeRec(lines, row, column, visitedSides);
                     visited.UnionWith(visitedSides);
-                    total += result.area * (uniqueAngles.Count / 2);
+                    total += result.area * result.size;
                 }
             }
         }
@@ -202,7 +85,7 @@ public class Program
         return total;
     }
 
-    static (int area, int perimeter) getGroupSizeRec(string[] lines, int row, int column, HashSet<(double, double)> visited)
+    static (int area, int perimeter, int size) getGroupSizeRec(string[] lines, int row, int column, HashSet<(double, double)> visited)
     {
         visited.Add((row, column));
 
@@ -210,6 +93,12 @@ public class Program
 
         int area = 1;
         int perimeter = 0;
+        int size = 0;
+
+        // Check neighbours to see if we are a corner
+        size = countCorners(lines, row, column);
+
+        // Check neighbours to get area and perimeter
         foreach ((int nextRow, int nextColumn) in getNeighbours(row, column))
         {
             if (nextRow >= 0 && nextRow < lines.Length && nextColumn >= 0 && nextColumn < lines[nextRow].Length)
@@ -225,9 +114,10 @@ public class Program
                     if (!visited.Contains((nextRow, nextColumn)))
                     {
                         visited.Add((nextRow, nextColumn));
-                        (int area, int perimeter) result = getGroupSizeRec(lines, nextRow, nextColumn, visited);
+                        (int area, int perimeter, int size) result = getGroupSizeRec(lines, nextRow, nextColumn, visited);
                         area += result.area;
                         perimeter += result.perimeter;
+                        size += result.size;
                     }
                 }
             }
@@ -238,7 +128,83 @@ public class Program
             }
         }
 
-        return (area, perimeter);
+        return (area, perimeter, size);
+    }
+
+    static int countCorners(string[] lines, int row, int column)
+    {
+        char label = lines[row][column];
+
+        // Get values of adjacent locations
+        char nw = getCharacterAt(lines, row - 1, column - 1);
+        char n = getCharacterAt(lines, row - 1, column);
+        char ne = getCharacterAt(lines, row - 1, column + 1);
+        char w = getCharacterAt(lines, row, column - 1);
+        char e = getCharacterAt(lines, row, column + 1);
+        char se = getCharacterAt(lines, row + 1, column + 1);
+        char s = getCharacterAt(lines, row + 1, column);
+        char sw = getCharacterAt(lines, row + 1, column - 1);
+
+        // There must be at least 2 different nighbours and they must cannot be in the same direction (e.g. up and down, left and right)
+        int corners = 0;
+
+        // Check for normal corners
+
+        // Top left
+        if (w != label && n != label)
+        {
+            corners++;
+        }
+        // Top right
+        if (e != label && n != label)
+        {
+            corners++;
+        }
+        // Bottom left
+        if (w != label && s != label)
+        {
+            corners++;
+        }
+        // Bottom right
+        if (e != label && s != label)
+        {
+            corners++;
+        }
+
+        // Check for inner corners
+
+        // Top left inner corner
+        if (nw != label && w == label && n == label)
+        {
+            corners++;
+        }
+        // Top right inner corner
+        if (ne != label && e == label && n == label)
+        {
+            corners++;
+        }
+        // Bottom left inner corner
+        if (sw != label && w == label && s == label)
+        {
+            corners++;
+        }
+        // Bottom right inner corner
+        if (se != label && e == label && s == label)
+        {
+            corners++;
+        }
+
+        return corners;
+    }
+
+    static char getCharacterAt(string[] lines, int row, int column)
+    {
+        if (row >= 0 && row < lines.Length && column >= 0 && column < lines[row].Length)
+        {
+            return lines[row][column];
+        }
+        // Return dot (.) if the given location is out of bounds
+        return '.';
     }
 
     static IEnumerable<(int, int)> getNeighbours(int row, int column)
@@ -247,22 +213,5 @@ public class Program
         yield return (row + 1, column);
         yield return (row, column - 1);
         yield return (row, column + 1);
-    }
-}
-
-public class Line2d
-{
-    public (double row, double column) First { get; set; }
-    public (double row, double column) Second { get; set; }
-
-    public Line2d((double x, double y) first, (double x, double y) second)
-    {
-        First = first;
-        Second = second;
-    }
-
-    public override string ToString()
-    {
-        return $"{First} <-> {Second}";
     }
 }
