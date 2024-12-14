@@ -28,7 +28,7 @@ public class Program
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                long part2 = SolvePart2(lines);
+                long part2 = SolvePart2(lines, width, height);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
@@ -50,13 +50,21 @@ public class Program
         return calculateSafetyFactor(robots, width, height, 100);
     }
 
-    static long SolvePart2(string[] lines)
+    static long SolvePart2(string[] lines, long width, long height)
     {
-        long total = 0;
+        List<Robot> robots = parseInput(lines);
 
-        // TODO: Implement logic to solve part 2
+        // The grid will cycle back to its original state after width * height states
+        for (int seconds = 1; seconds <= width * height; seconds++)
+        {
+            bool result = simulateAndCheckForTree(robots, width, height, seconds);
+            if (result)
+            {
+                return seconds;
+            }
+        }
 
-        return total;
+        return -1;
     }
 
     static List<Robot> parseInput(string[] lines)
@@ -120,6 +128,58 @@ public class Program
         }
 
         return quadrant1 * quadrant2 * quadrant3 * quadrant4;
+    }
+
+    static bool simulateAndCheckForTree(List<Robot> robots, long width, long height, long seconds)
+    {
+        Dictionary<long, long> robotsByRow = new();
+        Dictionary<long, long> robotsByColumn = new();
+
+        foreach (Robot robot in robots)
+        {
+            long endX = (robot.X + (robot.DX * seconds)) % width;
+            if (endX < 0)
+            {
+                endX = width + endX;
+            }
+            long endY = (robot.Y + (robot.DY * seconds)) % height;
+            if (endY < 0)
+            {
+                endY = height + endY;
+            }
+
+            if (!robotsByRow.ContainsKey(endY))
+            {
+                robotsByRow.Add(endY, 0);
+            }
+            robotsByRow[endY] += 1;
+
+            if (!robotsByColumn.ContainsKey(endX))
+            {
+                robotsByColumn.Add(endX, 0);
+            }
+            robotsByColumn[endX] += 1;
+        }
+
+        int rowCount = 0;
+        int columnCount = 0;
+        foreach (long rowValue in robotsByRow.Values)
+        {
+            if (rowValue >= 31)
+            {
+                rowCount++;
+            }
+        }
+        foreach (long columnValue in robotsByColumn.Values)
+        {
+            if (columnValue >= 33)
+            {
+                columnCount++;
+            }
+        }
+
+        // If we have 2 rows with at least 31 robots and 2 columns with at least 33 robots then we have found the tree
+        return rowCount >= 2 && columnCount >= 2;
     }
 }
 
