@@ -72,7 +72,26 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        for (int i = 0; i < lines.Length; i += 4)
+        {
+            string[] buttonAParts = lines[i].Split(":")[1].Trim().Split(", ");
+            (long x, long y, long p) buttonA = (long.Parse(buttonAParts[0].Split('+')[1]), long.Parse(buttonAParts[1].Split('+')[1]), 0);
+            string[] buttonBParts = lines[i + 1].Split(":")[1].Trim().Split(", ");
+            (long x, long y, long p) buttonB = (long.Parse(buttonBParts[0].Split('+')[1]), long.Parse(buttonBParts[1].Split('+')[1]), 0);
+            string[] prizeParts = lines[i + 2].Split(":")[1].Trim().Split(", ");
+            (long x, long y) prize = (long.Parse(prizeParts[0].Split('=')[1]), long.Parse(prizeParts[1].Split('=')[1]));
+
+            double[,] matrix =
+            {
+                { buttonA.x, buttonB.x, prize.x + 10000000000000 },
+                { buttonA.y, buttonB.y, prize.y + 10000000000000 }
+            };
+            double[] buttonPresses = gaussianElimination(matrix, matrix.GetLength(1) - 1);
+            if (Math.Round(buttonPresses[0], 2) % 1 == 0 && Math.Round(buttonPresses[1], 2) % 1 == 0)
+            {
+                total += (long) Math.Round(buttonPresses[0], 2) * 3 + (long) Math.Round(buttonPresses[1], 2);
+            }
+        }
 
         return total;
     }
@@ -87,8 +106,6 @@ public class Program
         // if matrix is singular
         if (singular_flag != -1) 
         {
-            throw new Exception("Singular Matrix.");
-
             // if the RHS of equation corresponding to zero row  is 0, * system has infinitely many solutions, else inconsistent
             if (matrix[singular_flag, unkownCount] != 0)
             {
@@ -98,8 +115,6 @@ public class Program
             {
                 throw new Exception("May have infinitely many solutions.");
             }
-
-            return [];
         }
 
         // get solution to system and print it using backward substitution
