@@ -60,34 +60,62 @@ public class Program
             }
         }
 
-        return TraverseMaze(lines, start, end);
+        return TraverseMaze(lines, start, end).Item1;
     }
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        (int row, int column) start = (0, 0);
+        (int row, int column) end = (0, 0);
+        List<List<char>> potato = new();
+        for (int row = 0; row < lines.Length; row++)
+        {
+            List<char> spud = new();
+            for (int column = 0; column < lines[row].Length; column++)
+            {
+                if (lines[row][column] == 'S')
+                {
+                    start = (row, column);
+                }
+                if (lines[row][column] == 'E')
+                {
+                    end = (row, column);
+                }
+                spud.Add(lines[row][column]);
+            }
+            potato.Add(spud);
+        }
 
-        // TODO: Implement logic to solve part 2
-
-        return total;
+        return TraverseMaze(lines, start, end).Item2;
     }
 
-    static long TraverseMaze(string[] maze, (int row, int column) start, (int row, int column) end)
+    static (long, int) TraverseMaze(string[] maze, (int row, int column) start, (int row, int column) end)
     {
         // Perform BFS with a priority queue
-        PriorityQueue<(int row, int column, Direction direction, long cost), long> nodesToCheck = new();
+        PriorityQueue<(int row, int column, Direction direction, long cost, HashSet<(int, int)> trail), long> nodesToCheck = new();
         HashSet<(int, int, Direction)> visited = new();
-    
-        nodesToCheck.Enqueue((start.row, start.column, Direction.Right, 0), 0);
-        visited.Add((start.row, start.column, Direction.Right));
+        HashSet<(int, int)> uniqueSeats = new();
 
+        uniqueSeats.Add(start);
+        nodesToCheck.Enqueue((start.row, start.column, Direction.Right, 0, new(uniqueSeats)), 0);
+
+        long minCost = long.MaxValue;
         while (nodesToCheck.Count > 0)
         {
-            (int row, int column, Direction direction, long cost) node = nodesToCheck.Dequeue();
+            (int row, int column, Direction direction, long cost, HashSet<(int, int)> trail) node = nodesToCheck.Dequeue();
+            visited.Add((node.row, node.column, node.direction));
+
+            if (node.cost > minCost)
+            {
+                // The current path is more expensive so stop searching
+                continue;
+            }
         
             if (node.row == end.row && node.column == end.column)
             {
-                return node.cost;
+                minCost = node.cost;
+                uniqueSeats.UnionWith(node.trail);
+                continue;
             }
 
             List<Direction> directions = new();
@@ -105,8 +133,6 @@ public class Program
                 }
                 if (InBounds(maze, next) && !visited.Contains((next.row, next.column, direction)))
                 {
-                    visited.Add((next.row, next.column, direction));
-
                     long newCost = node.cost;
                     if (node.direction != direction)
                     {
@@ -119,12 +145,14 @@ public class Program
                         newCost += 1;
                     }
 
-                    nodesToCheck.Enqueue((next.row, next.column, direction, newCost), newCost);
+                    HashSet<(int, int)> trail = new(node.trail);
+                    trail.Add(next);
+                    nodesToCheck.Enqueue((next.row, next.column, direction, newCost, trail), newCost);
                 }
             }
         }
     
-        return -1;
+        return (minCost, uniqueSeats.Count);
     }
 
     static bool InBounds(string[] maze, (int row, int column) position)
