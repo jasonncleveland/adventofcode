@@ -56,11 +56,14 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        int registerA = int.Parse(lines[0].Split(':')[1].Trim());
+        int registerB = int.Parse(lines[1].Split(':')[1].Trim());
+        int registerC = int.Parse(lines[2].Split(':')[1].Trim());
+        string program = lines[4].Split(':')[1].Trim();
 
-        // TODO: Implement logic to solve part 2
+        ThreeBitComputer computer = new ThreeBitComputer(registerA, registerB, registerC, program);
 
-        return total;
+        return computer.SolveForOutput(program);
     }
 }
 
@@ -103,6 +106,65 @@ class ThreeBitComputer
                 Output.Add(output);
             }
         }
+    }
+
+    public long SolveForOutput(string output)
+    {
+        List<long> numbers = new(Array.ConvertAll<string, long>(output.Split(','), number => long.Parse(number)));
+        numbers.Reverse();
+
+        return _solveForOutputRec(numbers, 0, 0);
+    }
+
+    private long _solveForOutputRec(List<long> outputs, int expectedOutputIndex, long a)
+    {
+        if (expectedOutputIndex == outputs.Count)
+        {
+            // Reached end of outputs so must have valid solution
+            return a;
+        }
+
+        long minSolution = long.MaxValue;
+        long expected = outputs[expectedOutputIndex];
+
+        // Multiply the given A value by 8
+        a *= 8;
+
+        // The final A value cannot be 0 so, if this is the first iteration, set A = 1 as the min possible value
+        if (a == 0)
+        {
+            a = 1;
+        }
+
+        // Iterate over all possible values to satisfy A + N mod 8 = N
+        for (int n = 0; n < 8; n++)
+        {
+            RegisterA = a + n;
+            RegisterB = 0;
+            RegisterC = 0;
+
+            // Simulate the program until we reach an output
+            (int _, long output) = ProcessInstruction();
+
+            // If the returned output is the same as the expected value, we have a possible solution
+            if (output == expected)
+            {
+                // There are multiple solutions so we need to keep track of the minimum found value
+                long solution = _solveForOutputRec(outputs, expectedOutputIndex + 1, a + n);
+                if (solution > -1 && solution < minSolution)
+                {
+                    minSolution = solution;
+                }
+
+            }
+        }
+
+        // Only return the solution if one has been found
+        if (minSolution != long.MaxValue)
+        {
+            return minSolution;
+        }
+        return -1;
     }
 
     public (int instructionPointer, long output) ProcessInstruction(int instructionPointer = 0)
