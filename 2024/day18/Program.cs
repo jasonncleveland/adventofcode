@@ -28,7 +28,7 @@ public class Program
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                (int, int) part2 = SolvePart2(lines, size, max);
+                (int x, int y) part2 = SolvePart2(lines, size, max);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
@@ -47,20 +47,7 @@ public class Program
     {
         List<(int, int)> data = ParseInput(lines);
 
-        char[,] grid = new char[size, size];
-        for (int row = 0; row < size; row++)
-        {
-            for (int column = 0; column < size; column++)
-            {
-                grid[row, column] = '.';
-            }
-        }
-
-        for (int i = 0; i < max; i++)
-        {
-            (int row, int column) = data[i];
-            grid[row, column] = '#';
-        }
+        char[,] grid = GetGridAtTime(data, size, max);
 
         (int row, int column) start = (0, 0);
         (int row, int column) end = (size - 1, size - 1);
@@ -68,39 +55,19 @@ public class Program
         return TraverseGrid(grid, size, start, end);
     }
 
-    static (int y, int x) SolvePart2(string[] lines, int size, int max)
+    static (int x, int y) SolvePart2(string[] lines, int size, int max)
     {
         List<(int, int)> data = ParseInput(lines);
 
-        char[,] grid = new char[size, size];
-        for (int row = 0; row < size; row++)
+        // Perform binary search to find the first index that prevents a path
+        int index = BinarySearchBlocks(data, size, max + 1, data.Count - 1);
+        if (index >= 0)
         {
-            for (int column = 0; column < size; column++)
-            {
-                grid[row, column] = '.';
-            }
+            (int y, int x) = data[index];
+            // Flip the y and x so that we return x, y format
+            return (x, y);
         }
 
-        for (int i = 0; i < max; i++)
-        {
-            (int row, int column) = data[i];
-            grid[row, column] = '#';
-        }
-
-        (int row, int column) start = (0, 0);
-        (int row, int column) end = (size - 1, size - 1);
-
-        for (int i = max + 1; i < data.Count; i++)
-        {
-            (int row, int column) = data[i];
-            grid[row, column] = '#';
-            // TODO: Try to optimize by only checking for a path if the dropped is in the shortest path
-            int result = TraverseGrid(grid, size, start, end);
-            if (result < 0)
-            {
-                return (column, row);
-            }
-        }
         return (-1, -1);
     }
 
@@ -134,6 +101,34 @@ public class Program
         }
     }
 
+    static int BinarySearchBlocks(List<(int, int)> data, int size, int min, int max)
+    {
+        (int row, int column) start = (0, 0);
+        (int row, int column) end = (size - 1, size - 1);
+
+        int time = min + (max - min) / 2;
+        char[,] grid = GetGridAtTime(data, size, time);
+        int path = TraverseGrid(grid, size, start, end);
+
+        if (min == max)
+        {
+            // We have narrowed the search to one index so return whether there is a valid path or block
+            // If there is a block then return the index of the block
+            return path < 0 ? min - 1 : -1;
+        }
+
+        if (path < 0)
+        {
+            // We found no block so the block is either earlier or this index
+            return BinarySearchBlocks(data, size, min, time);
+        }
+        else
+        {
+            // We found a valid path so the block must be later in the grid
+            return BinarySearchBlocks(data, size, time + 1, max);
+        }
+    }
+
     static int TraverseGrid(char[,] grid, int size, (int row, int column) start, (int row, int column) end)
     {
         Queue<(int row, int column, int distance)> locationsToVisit = new();
@@ -163,6 +158,29 @@ public class Program
         }
 
         return -1;
+    }
+
+    static char[,] GetGridAtTime(List<(int, int)> data, int size, int time)
+    {
+        char[,] grid = new char[size, size];
+
+        // Initialize the empty grid
+        for (int row = 0; row < size; row++)
+        {
+            for (int column = 0; column < size; column++)
+            {
+                grid[row, column] = '.';
+            }
+        }
+
+        // Drop bytes up to the given time
+        for (int i = 0; i < time; i++)
+        {
+            (int row, int column) = data[i];
+            grid[row, column] = '#';
+        }
+
+        return grid;
     }
 
     static bool InBounds(char[,] grid, int size, (int row, int column) position)
