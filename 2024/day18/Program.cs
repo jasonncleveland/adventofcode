@@ -11,6 +11,7 @@ public class Program
         {
             string fileName = args[0];
             int size = args.Length > 1 ? int.Parse(args[1]) : 71;
+            int max = args.Length > 2 ? int.Parse(args[2]) : 1024;
             if (File.Exists(fileName))
             {
                 Stopwatch stopWatch = new Stopwatch();
@@ -21,13 +22,13 @@ public class Program
 
                 Stopwatch part1Timer = new Stopwatch();
                 part1Timer.Start();
-                long part1 = SolvePart1(lines, size);
+                long part1 = SolvePart1(lines, size, max);
                 part1Timer.Stop();
                 Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                long part2 = SolvePart2(lines);
+                (int, int) part2 = SolvePart2(lines, size, max);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
@@ -42,7 +43,7 @@ public class Program
         }
     }
 
-    static long SolvePart1(string[] lines, int size)
+    static long SolvePart1(string[] lines, int size, int max)
     {
         List<(int, int)> data = ParseInput(lines);
 
@@ -55,7 +56,7 @@ public class Program
             }
         }
 
-        for (int i = 0; i < 1024; i++)
+        for (int i = 0; i < max; i++)
         {
             (int row, int column) = data[i];
             grid[row, column] = '#';
@@ -67,13 +68,40 @@ public class Program
         return TraverseGrid(grid, size, start, end);
     }
 
-    static long SolvePart2(string[] lines)
+    static (int y, int x) SolvePart2(string[] lines, int size, int max)
     {
-        long total = 0;
+        List<(int, int)> data = ParseInput(lines);
 
-        // TODO: Implement logic to solve part 2
+        char[,] grid = new char[size, size];
+        for (int row = 0; row < size; row++)
+        {
+            for (int column = 0; column < size; column++)
+            {
+                grid[row, column] = '.';
+            }
+        }
 
-        return total;
+        for (int i = 0; i < max; i++)
+        {
+            (int row, int column) = data[i];
+            grid[row, column] = '#';
+        }
+
+        (int row, int column) start = (0, 0);
+        (int row, int column) end = (size - 1, size - 1);
+
+        for (int i = max + 1; i < data.Count; i++)
+        {
+            (int row, int column) = data[i];
+            grid[row, column] = '#';
+            // TODO: Try to optimize by only checking for a path if the dropped is in the shortest path
+            int result = TraverseGrid(grid, size, start, end);
+            if (result < 0)
+            {
+                return (column, row);
+            }
+        }
+        return (-1, -1);
     }
 
     static List<(int y, int x)> ParseInput(string[] lines)
