@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -44,7 +45,18 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 1
+        string[] lineParts = lines[0].Split(',', StringSplitOptions.TrimEntries);
+        List<string> towels = new(lineParts);
+
+        List<string> patterns = new();
+        for (int i = 2; i < lines.Length; i++)
+        {
+            bool valid = CheckTowelPatternRec(towels, lines[i]);
+            if (valid)
+            {
+                total++;
+            }
+        }
 
         return total;
     }
@@ -56,5 +68,26 @@ public class Program
         // TODO: Implement logic to solve part 2
 
         return total;
+    }
+
+    static bool CheckTowelPatternRec(List<string> towels, string pattern, int patternStart = 0)
+    {
+        if (patternStart == pattern.Length)
+        {
+            return true;
+        }
+
+        bool valid = false;
+
+        for (int patternLength = 1; patternLength <= (pattern.Length - patternStart); patternLength++)
+        {
+            string newPattern = pattern.Substring(patternStart, patternLength);
+            if (towels.Contains(newPattern))
+            {
+                valid = valid || CheckTowelPatternRec(towels, pattern, patternStart + patternLength);
+            }
+        }
+
+        return valid;
     }
 }
