@@ -5,6 +5,8 @@ using System.IO;
 
 public class Program
 {
+    static Dictionary<string, long> cache = new();
+
     static void Main(string[] args)
     {
         if (args.Length > 0)
@@ -65,7 +67,14 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        string[] lineParts = lines[0].Split(',', StringSplitOptions.TrimEntries);
+        List<string> towels = new(lineParts);
+
+        List<string> patterns = new();
+        for (int i = 2; i < lines.Length; i++)
+        {
+            total += CountTowelPatternRec(towels, lines[i]);
+        }
 
         return total;
     }
@@ -89,5 +98,34 @@ public class Program
         }
 
         return valid;
+    }
+
+    static long CountTowelPatternRec(List<string> towels, string pattern, int patternStart = 0)
+    {
+        if (patternStart == pattern.Length)
+        {
+            return 1;
+        }
+
+        string remainingPattern = pattern.Substring(patternStart);
+        if (cache.ContainsKey(remainingPattern))
+        {
+            return cache[remainingPattern];
+        }
+
+        long total = 0;
+
+        for (int patternLength = 1; patternLength <= (pattern.Length - patternStart); patternLength++)
+        {
+            string newPattern = pattern.Substring(patternStart, patternLength);
+            if (towels.Contains(newPattern))
+            {
+                total += CountTowelPatternRec(towels, pattern, patternStart + patternLength);
+            }
+        }
+
+        cache.Add(remainingPattern, total);
+
+        return total;
     }
 }
