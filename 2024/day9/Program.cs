@@ -20,13 +20,13 @@ public class Program
 
                 Stopwatch part1Timer = new Stopwatch();
                 part1Timer.Start();
-                long part1 = SolvePart1(lines[0]);
+                ulong part1 = SolvePart1(lines[0]);
                 part1Timer.Stop();
                 Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                long part2 = SolvePart2(lines[0]);
+                ulong part2 = SolvePart2(lines[0]);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
@@ -41,7 +41,7 @@ public class Program
         }
     }
 
-    static long SolvePart1(string line)
+    static ulong SolvePart1(string line)
     {
         List<int> output = new();
         int fileId = 0;
@@ -80,30 +80,30 @@ public class Program
                 {
                     output[dotIndex] = output[i];
                     output[i] = -1;
-                    dotIndex = output.IndexOf(-1);
+                    dotIndex = output.IndexOf(-1, dotIndex);
                 }
             }
         }
 
-        long checksum = 0;
+        ulong checksum = 0;
         for (int i = 0; i < output.Count; i++)
         {
             if (output[i] != -1)
             {
                 // The checksum is the file block position multiplied by the file id
-                checksum += i * output[i];
+                checksum += (ulong) i * (ulong) output[i];
             }
         }
         return checksum;
     }
 
-    static long SolvePart2(string line)
+    static ulong SolvePart2(string line)
     {
         // Store the metadata about file and free blocks for easy manipulation
-        List<(int size, int startIndex, char fileId)> fileBlocks = new();
+        List<(int size, int startIndex, int fileId)> fileBlocks = new();
         List<(int size, int startIndex)> freeBlocks = new();
         int totalLength = 0;
-        char fileId = '0';
+        int fileId = 0;
         for (int i = 0; i < line.Length; i++)
         {
             bool isFile = i % 2 == 0;
@@ -126,7 +126,7 @@ public class Program
         fileBlocks.Reverse();
         for (int i = 0; i < fileBlocks.Count; i++)
         {
-            (int size, int startIndex, char fileId) fileBlock = fileBlocks[i];
+            (int size, int startIndex, int fileId) fileBlock = fileBlocks[i];
             // Search for the first free block that is large enough to hold the current file block
             int index = freeBlocks.FindIndex(block => block.size >= fileBlock.size);
             if (index > -1)
@@ -145,13 +145,13 @@ public class Program
             }
         }
 
-        long checksum = 0;
-        foreach ((int size, int startIndex, char fileId) fileBlock in fileBlocks)
+        ulong checksum = 0;
+        foreach ((int size, int startIndex, int fileId) fileBlock in fileBlocks)
         {
             for (int i = 0; i < fileBlock.size; i++)
             {
                 // The checksum is the file block position multiplied by the file id
-                checksum += (fileBlock.startIndex + i) * (fileBlock.fileId - '0');
+                checksum += (ulong) (fileBlock.startIndex + i) * (ulong) fileBlock.fileId;
             }
         }
         return checksum;
