@@ -53,8 +53,7 @@ public class Program
         List<string> patterns = new();
         for (int i = 2; i < lines.Length; i++)
         {
-            bool valid = CheckTowelPatternRec(towels, lines[i]);
-            if (valid)
+            if (CheckTowelPatternRec(towels, lines[i]))
             {
                 total++;
             }
@@ -93,38 +92,40 @@ public class Program
             string newPattern = pattern.Substring(patternStart, patternLength);
             if (towels.Contains(newPattern))
             {
-                valid = valid || CheckTowelPatternRec(towels, pattern, patternStart + patternLength);
+                if (CheckTowelPatternRec(towels, pattern, patternStart + patternLength))
+                {
+                    valid = true;
+                    break;
+                }
             }
         }
 
         return valid;
     }
 
-    static long CountTowelPatternRec(List<string> towels, string pattern, int patternStart = 0)
+    static long CountTowelPatternRec(List<string> towels, string pattern)
     {
-        if (patternStart == pattern.Length)
+        if (pattern.Length == 0)
         {
             return 1;
         }
 
-        string remainingPattern = pattern.Substring(patternStart);
-        if (cache.ContainsKey(remainingPattern))
+        if (cache.ContainsKey(pattern))
         {
-            return cache[remainingPattern];
+            return cache[pattern];
         }
 
         long total = 0;
 
-        for (int patternLength = 1; patternLength <= (pattern.Length - patternStart); patternLength++)
+        foreach (string towel in towels)
         {
-            string newPattern = pattern.Substring(patternStart, patternLength);
-            if (towels.Contains(newPattern))
+            if (towel.Length <= pattern.Length && pattern.StartsWith(towel))
             {
-                total += CountTowelPatternRec(towels, pattern, patternStart + patternLength);
+                total += CountTowelPatternRec(towels, pattern.Substring(towel.Length));
             }
         }
 
-        cache.Add(remainingPattern, total);
+        cache.Add(pattern, total);
 
         return total;
     }
