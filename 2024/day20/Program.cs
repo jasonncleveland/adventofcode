@@ -27,7 +27,7 @@ public class Program
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                long part2 = SolvePart2(lines);
+                long part2 = SolvePart2(lines, minShortcutLength);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
@@ -67,7 +67,6 @@ public class Program
         HashSet<(int, int)> cheatLocations = new();
         int orignalDistance = TraverseMaze(lines, start, end, minCostToReach, cheatLocations);
 
-        Dictionary<int, int> shortcutLengths = new();
         foreach ((int row, int column) cheat in cheatLocations)
         {
             int shortcutCount = TraverseMazeCheats(lines, cheat, minCostToReach, 2, minShortcutLength);
@@ -80,11 +79,54 @@ public class Program
         return total;
     }
 
-    static long SolvePart2(string[] lines)
+    static long SolvePart2(string[] lines, int minShortcutLength)
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        (int row, int column) start = (0, 0);
+        (int row, int column) end = (0, 0);
+        int totalPathTiles = 0;
+        for (int row = 0; row < lines.Length; row++)
+        {
+            for (int column = 0; column < lines[row].Length; column++)
+            {
+                if (lines[row][column] == 'S')
+                {
+                    start = (row, column);
+                    totalPathTiles++;
+                }
+                if (lines[row][column] == 'E')
+                {
+                    end = (row, column);
+                    totalPathTiles++;
+                }
+                if (lines[row][column] == '.')
+                {
+                    totalPathTiles++;
+                }
+            }
+        }
+
+        Dictionary<(int, int), int> minCostToReach = new();
+        HashSet<(int, int)> cheatLocations = new();
+        int orignalDistance = TraverseMaze(lines, start, end, minCostToReach, cheatLocations);
+
+        foreach ((int row, int column) first in cheatLocations)
+        {
+            foreach ((int row, int column) second in cheatLocations)
+            {
+                int manhattanDistance = CalculateManhattanDistance(first, second);
+                if (minCostToReach[second] > minCostToReach[first] && manhattanDistance <= 20)
+                {
+                    int pathDistance = minCostToReach[second] - minCostToReach[first];
+                    int diff = pathDistance - manhattanDistance;
+                    if (diff >= minShortcutLength)
+                    {
+                        total++;
+                    }
+                }
+            }
+        }
 
         return total;
     }
@@ -102,6 +144,10 @@ public class Program
         {
             (int row, int column, int distance) current = locationsToVisit.Dequeue();
             (int row, int column) currentPosition = (current.row, current.column);
+
+            // Add position to list of cheat start location
+            cheatLocations.Add(currentPosition);
+
             if (!minCostToReach.ContainsKey(currentPosition) || minCostToReach[currentPosition] > current.distance)
             {
                 minCostToReach[currentPosition] = current.distance;
@@ -121,10 +167,6 @@ public class Program
                     if (maze[next.row][next.column] != '#')
                     {
                         locationsToVisit.Enqueue((next.row, next.column, current.distance + 1));
-                    }
-                    else
-                    {
-                        cheatLocations.Add(currentPosition);
                     }
                 }
             }
@@ -200,6 +242,11 @@ public class Program
             return false;
         }
         return true;
+    }
+
+    static int CalculateManhattanDistance((int row, int column) start, (int row, int column) end)
+    {
+        return Math.Abs(start.row - end.row) + Math.Abs(start.column - end.column);
     }
 }
 
