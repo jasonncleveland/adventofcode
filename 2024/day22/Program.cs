@@ -44,7 +44,15 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 1
+        foreach (string line in lines)
+        {
+            long secretNumber = long.Parse(line);
+            for (int i = 0; i < 2000; i++)
+            {
+                secretNumber = CalculateNextSecretNumber(secretNumber);
+            }
+            total += secretNumber;
+        }
 
         return total;
     }
@@ -56,5 +64,26 @@ public class Program
         // TODO: Implement logic to solve part 2
 
         return total;
+    }
+
+    static long CalculateNextSecretNumber(long secretNumber)
+    {
+        long mixNumber;
+        long moduleNumber = 16777216;
+
+        // Calculate the result of multiplying the secret number by 64. Then, mix this result into the secret number. Finally, prune the secret number.
+        mixNumber = secretNumber * 64;
+        secretNumber = secretNumber ^ mixNumber;
+        secretNumber = secretNumber % moduleNumber;
+        // Calculate the result of dividing the secret number by 32. Round the result down to the nearest integer. Then, mix this result into the secret number. Finally, prune the secret number.
+        mixNumber = secretNumber / 32;
+        secretNumber = secretNumber ^ mixNumber;
+        secretNumber = secretNumber % moduleNumber;
+        // Calculate the result of multiplying the secret number by 2048. Then, mix this result into the secret number. Finally, prune the secret number.
+        mixNumber = secretNumber * 2048;
+        secretNumber = secretNumber ^ mixNumber;
+        secretNumber = secretNumber % moduleNumber;
+
+        return secretNumber;
     }
 }
