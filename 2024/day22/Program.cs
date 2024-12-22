@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -59,11 +60,45 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        Dictionary<(long, long, long, long), long> sequences = new();
 
-        // TODO: Implement logic to solve part 2
+        foreach (string line in lines)
+        {
+            long secretNumber = long.Parse(line);
+            long onesDigit = secretNumber % 10;
+            (long, long, long, long) sequence = (0, 0, 0, 0);
+            // Keep track of the sequences per monkey
+            HashSet<(long, long, long, long)> foundSequences = new();
+            for (int i = 0; i < 2000; i++)
+            {
+                secretNumber = CalculateNextSecretNumber(secretNumber);
+                long priceDiff = secretNumber % 10 - onesDigit;
+                sequence = (sequence.Item2, sequence.Item3, sequence.Item4, priceDiff);
+                onesDigit = secretNumber % 10;
+                if (i >= 3 && !foundSequences.Contains(sequence))
+                {
+                    // Store the value for the first time we see a given sequence
+                    if (!sequences.ContainsKey(sequence))
+                    {
+                        sequences.Add(sequence, 0);
+                    }
+                    sequences[sequence] += onesDigit;
+                    foundSequences.Add(sequence);
+                }
+            }
+        }
 
-        return total;
+        // Find the maximum number of bananas
+        long maxBananas = long.MinValue;
+        foreach (long bananaCount in sequences.Values)
+        {
+            if (bananaCount > maxBananas)
+            {
+                maxBananas = bananaCount;
+            }
+        }
+
+        return maxBananas;
     }
 
     static long CalculateNextSecretNumber(long secretNumber)
