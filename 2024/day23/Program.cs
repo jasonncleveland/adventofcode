@@ -26,7 +26,7 @@ public class Program
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                long part2 = SolvePart2(lines);
+                string part2 = SolvePart2(lines);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
@@ -79,13 +79,27 @@ public class Program
         return sets.Count;
     }
 
-    static long SolvePart2(string[] lines)
+    static string SolvePart2(string[] lines)
     {
-        long total = 0;
+        Dictionary<string, List<string>> connections = parseInput(lines);
 
-        // TODO: Implement logic to solve part 2
+        // Find all maximal cliques using the Bron-Kerbosch algorithm
+        List<HashSet<string>> cliques = BronKerbosch(connections, [], new(connections.Keys), []);
 
-        return total;
+        // Find the largest clique
+        HashSet<string> maxClique = [];
+        foreach (HashSet<string> clique in cliques)
+        {
+            if (clique.Count > maxClique.Count)
+            {
+                maxClique = clique;
+            }
+        }
+
+        // Sort the clique alphabetically and join with commas
+        List<string> output = new(maxClique);
+        output.Sort();
+        return string.Join(",", output);
     }
 
     static Dictionary<string, List<string>> parseInput(string[] lines)
@@ -108,5 +122,39 @@ public class Program
         }
 
         return connections;
+    }
+
+    /**
+     * The Bron-Kerbosh algorithm is used to find all maximal cliques in a graph
+     * A clique is a subset of verticies where every node is connected to each other
+     *
+     * https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm
+     *
+     * Return a list of sets containing the maximal clique nodes
+     */
+    static List<HashSet<string>> BronKerbosch(Dictionary<string, List<string>> connections, HashSet<string> R, HashSet<string> P, HashSet<string> X)
+    {
+        List<HashSet<string>> cliques = new();
+
+        if (P.Count == 0 && X.Count == 0)
+        {
+            cliques.Add(R);
+            return cliques;
+        }
+
+        foreach (string v in P)
+        {
+            HashSet<string> newR = new(R);
+            newR.UnionWith(new HashSet<string>() { v });
+            HashSet<string> newP = new(P);
+            newP.IntersectWith(new HashSet<string>(connections[v]));
+            HashSet<string> newX = new(X);
+            newX.IntersectWith(new HashSet<string>(connections[v]));
+            cliques.AddRange(BronKerbosch(connections, newR, newP, newX));
+            P.Remove(v);
+            X.Add(v);
+        }
+
+        return cliques;
     }
 }
