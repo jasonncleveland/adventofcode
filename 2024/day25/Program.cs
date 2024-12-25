@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -22,12 +23,6 @@ public class Program
                 long part1 = SolvePart1(lines);
                 part1Timer.Stop();
                 Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
-
-                Stopwatch part2Timer = new Stopwatch();
-                part2Timer.Start();
-                long part2 = SolvePart2(lines);
-                part2Timer.Stop();
-                Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
             else
             {
@@ -44,16 +39,69 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 1
+        List<List<int>> locks = new();
+        List<List<int>> keys = new();
 
-        return total;
-    }
+        // Each pattern is 7 by 5
+        for (int row = 0; row < lines.Length; row += 8)
+        {
+            List<int> heights = new() { -1, -1, -1, -1, -1 };
 
-    static long SolvePart2(string[] lines)
-    {
-        long total = 0;
+            if (lines[row] == "#####")
+            {
+                // Found lock
+                for (int i = 0; i < 7; i++)
+                {
+                    for (int column = 0; column < lines[row].Length; column++)
+                    {
+                        if (lines[row + i][column] == '.' && heights[column] == -1)
+                        {
+                            heights[column] = i - 1;
+                        }
+                    }
+                }
 
-        // TODO: Implement logic to solve part 2
+                locks.Add(heights);
+            }
+            else
+            {
+                // Found key
+                for (int i = 6; i >= 0; i--)
+                {
+                    for (int column = 0; column < lines[row].Length; column++)
+                    {
+                        if (lines[row + i][column] == '.' && heights[column] == -1)
+                        {
+                            heights[column] = 6 - i - 1;
+                        }
+                    }
+                }
+
+                keys.Add(heights);
+            }
+        }
+
+        // Try all combinations of keys and locks
+        foreach (List<int> lockHeights in locks)
+        {
+            foreach (List<int> keyHeights in keys)
+            {
+                bool isValid = true;
+                for (int i = 0; i < 5; i++)
+                {
+                    if (lockHeights[i] + keyHeights[i] > 5)
+                    {
+                        isValid = false;
+                        break;
+                    }
+                }
+
+                if (isValid)
+                {
+                    total++;
+                }
+            }
+        }
 
         return total;
     }
