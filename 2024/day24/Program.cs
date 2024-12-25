@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 public class Program
 {
@@ -26,7 +27,7 @@ public class Program
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                long part2 = SolvePart2(lines);
+                string part2 = SolvePart2(lines);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
@@ -76,13 +77,47 @@ public class Program
         return GetWireValue(wires, 'z');
     }
 
-    static long SolvePart2(string[] lines)
+    static string SolvePart2(string[] lines)
     {
-        long total = 0;
+        (Dictionary<string, long> wires, Queue<(string left, string operation, string right, string output)> instructions) = ParseInput(lines);
 
-        // TODO: Implement logic to solve part 2
+        List<string> invalidOutputs = new();
+        foreach ((string left, string operation, string right, string output) in instructions)
+        {
+            string combinedInputNames = $"{left[0]}{right[0]}";
+            // All outputs to z must be the result of an XOR operation to calculate the remainder
+            // The z45 is the final carry so it does not follow the general rule and can be ignored
+            if (output.StartsWith('z') && operation != "XOR" && output != "z45")
+            {
+                invalidOutputs.Add(output);
+            }
+            // Only XOR gates can output to z so any other operations must be invalid
+            if (!output.StartsWith('z') && combinedInputNames != "xy" && combinedInputNames != "yx" && operation == "XOR")
+            {
+                invalidOutputs.Add(output);
+            }
 
-        return total;
+            // The first XOR is a half-adder so it only has one operation so ignore
+            if ((combinedInputNames == "xy" || combinedInputNames == "yx") && left != "x00" && left != "y00" && right != "x00" && right != "y00")
+            {
+                List<(string, string, string, string)> foundInstructions = instructions.Where(i => (i.left == output || i.right == output)).ToList();
+                // If the operation is XOR for a starting gate, there must be 2 subsequent XOR and AND operations using the output
+                if (operation == "XOR" && foundInstructions.Count != 2)
+                {
+                    invalidOutputs.Add(output);
+                }
+
+                // If the operation is AND for a starting gate, there must be 1 subsequent OR operation using the output
+                if (operation == "AND" && foundInstructions.Count != 1)
+                {
+                    invalidOutputs.Add(output);
+                }
+            }
+        }
+
+        // Sort the invalid outputs alphabetically
+        invalidOutputs.Sort();
+        return string.Join(",", invalidOutputs.Distinct());
     }
 
     static (Dictionary<string, long>, Queue<(string left, string operation, string right, string output)>) ParseInput(string[] lines)
