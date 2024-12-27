@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 public class Program
 {
@@ -44,7 +46,18 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 1
+        for (int i = 0; i < lines.Length; i += 3)
+        {
+            string left = lines[i];
+            string right = lines[i + 1];
+            JsonArray leftParsed = JsonSerializer.Deserialize<JsonArray>(left);
+            JsonArray rightParsed = JsonSerializer.Deserialize<JsonArray>(right);
+            int result = CompareNodesRec(leftParsed, rightParsed);
+            if (result != 1)
+            {
+                total += i / 3 + 1;
+            }
+        }
 
         return total;
     }
@@ -56,5 +69,71 @@ public class Program
         // TODO: Implement logic to solve part 2
 
         return total;
+    }
+
+    /**
+     * Comparison results:
+     * -1 - Left is smaller
+     * 0 - Left and right are equal
+     * 1 - Right is smaller
+     */
+    static int CompareNodesRec(JsonArray left, JsonArray right)
+    {
+        for (int i = 0; i < left.Count; i++)
+        {
+            if (right.Count <= i)
+            {
+                return 1;
+            }
+
+            if (left[i].GetType().Equals(typeof(JsonArray)) || right[i].GetType().Equals(typeof(JsonArray)))
+            {
+                JsonArray leftArray, rightArray;
+
+                if (!left[i].GetType().Equals(typeof(JsonArray)))
+                {
+                    leftArray = new JsonArray([left[i].DeepClone()]);
+                }
+                else
+                {
+                    leftArray = left[i] as JsonArray;
+                }
+
+                if (!right[i].GetType().Equals(typeof(JsonArray)))
+                {
+                    rightArray = new JsonArray([right[i].DeepClone()]);
+                }
+                else
+                {
+                    rightArray = right[i] as JsonArray;
+                }
+
+                int comparisonResult = CompareNodesRec(leftArray, rightArray);
+                if (comparisonResult != 0)
+                {
+                    return comparisonResult;
+                }
+            }
+            else
+            {
+                int leftValue = int.Parse(left[i].ToString());
+                int rightValue = int.Parse(right[i].ToString());
+
+                if (leftValue == rightValue)
+                {
+                    continue;
+                }
+                else if (leftValue < rightValue)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+        }
+
+        return left.Count < right.Count ? -1 : left.Count == right.Count ? 0 : 1;
     }
 }
