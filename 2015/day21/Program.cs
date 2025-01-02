@@ -87,11 +87,46 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        (int hp, int damage, int armor) boss = ParseInput(lines);
 
-        // TODO: Implement logic to solve part 2
+        int maximumCost = int.MinValue;
 
-        return total;
+        int combinations = 0;
+        HashSet<(int, int, int, int)> checkedCombinations = new();
+
+        foreach (ShopItem weapon in Shop.Weapons)
+        {
+            foreach (ShopItem armor in Shop.Armor)
+            {
+                foreach (ShopItem firstRing in Shop.Rings)
+                {
+                    foreach (ShopItem secondRing in Shop.Rings)
+                    {
+                        if (secondRing.Name == firstRing.Name || checkedCombinations.Contains((weapon.Id, armor.Id, firstRing.Id, secondRing.Id)) || checkedCombinations.Contains((weapon.Id, armor.Id, secondRing.Id, firstRing.Id)))
+                        {
+                            continue;
+                        }
+                        checkedCombinations.Add((weapon.Id, armor.Id, firstRing.Id, secondRing.Id));
+                        checkedCombinations.Add((weapon.Id, armor.Id, secondRing.Id, firstRing.Id));
+                        combinations++;
+
+                        int totalDamage = weapon.Damage + firstRing.Damage + secondRing.Damage;
+                        int totalArmor = armor.Armor + firstRing.Armor + secondRing.Armor;
+                        int totalCost = weapon.Cost + armor.Cost + firstRing.Cost + secondRing.Cost;
+                        bool battleResult = SimulateBattle(boss, (100, totalDamage, totalArmor));
+                        if (!battleResult)
+                        {
+                            if (totalCost > maximumCost)
+                            {
+                                maximumCost = totalCost;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return maximumCost;
     }
 
     static (int hp, int damage, int armor) ParseInput(string[] lines)
