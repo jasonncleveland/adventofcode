@@ -5,6 +5,8 @@ using System.IO;
 
 public class Program
 {
+    static Dictionary<(char startKey, char targetKey, int keyPadIndex), long> cache;
+
     static void Main(string[] args)
     {
         if (args.Length > 0)
@@ -48,9 +50,16 @@ public class Program
         List<KeyPad> keyPads = new()
         {
             new NumericalKeyPad(),
-            new DirectionalKeyPad(),
-            new DirectionalKeyPad(),
         };
+
+        // Add the robot controlled keypads
+        for (int i = 0; i < 2; i++)
+        {
+            keyPads.Add(new DirectionalKeyPad());
+        }
+
+        // Initialize the cache
+        cache = new();
 
         foreach (string doorCode in lines)
         {
@@ -73,7 +82,33 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        List<KeyPad> keyPads = new()
+        {
+            new NumericalKeyPad(),
+        };
+
+        // Add the robot controlled keypads
+        for (int i = 0; i < 25; i++)
+        {
+            keyPads.Add(new DirectionalKeyPad());
+        }
+
+        // Initialize the cache
+        cache = new();
+
+        foreach (string doorCode in lines)
+        {
+            int number = (doorCode[0] - '0') * 100 + (doorCode[1] - '0') * 10 + (doorCode[2] - '0');
+
+            char lastKey = 'A';
+            long shortestSequenceLength = 0;
+            foreach (char key in doorCode)
+            {
+                shortestSequenceLength += FindMoveSequencesRec(keyPads, 0, lastKey, key);
+                lastKey = key;
+            }
+            total += shortestSequenceLength * number;
+        }
 
         return total;
     }
@@ -85,10 +120,15 @@ public class Program
             return 1;
         }
 
+        if (cache.ContainsKey((startKey, targetKey, keyPadIndex)))
+        {
+            return cache[(startKey, targetKey, keyPadIndex)];
+        }
+
         KeyPad keyPad = keyPads[keyPadIndex];
 
         long shortestSequenceLength = long.MaxValue;
-        foreach (List<char> moveSequence in keyPad.GetShortestPath(startKey, targetKey))
+        foreach (List<char> moveSequence in keyPad.GetShortestSequences(startKey, targetKey))
         {
             long sequenceLength = 0;
             char lastKey = 'A';
@@ -108,6 +148,7 @@ public class Program
             }
         }
 
+        cache.Add((startKey, targetKey, keyPadIndex), shortestSequenceLength);
         return shortestSequenceLength;
     }
 }
@@ -145,7 +186,7 @@ internal abstract class KeyPad
     protected Dictionary<(int, int), char> _keys;
     protected Dictionary<char, (int, int)> _keyPositions;
 
-    public IEnumerable<List<char>> GetShortestPath(char startKey, char targetKey)
+    public IEnumerable<List<char>> GetShortestSequences(char startKey, char targetKey)
     {
         Queue<((int, int) position, List<char> moves)> positionsToCheck = new();
 
