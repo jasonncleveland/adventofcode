@@ -30,12 +30,14 @@ public class Program
                 long part1 = SolvePart1(lines);
                 part1Timer.Stop();
                 Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
+                Console.WriteLine($"Cache Items: {cache.Count} Hits: {cacheHits} Misses: {cacheMisses}");
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
                 long part2 = SolvePart2(lines);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
+                Console.WriteLine($"Cache Items: {cache.Count} Hits: {cacheHits} Misses: {cacheMisses}");
             }
             else
             {
@@ -69,11 +71,21 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        List<long> weights = ParseInput(lines);
 
-        // TODO: Implement logic to solve part 2
+        long sum = weights.Sum();
+        long groupSum = sum / 4;
 
-        return total;
+        cache = new();
+        cacheHits = 0;
+        cacheMisses = 0;
+
+        minSize = long.MaxValue;
+        minQuantumEntanglement = new();
+
+        BuildGroupsRec(weights, groupSum, []);
+
+        return minQuantumEntanglement[minSize];
     }
 
     static List<long> ParseInput(string[] lines)
