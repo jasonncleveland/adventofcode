@@ -1,9 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 public class Program
 {
+    static long minSize = long.MaxValue;
+    static Dictionary<long, long> minQuantumEntanglement = new();
+    static HashSet<string> cache = new();
+    static long cacheHits = 0;
+    static long cacheMisses = 0;
+
     static void Main(string[] args)
     {
         if (args.Length > 0)
@@ -42,11 +50,21 @@ public class Program
 
     static long SolvePart1(string[] lines)
     {
-        long total = 0;
+        List<long> weights = ParseInput(lines);
 
-        // TODO: Implement logic to solve part 1
+        long sum = weights.Sum();
+        long groupSum = sum / 3;
 
-        return total;
+        cache = new();
+        cacheHits = 0;
+        cacheMisses = 0;
+
+        minSize = long.MaxValue;
+        minQuantumEntanglement = new();
+
+        BuildGroupsRec(weights, groupSum, []);
+
+        return minQuantumEntanglement[minSize];
     }
 
     static long SolvePart2(string[] lines)
@@ -56,5 +74,59 @@ public class Program
         // TODO: Implement logic to solve part 2
 
         return total;
+    }
+
+    static List<long> ParseInput(string[] lines)
+    {
+        List<long> weights = new();
+
+        foreach (string line in lines)
+        {
+            weights.Add(long.Parse(line));
+        }
+
+        return weights;
+    }
+
+    static void BuildGroupsRec(List<long> weights, long maxGroupSum, List<long> group)
+    {
+        group.Sort();
+        string cacheKey = $"{string.Join(",", group)}";
+        if (cache.Contains(cacheKey))
+        {
+            cacheHits++;
+            return;
+        }
+        cacheMisses++;
+        cache.Add(cacheKey);
+
+        long groupSum = group.Sum();
+        if (maxGroupSum == groupSum)
+        {
+            long quantumEntanglement = group.Aggregate(1L, (product, current) => product * current);
+            if (group.Count <= minSize)
+            {
+                minSize = group.Count;
+                if (!minQuantumEntanglement.ContainsKey(minSize))
+                {
+                    minQuantumEntanglement.Add(minSize, quantumEntanglement);
+                }
+                if (quantumEntanglement < minQuantumEntanglement[minSize])
+                {
+                    minQuantumEntanglement[minSize] = quantumEntanglement;
+                }
+            }
+            return;
+        }
+
+        foreach (long weight in weights)
+        {
+            List<long> weightsCopy = new(weights);
+            weightsCopy.Remove(weight);
+            if (groupSum + weight <= maxGroupSum)
+            {
+                BuildGroupsRec(weightsCopy, maxGroupSum, [..group, weight]);
+            }
+        }
     }
 }
