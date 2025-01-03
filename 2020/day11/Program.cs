@@ -48,7 +48,7 @@ public class Program
         int result;
         do
         {
-            result = SimulateSeatChanges(grid);
+            result = SimulateSeatChanges(grid, 4);
         } while (result > 0);
 
         return CountOccurences(grid, '#');
@@ -56,11 +56,15 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        List<List<char>> grid = ParseInput(lines);
 
-        // TODO: Implement logic to solve part 2
+        int result;
+        do
+        {
+            result = SimulateSeatChanges(grid, 5, true);
+        } while (result > 0);
 
-        return total;
+        return CountOccurences(grid, '#');
     }
 
     static List<List<char>> ParseInput(string[] lines)
@@ -99,7 +103,7 @@ public class Program
         return copy;
     }
 
-    static int SimulateSeatChanges(List<List<char>> grid)
+    static int SimulateSeatChanges(List<List<char>> grid, int leniency, bool recurse = false)
     {
         int seatsChanged = 0;
 
@@ -112,7 +116,7 @@ public class Program
                 if (gridCopy[row][column] == 'L')
                 {
                     // See how many occupied seats are around this seat
-                    int neighboursCount = CountNeighbours(gridCopy, row, column, '#');
+                    int neighboursCount = CountNeighbours(gridCopy, row, column, recurse);
                     if (neighboursCount == 0)
                     {
                         grid[row][column] = '#';
@@ -122,8 +126,8 @@ public class Program
                 else if (gridCopy[row][column] == '#')
                 {
                     // See how many occupied seats are around this seat
-                    int neighboursCount = CountNeighbours(gridCopy, row, column, '#');
-                    if (neighboursCount >= 4)
+                    int neighboursCount = CountNeighbours(gridCopy, row, column, recurse);
+                    if (neighboursCount >= leniency)
                     {
                         grid[row][column] = 'L';
                         seatsChanged++;
@@ -135,52 +139,50 @@ public class Program
         return seatsChanged;
     }
 
-    static int CountNeighbours(List<List<char>> grid, int row, int column, char neighbour)
+    static int CountNeighbours(List<List<char>> grid, int row, int column, bool recurse)
     {
         int neighbours = 0;
 
         // NW
-        if (column - 1 >= 0 && row - 1 >= 0 && grid[row - 1][column - 1] == '#')
-        {
-            neighbours++;
-        }
+        neighbours += CountNeighboursRec(grid, row, column, (-1, -1), recurse);
         // N
-        if (row - 1 >= 0 && grid[row - 1][column] == '#')
-        {
-            neighbours++;
-        }
+        neighbours += CountNeighboursRec(grid, row, column, (-1, 0), recurse);
         // NE
-        if (column + 1 < grid[row].Count && row - 1 >= 0 && grid[row - 1][column + 1] == '#')
-        {
-            neighbours++;
-        }
-        // E
-        if (column + 1 < grid[row].Count && grid[row][column + 1] == '#')
-        {
-            neighbours++;
-        }
-        // SE
-        if (column + 1 < grid[row].Count && row + 1 < grid.Count && grid[row + 1][column + 1] == '#')
-        {
-            neighbours++;
-        }
-        // S
-        if (row + 1 < grid.Count && grid[row + 1][column] == '#')
-        {
-            neighbours++;
-        }
-        // SW
-        if (column - 1 >= 0 && row + 1 < grid.Count && grid[row + 1][column - 1] == '#')
-        {
-            neighbours++;
-        }
+        neighbours += CountNeighboursRec(grid, row, column, (-1, 1), recurse);
         // W
-        if (column - 1 >= 0 && grid[row][column - 1] == '#')
-        {
-            neighbours++;
-        }
+        neighbours += CountNeighboursRec(grid, row, column, (0, -1), recurse);
+        // E
+        neighbours += CountNeighboursRec(grid, row, column, (0, 1), recurse);
+        // SW
+        neighbours += CountNeighboursRec(grid, row, column, (1, -1), recurse);
+        // S
+        neighbours += CountNeighboursRec(grid, row, column, (1, 0), recurse);
+        // SE
+        neighbours += CountNeighboursRec(grid, row, column, (1, 1), recurse);
 
         return neighbours;
+    }
+
+    static int CountNeighboursRec(List<List<char>> grid, int row, int column, (int row, int column) delta, bool recurse = false)
+    {
+        int nextRow = row + delta.row;
+        int nextColumn = column + delta.column;
+
+        if (nextRow < 0 || nextRow >= grid.Count || nextColumn < 0 || nextColumn >= grid[nextRow].Count)
+        {
+            return 0;
+        }
+
+        if (grid[nextRow][nextColumn] != '.')
+        {
+            return grid[nextRow][nextColumn] == '#' ? 1 : 0;
+        }
+
+        if (!recurse)
+        {
+            return 0;
+        }
+        return CountNeighboursRec(grid, nextRow, nextColumn, delta, recurse);
     }
 
     static int CountOccurences(List<List<char>> grid, char value)
