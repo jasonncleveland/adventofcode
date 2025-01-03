@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -9,6 +10,7 @@ public class Program
         if (args.Length > 0)
         {
             string fileName = args[0];
+            int history = args.Length > 1 ? int.Parse(args[1]) : 25;
             if (File.Exists(fileName))
             {
                 Stopwatch stopWatch = new Stopwatch();
@@ -19,7 +21,7 @@ public class Program
 
                 Stopwatch part1Timer = new Stopwatch();
                 part1Timer.Start();
-                long part1 = SolvePart1(lines);
+                long part1 = SolvePart1(lines, history);
                 part1Timer.Stop();
                 Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
 
@@ -40,11 +42,44 @@ public class Program
         }
     }
 
-    static long SolvePart1(string[] lines)
+    static long SolvePart1(string[] lines, int history)
     {
-        long total = 0;
+        List<int> previousNumbers = new();
 
-        // TODO: Implement logic to solve part 1
+        foreach (string line in lines)
+        {
+            int number = int.Parse(line);
+            if (previousNumbers.Count == history)
+            {
+                bool isValid = false;
+                foreach (int previousNumber in previousNumbers)
+                {
+                    int diff = number - previousNumber;
+                    if (diff == previousNumber)
+                    {
+                        // Ignore the same value
+                        continue;
+                    }
+
+                    // Check if the difference exists in the list
+                    int diffIndex = previousNumbers.IndexOf(diff);
+                    if (diffIndex > -1)
+                    {
+                        isValid = true;
+                        break;
+                    }
+                }
+                if (!isValid)
+                {
+                    return number;
+                }
+
+                // Remove the oldest number from the list
+                previousNumbers.RemoveAt(0);
+            }
+            // Add the new number to the end of the list
+            previousNumbers.Add(number);
+        }
 
         return total;
     }
