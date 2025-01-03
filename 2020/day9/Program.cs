@@ -27,7 +27,7 @@ public class Program
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                long part2 = SolvePart2(lines);
+                long part2 = SolvePart2(lines, history);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
@@ -44,17 +44,79 @@ public class Program
 
     static long SolvePart1(string[] lines, int history)
     {
-        List<int> previousNumbers = new();
+        List<long> numbers = ParseInput(lines);
+
+        return FindInvalidNumber(numbers, history);
+    }
+
+    static long SolvePart2(string[] lines, int history)
+    {
+        List<long> numbers = ParseInput(lines);
+
+        long invalidNumber = FindInvalidNumber(numbers, history);
+
+        for (int i = 0; i < numbers.Count; i++)
+        {
+            long number = numbers[i];
+            long total = number;
+
+            List<long> sequence = new();
+            sequence.Add(number);
+
+            bool isValid = false;
+            for (int j = i + 1; j < numbers.Count; j++)
+            {
+                number = numbers[j];
+                total += number;
+
+                sequence.Add(number);
+
+                if (total > invalidNumber)
+                {
+                    break;
+                }
+
+                if (total == invalidNumber)
+                {
+                    isValid = true;
+                    break;
+                }
+            }
+
+            if (isValid)
+            {
+                sequence.Sort();
+                return sequence[0] + sequence[sequence.Count - 1];
+            }
+        }
+
+        throw new Exception("Found no valid sequence of numbers");
+    }
+
+    static List<long> ParseInput(string[] lines)
+    {
+        List<long> numbers = new();
 
         foreach (string line in lines)
         {
-            int number = int.Parse(line);
+            numbers.Add(long.Parse(line));
+        }
+
+        return numbers;
+    }
+
+    static long FindInvalidNumber(List<long> numbers, int history)
+    {
+        List<long> previousNumbers = new();
+
+        foreach (long number in numbers)
+        {
             if (previousNumbers.Count == history)
             {
                 bool isValid = false;
-                foreach (int previousNumber in previousNumbers)
+                foreach (long previousNumber in previousNumbers)
                 {
-                    int diff = number - previousNumber;
+                    long diff = number - previousNumber;
                     if (diff == previousNumber)
                     {
                         // Ignore the same value
@@ -62,13 +124,14 @@ public class Program
                     }
 
                     // Check if the difference exists in the list
-                    int diffIndex = previousNumbers.IndexOf(diff);
+                    long diffIndex = previousNumbers.IndexOf(diff);
                     if (diffIndex > -1)
                     {
                         isValid = true;
                         break;
                     }
                 }
+
                 if (!isValid)
                 {
                     return number;
@@ -81,15 +144,6 @@ public class Program
             previousNumbers.Add(number);
         }
 
-        return total;
-    }
-
-    static long SolvePart2(string[] lines)
-    {
-        long total = 0;
-
-        // TODO: Implement logic to solve part 2
-
-        return total;
+        throw new Exception("Found no invalid number");
     }
 }
