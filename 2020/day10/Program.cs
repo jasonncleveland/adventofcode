@@ -2,9 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 public class Program
 {
+    static Dictionary<(int, int), long> cache = new();
+    static int cacheHits = 0;
+    static int cacheMisses = 0;
+
     static void Main(string[] args)
     {
         if (args.Length > 0)
@@ -29,6 +34,7 @@ public class Program
                 long part2 = SolvePart2(lines);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
+                Console.WriteLine($"Cache Items: {cache.Count} Hits: {cacheHits} Misses: {cacheMisses}");
             }
             else
             {
@@ -66,11 +72,15 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        List<int> adapters = ParseInput(lines);
 
-        // TODO: Implement logic to solve part 2
+        adapters.Sort();
 
-        return total;
+        // Calculate and add the final adapter
+        int deviceAdapter = adapters[adapters.Count - 1] + 3;
+        adapters.Add(deviceAdapter);
+
+        return FindAdapterCombinationsRec(adapters);
     }
 
     static List<int> ParseInput(string[] lines)
@@ -83,5 +93,31 @@ public class Program
         }
 
         return adapters;
+    }
+
+    static long FindAdapterCombinationsRec(List<int> adapters, int previousAdapter = 0, int level = 0)
+    {
+        if (previousAdapter == adapters.Last())
+        {
+            return 1;
+        }
+
+        if (cache.ContainsKey((previousAdapter, level)))
+        {
+            cacheHits++;
+            return cache[(previousAdapter, level)];
+        }
+        cacheMisses++;
+
+        IEnumerable<int> reachableAdapters = adapters.Where(adapter => adapter - previousAdapter >= 1 && adapter - previousAdapter <= 3);
+    
+        long combinations = 0;
+        foreach (int adapter in reachableAdapters)
+        {
+            combinations += FindAdapterCombinationsRec(adapters, adapter, level + 1);
+        }
+
+        cache[(previousAdapter, level)] = combinations;
+        return combinations;
     }
 }
