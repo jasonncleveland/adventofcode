@@ -102,6 +102,12 @@ public class Program
 
     static void BuildGroupsRec(List<long> weights, long maxGroupSum, List<long> group)
     {
+        if (group.Count > minSize)
+        {
+            // Once we've found a solution, we only care about shorter solutions so we can ignore any longer ones
+            return;
+        }
+
         group.Sort();
         string cacheKey = $"{string.Join(",", group)}";
         if (cache.Contains(cacheKey))
