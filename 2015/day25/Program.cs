@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 
 public class Program
 {
@@ -19,15 +20,9 @@ public class Program
 
                 Stopwatch part1Timer = new Stopwatch();
                 part1Timer.Start();
-                long part1 = SolvePart1(lines);
+                long part1 = SolvePart1(lines[0]);
                 part1Timer.Stop();
                 Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
-
-                Stopwatch part2Timer = new Stopwatch();
-                part2Timer.Start();
-                long part2 = SolvePart2(lines);
-                part2Timer.Stop();
-                Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
             else
             {
@@ -40,21 +35,47 @@ public class Program
         }
     }
 
-    static long SolvePart1(string[] lines)
+    static long SolvePart1(string line)
     {
-        long total = 0;
+        string pattern = @"row (?<row>\d+), column (?<column>\d+)";
+        Regex regex = new Regex(pattern, RegexOptions.Compiled);
 
-        // TODO: Implement logic to solve part 1
+        Match match = regex.Match(line);
+        int targetRow = int.Parse(match.Groups["row"].Value);
+        int targetColumn = int.Parse(match.Groups["column"].Value);
 
-        return total;
-    }
+        long firstCode = 20151125;
 
-    static long SolvePart2(string[] lines)
-    {
-        long total = 0;
+        int row = 1;
+        int column = 1;
+        int maxRow = 1;
 
-        // TODO: Implement logic to solve part 2
+        long previousCode = firstCode;
 
-        return total;
+        while (true)
+        {
+            if (row == targetRow && column == targetColumn)
+            {
+                return previousCode;
+            }
+
+            // The next position is up and right from the current position
+            int nextRow = row - 1;
+            int nextColumn = column + 1;
+            if (nextRow == 0)
+            {
+                // We have reached the top, reset to the next unchecked row and the first column
+                maxRow += 1;
+                nextRow = maxRow;
+                nextColumn = 1;
+            }
+
+            // Calculate the next code
+            long nextCode = (previousCode * 252533) % 33554393;
+            previousCode = nextCode;
+
+            row = nextRow;
+            column = nextColumn;
+        }
     }
 }
