@@ -50,11 +50,9 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        List<Instruction> instructions = ParseInput(lines);
 
-        // TODO: Implement logic to solve part 2
-
-        return total;
+        return ProcessInstructions(instructions, 1);
     }
 
     static List<Instruction> ParseInput(string[] lines)
@@ -81,9 +79,11 @@ public class Program
                 // We only have an instruction and register/offset
                 string[] operationParts = lineParts[0].Split(' ');
                 operation = operationParts[0];
+
+                // Attempt to parse the offset from the operation arguments
                 if (!int.TryParse(operationParts[1], out offset))
                 {
-                    // We have a register
+                    // No offset was parsed so we have a register
                     register = operationParts[1][0];
                 }
             }
@@ -94,13 +94,13 @@ public class Program
         return instructions;
     }
 
-    static long ProcessInstructions(List<Instruction> instructions)
+    static long ProcessInstructions(List<Instruction> instructions, int startValueA = 0)
     {
         int instructionPointer = 0;
 
         Dictionary<char, long> registers = new()
         {
-            { 'a', 0 },
+            { 'a', startValueA },
             { 'b', 0 },
         };
 
