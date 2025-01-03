@@ -52,11 +52,10 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        Boss boss = ParseInput(lines);
+        Player player = new Player(50, 500);
 
-        // TODO: Implement logic to solve part 2
-
-        return total;
+        return SimulateBattle(player, boss, true);
     }
 
     static Boss ParseInput(string[] lines)
@@ -67,7 +66,7 @@ public class Program
         return new Boss(hp, damage);
     }
 
-    static long SimulateBattle(Player player, Boss boss)
+    static long SimulateBattle(Player player, Boss boss, bool hardMode = false)
     {
         PriorityQueue<GameState, int> statesToCheck = new();
 
@@ -90,24 +89,47 @@ public class Program
             ActiveSpells = [],
         }, 0);
 
+        // There can be multiple spells on a given turn that kill the boss,
+        // so we need to check all possibilities and keep track of the cheapest spell cost
+        int minManaCost = int.MaxValue;
         while (statesToCheck.Count > 0)
         {
             GameState state = statesToCheck.Dequeue();
 
+            if (state.ManaSpent > minManaCost)
+            {
+                // We have already found a cheaper solution
+                continue;
+            }
+
+            // Hard mode subtracts 1 hit point at the start of every player turn
+            if (hardMode && state.TurnId % 2 == 0)
+            {
+                state.Player.HP -= 1;
+                if (state.Player.HP <= 0)
+                {
+                    // Player has died from hard mode
+                    continue;
+                }
+            }
+
             List<int> effectsToRemove = new();
+            // Process all passive spell effects before handling the turn
             foreach (Spell spell in state.ActiveSpells)
             {
                 spell.ProcessEffect(state.Player, state.Boss);
                 if (spell.EffectDuration == 0)
                 {
-                    spell.EndEffect(state.Player, state.Boss);
+                    // The spell effect has expired so we need to move it back to the available spells
                     effectsToRemove.Add(state.ActiveSpells.IndexOf(spell));
                 }
             }
-            
+
+            // Move any expired spells back to the list of available spells
             foreach (int indexToRemove in effectsToRemove)
             {
                 Spell spell = state.ActiveSpells[indexToRemove];
+                spell.EndEffect(state.Player, state.Boss);
                 state.ActiveSpells.RemoveAt(indexToRemove);
                 state.AvailableSpells.Add((Spell) spell.Clone());
             }
@@ -115,16 +137,18 @@ public class Program
             // Check if the player or boss has died
             if (state.Boss.HP <= 0)
             {
-                return state.ManaSpent;
-            }
-            if (state.Player.HP <= 0)
-            {
-                continue;
+                // Boss has died from a passive spell effect
+                if (state.ManaSpent < minManaCost)
+                {
+                    minManaCost = state.ManaSpent;
+                }
             }
 
             if (state.TurnId % 2 == 0)
             {
                 // Player turn
+
+                // Attempt to cast all available spells
                 foreach (Spell spell in state.AvailableSpells)
                 {
                     Player playerCopy = (Player) state.Player.Clone();
@@ -138,9 +162,10 @@ public class Program
                     // If we spend more mana then available, stop
                     if (playerCopy.Mana < 0)
                     {
+                        // Player has spent more mana then available
                         continue;
                     }
-                
+
                     // Process the spell action if one is present
                     if (spell.HasAction)
                     {
@@ -150,9 +175,14 @@ public class Program
                     // If a spell manages to kill the boss, stop
                     if (bossCopy.HP <= 0)
                     {
-                        return state.ManaSpent + spell.Cost;
+                        // Boss has died from a spell action
+                        if (state.ManaSpent + spell.Cost < minManaCost)
+                        {
+                            minManaCost = state.ManaSpent + spell.Cost;
+                        }
+                        continue;
                     }
-                
+
                     // Add the spell to the list of active spells if an effect is present
                     if (spell.HasEffect)
                     {
@@ -176,10 +206,14 @@ public class Program
             else
             {
                 // Boss turn
+
+                // Boss must deal at least 1 damage
                 int damageDealt = Math.Max(state.Boss.Damage - state.Player.Armor, 1);
                 state.Player.HP -= damageDealt;
+
                 if (state.Player.HP <= 0)
                 {
+                    // The player has died from a boss attack
                     continue;
                 }
 
@@ -195,7 +229,7 @@ public class Program
             }
         }
 
-        return -1;
+        return minManaCost;
     }
 }
 
