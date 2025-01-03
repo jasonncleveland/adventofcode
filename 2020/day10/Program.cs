@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -42,11 +43,25 @@ public class Program
 
     static long SolvePart1(string[] lines)
     {
-        long total = 0;
+        List<int> adapters = ParseInput(lines);
 
-        // TODO: Implement logic to solve part 1
+        adapters.Sort();
 
-        return total;
+        Dictionary<int, int> differences = new()
+        {
+            { 1, 0 },
+            { 3, 1 },
+        };
+
+        int previousAdapter = 0;
+        foreach (int adapter in adapters)
+        {
+            int diff = adapter - previousAdapter;
+            previousAdapter = adapter;
+            differences[diff] += 1;
+        }
+
+        return differences[1] * differences[3];
     }
 
     static long SolvePart2(string[] lines)
@@ -56,5 +71,17 @@ public class Program
         // TODO: Implement logic to solve part 2
 
         return total;
+    }
+
+    static List<int> ParseInput(string[] lines)
+    {
+        List<int> adapters = new();
+
+        foreach (string line in lines)
+        {
+            adapters.Add(int.Parse(line));
+        }
+
+        return adapters;
     }
 }
