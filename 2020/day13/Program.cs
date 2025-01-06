@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -42,11 +43,29 @@ public class Program
 
     static long SolvePart1(string[] lines)
     {
-        long total = 0;
+        int startTime = int.Parse(lines[0]);
 
-        // TODO: Implement logic to solve part 1
+        List<int> buses = new();
+        foreach (string bus in lines[1].Split(","))
+        {
+            if (int.TryParse(bus, out int busNumber))
+            {
+                buses.Add(busNumber);
+            }
+        }
 
-        return total;
+        for (int currentTime = startTime; currentTime < startTime + 50; currentTime++)
+        {
+            foreach (int bus in buses)
+            {
+                if (currentTime % bus == 0)
+                {
+                    return (currentTime - startTime) * bus;
+                }
+            }
+        }
+
+        return -1;
     }
 
     static long SolvePart2(string[] lines)
