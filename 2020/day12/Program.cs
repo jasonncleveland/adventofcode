@@ -42,9 +42,7 @@ public class Program
 
     static long SolvePart1(string[] lines)
     {
-        int x = 0;
-        int y = 0;
-
+        CartesianPoint shipPosition = new(0, 0);
         Direction direction = Direction.East;
 
         foreach (string line in lines)
@@ -55,16 +53,16 @@ public class Program
             switch (operation)
             {
                 case 'N':
-                    y -= number;
+                    shipPosition.Y -= number;
                     break;
                 case 'S':
-                    y += number;
+                    shipPosition.Y += number;
                     break;
                 case 'W':
-                    x -= number;
+                    shipPosition.X -= number;
                     break;
                 case 'E':
-                    x += number;
+                    shipPosition.X += number;
                     break;
                 case 'L':
                 case 'R':
@@ -75,24 +73,93 @@ public class Program
                     break;
                 case 'F':
                     (int x, int y) delta = direction.GetDelta();
-                    x += delta.x * number;
-                    y += delta.y * number;
+                    shipPosition.X += delta.x * number;
+                    shipPosition.Y += delta.y * number;
                     break;
                 default:
                     throw new Exception($"Found invalid operation {operation}");
             }
         }
 
-        return Math.Abs(x) + Math.Abs(y);
+        return Math.Abs(shipPosition.X) + Math.Abs(shipPosition.Y);
     }
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        CartesianPoint shipPosition = new(0, 0);
+        CartesianPoint waypointPosition = new(10, -1);
 
-        // TODO: Implement logic to solve part 2
+        foreach (string line in lines)
+        {
+            char operation = line[0];
+            int number = int.Parse(line.Substring(1));
 
-        return total;
+            long deltaX = waypointPosition.X - shipPosition.X;
+            long deltaY = waypointPosition.Y - shipPosition.Y;
+            switch (operation)
+            {
+                case 'N':
+                    waypointPosition.Y -= number;
+                    break;
+                case 'S':
+                    waypointPosition.Y += number;
+                    break;
+                case 'W':
+                    waypointPosition.X -= number;
+                    break;
+                case 'E':
+                    waypointPosition.X += number;
+                    break;
+                case 'L':
+                case 'R':
+                    // Calculate and perform the correct number of 90 degree rotations
+                    for (int i = 0; i < number / 90; i++)
+                    {
+                        // When rotating, the x and y coordinates swap positions
+                        if (operation == 'L')
+                        {
+                            // When rotating left, the y becomes the negated x
+                            long tmp = deltaX * -1;
+                            deltaX = deltaY;
+                            deltaY = tmp;
+                        }
+                        else
+                        {
+                            // When rotating left, the x becomes the negated y
+                            long tmp = deltaX;
+                            deltaX = deltaY * -1;
+                            deltaY = tmp;
+                        }
+                    }
+                    waypointPosition.X = shipPosition.X + deltaX;
+                    waypointPosition.Y = shipPosition.Y + deltaY;
+                    break;
+                case 'F':
+                    // Move the waypoint the given number of times
+                    waypointPosition.X += deltaX * number;
+                    waypointPosition.Y += deltaY * number;
+
+                    // Move the ship to the waypoint minus the delta
+                    shipPosition.X = waypointPosition.X - deltaX;
+                    shipPosition.Y = waypointPosition.Y - deltaY;
+                    break;
+                default:
+                    throw new Exception($"Found invalid operation {operation}");
+            }
+        }
+
+        return Math.Abs(shipPosition.X) + Math.Abs(shipPosition.Y);
+    }
+}
+
+class CartesianPoint(long x, long y)
+{
+    public long X { get; set; } = x;
+    public long Y { get; set; } = y;
+
+    public override string ToString()
+    {
+        return $"({X}, {Y})";
     }
 }
 
