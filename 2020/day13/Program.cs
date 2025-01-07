@@ -54,7 +54,7 @@ public class Program
             }
         }
 
-        for (int currentTime = startTime; currentTime < startTime + 50; currentTime++)
+        for (int currentTime = startTime;; currentTime++)
         {
             foreach (int bus in buses)
             {
@@ -64,16 +64,34 @@ public class Program
                 }
             }
         }
-
-        return -1;
     }
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        string[] lineParts = lines[1].Split(",");
 
-        // TODO: Implement logic to solve part 2
+        Queue<(int number, int offset)> buses = new();
+        for (int i = 0; i < lineParts.Length; i++)
+        {
+            if (int.TryParse(lineParts[i], out int bus))
+            {
+                buses.Enqueue((bus, i));
+            }
+        }
 
-        return total;
+        long offset = 1;
+        (int number, int offset) currentBus = buses.Dequeue();
+        for (long currentTime = currentBus.number;; currentTime += offset)
+        {
+            if ((currentTime + currentBus.offset) % currentBus.number == 0)
+            {
+                offset *= currentBus.number;
+                if (buses.Count == 0)
+                {
+                    return currentTime;
+                }
+                currentBus = buses.Dequeue();
+            }
+        }
     }
 }
