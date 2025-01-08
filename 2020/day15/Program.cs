@@ -26,7 +26,7 @@ public class Program
 
                 Stopwatch part2Timer = new Stopwatch();
                 part2Timer.Start();
-                long part2 = SolvePart2(lines);
+                long part2 = SolvePart2(lines[0]);
                 part2Timer.Stop();
                 Console.WriteLine($"Part 2: {part2} ({part2Timer.Elapsed.TotalMilliseconds} ms)");
             }
@@ -59,7 +59,7 @@ public class Program
         }
 
         // Continue until turn 2020 is reached
-        for (;; turnNumber++)
+        for (; turnNumber <= 2020; turnNumber++)
         {
             (int, int) previous = history[lastSpokenNumber];
             if (previous.Item2 == -1)
@@ -79,20 +79,49 @@ public class Program
             {
                 history[lastSpokenNumber] = (turnNumber, history[lastSpokenNumber].Item1);
             }
-
-            if (turnNumber == 2020)
-            {
-                return lastSpokenNumber;
-            }
         }
+        return lastSpokenNumber;
     }
 
-    static long SolvePart2(string[] lines)
+    static long SolvePart2(string line)
     {
-        long total = 0;
+        List<int> numbers = new List<int>(Array.ConvertAll(line.Split(','), item => int.Parse(item)));
 
-        // TODO: Implement logic to solve part 2
+        Dictionary<int, (int, int)> history = new();
 
-        return total;
+        int turnNumber = 1;
+        int lastSpokenNumber = 0;
+
+        // Process starting numbers
+        foreach (int number in numbers)
+        {
+            history[number] = (turnNumber, -1);
+            lastSpokenNumber = number;
+            turnNumber++;
+        }
+
+        // Continue until turn 30000000 is reached
+        for (; turnNumber <= 30000000; turnNumber++)
+        {
+            (int, int) previous = history[lastSpokenNumber];
+            if (previous.Item2 == -1)
+            {
+                lastSpokenNumber = 0;
+            }
+            else
+            {
+                lastSpokenNumber = previous.Item1 - previous.Item2;
+            }
+
+            if (!history.ContainsKey(lastSpokenNumber))
+            {
+                history[lastSpokenNumber] = (turnNumber, -1);
+            }
+            else
+            {
+                history[lastSpokenNumber] = (turnNumber, history[lastSpokenNumber].Item1);
+            }
+        }
+        return lastSpokenNumber;
     }
 }
