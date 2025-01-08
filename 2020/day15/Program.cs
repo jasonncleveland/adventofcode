@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -19,7 +20,7 @@ public class Program
 
                 Stopwatch part1Timer = new Stopwatch();
                 part1Timer.Start();
-                long part1 = SolvePart1(lines);
+                long part1 = SolvePart1(lines[0]);
                 part1Timer.Stop();
                 Console.WriteLine($"Part 1: {part1} ({part1Timer.Elapsed.TotalMilliseconds} ms)");
 
@@ -40,13 +41,50 @@ public class Program
         }
     }
 
-    static long SolvePart1(string[] lines)
+    static long SolvePart1(string line)
     {
-        long total = 0;
+        List<int> numbers = new List<int>(Array.ConvertAll(line.Split(','), item => int.Parse(item)));
 
-        // TODO: Implement logic to solve part 1
+        Dictionary<int, (int, int)> history = new();
 
-        return total;
+        int turnNumber = 1;
+        int lastSpokenNumber = 0;
+
+        // Process starting numbers
+        foreach (int number in numbers)
+        {
+            history[number] = (turnNumber, -1);
+            lastSpokenNumber = number;
+            turnNumber++;
+        }
+
+        // Continue until turn 2020 is reached
+        for (;; turnNumber++)
+        {
+            (int, int) previous = history[lastSpokenNumber];
+            if (previous.Item2 == -1)
+            {
+                lastSpokenNumber = 0;
+            }
+            else
+            {
+                lastSpokenNumber = previous.Item1 - previous.Item2;
+            }
+
+            if (!history.ContainsKey(lastSpokenNumber))
+            {
+                history[lastSpokenNumber] = (turnNumber, -1);
+            }
+            else
+            {
+                history[lastSpokenNumber] = (turnNumber, history[lastSpokenNumber].Item1);
+            }
+
+            if (turnNumber == 2020)
+            {
+                return lastSpokenNumber;
+            }
+        }
     }
 
     static long SolvePart2(string[] lines)
