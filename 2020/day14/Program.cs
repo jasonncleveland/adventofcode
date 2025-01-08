@@ -89,8 +89,67 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        Dictionary<long, long> memory = new();
+
+        string mask = "";
+        foreach (string line in lines)
+        {
+            string[] lineParts = line.Split(" = ");
+            if (line.StartsWith("mask"))
+            {
+                mask = lineParts[1];
+            }
+            else
+            {
+                int address = int.Parse(lineParts[0].Substring(4, lineParts[0].Length - 5));
+                long value = long.Parse(lineParts[1]);
+                char[] binary = Convert.ToString(address, 2).PadLeft(36, '0').ToCharArray();
+
+                List<long> possibleAddresses = GetPossibleAddressesRec(mask, binary);
+
+                foreach (long possibleAddress in possibleAddresses)
+                {
+                    memory[possibleAddress] = value;
+                }
+            }
+        }
+
+        foreach (long value in memory.Values)
+        {
+            total += value;
+        }
 
         return total;
+    }
+
+    static List<long> GetPossibleAddressesRec(string mask, char[] address, int index = 0, long accumulatedAddress = 0)
+    {
+        if (index == mask.Length)
+        {
+            return new() { accumulatedAddress };
+        }
+
+        long position = (long) Math.Pow(2, mask.Length - 1 - index);
+        switch (mask[index])
+        {
+            case '0':
+                if (address[index] == '1')
+                {
+                    return GetPossibleAddressesRec(mask, address, index + 1, accumulatedAddress + position);
+                }
+                else
+                {
+                    return GetPossibleAddressesRec(mask, address, index + 1, accumulatedAddress);
+                }
+            case '1':
+                return GetPossibleAddressesRec(mask, address, index + 1, accumulatedAddress + position);
+            case 'X':
+                List<long> possibleAddresses = new();
+                possibleAddresses.AddRange(GetPossibleAddressesRec(mask, address, index + 1, accumulatedAddress + position));
+                possibleAddresses.AddRange(GetPossibleAddressesRec(mask, address, index + 1, accumulatedAddress));
+                return possibleAddresses;
+            default:
+                throw new Exception($"Invalid character found in mask {mask[index]}");
+        }
     }
 }
