@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -44,7 +45,60 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 1
+        int lineIndex = 0;
+
+        List<TicketField> ticketFields = new();
+
+        // Parse field ranges
+        for (;; lineIndex++)
+        {
+            string line = lines[lineIndex];
+            if (string.IsNullOrEmpty(line))
+            {
+                break;
+            }
+            string[] lineParts = line.Split(": ");
+            TicketField ticketField = new(lineParts[0]);
+            foreach (string range in lineParts[1].Split(" or "))
+            {
+                string[] rangeParts = range.Split('-');
+                ticketField.Ranges.Add((int.Parse(rangeParts[0]), int.Parse(rangeParts[1])));
+            }
+            ticketFields.Add(ticketField);
+        }
+
+        // Parse nearby tickets
+        lineIndex += 5;
+        for (; lineIndex < lines.Length; lineIndex++)
+        {
+            string line = lines[lineIndex];
+            List<int> numbers = new(Array.ConvertAll<string, int>(line.Split(','), number => int.Parse(number)));
+            foreach (int number in numbers)
+            {
+                bool isValid = false;
+                foreach (TicketField ticketField in ticketFields)
+                {
+                    foreach ((int lower, int upper) in ticketField.Ranges)
+                    {
+                        if (number >= lower && number <= upper)
+                        {
+                            isValid = true;
+                            break;
+                        }
+                    }
+
+                    if (isValid)
+                    {
+                        break;
+                    }
+                }
+
+                if (!isValid)
+                {
+                    total += number;
+                }
+            }
+        }
 
         return total;
     }
@@ -56,5 +110,16 @@ public class Program
         // TODO: Implement logic to solve part 2
 
         return total;
+    }
+}
+
+class TicketField(string name)
+{
+    public string Name { get; set; } = name;
+    public List<(int lower, int upper)> Ranges { get; set; } = [];
+
+    public override string ToString()
+    {
+        return $"{Name}: {string.Join(" or ", Ranges)}";
     }
 }
