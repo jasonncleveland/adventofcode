@@ -105,9 +105,145 @@ public class Program
 
     static long SolvePart2(string[] lines)
     {
-        long total = 0;
+        int lineIndex = 0;
 
-        // TODO: Implement logic to solve part 2
+        List<TicketField> ticketFields = new();
+
+        // Parse field ranges
+        for (;; lineIndex++)
+        {
+            string line = lines[lineIndex];
+            if (string.IsNullOrEmpty(line))
+            {
+                break;
+            }
+            string[] lineParts = line.Split(": ");
+            TicketField ticketField = new(lineParts[0]);
+            foreach (string range in lineParts[1].Split(" or "))
+            {
+                string[] rangeParts = range.Split('-');
+                ticketField.Ranges.Add((int.Parse(rangeParts[0]), int.Parse(rangeParts[1])));
+            }
+            ticketFields.Add(ticketField);
+        }
+
+        // Parse ticket
+        lineIndex += 2;
+        List<int> ticket = new(Array.ConvertAll<string, int>(lines[lineIndex].Split(','), number => int.Parse(number)));
+
+        // Parse nearby tickets
+        List<List<int>> validTickets = new();
+        lineIndex += 3;
+        for (; lineIndex < lines.Length; lineIndex++)
+        {
+            string line = lines[lineIndex];
+            int[] nearbyTicket = Array.ConvertAll<string, int>(line.Split(','), number => int.Parse(number));
+
+            int validFieldCount = 0;
+            foreach (int number in nearbyTicket)
+            {
+                bool isValid = false;
+                foreach (TicketField ticketField in ticketFields)
+                {
+                    foreach ((int lower, int upper) in ticketField.Ranges)
+                    {
+                        if (number >= lower && number <= upper)
+                        {
+                            isValid = true;
+                            break;
+                        }
+                    }
+
+                    if (isValid)
+                    {
+                        break;
+                    }
+                }
+
+                if (isValid)
+                {
+                    validFieldCount++;
+                }
+            }
+
+            // Keep only possibly valid tickets
+            if (validFieldCount == ticketFields.Count)
+            {
+                validTickets.Add(new(nearbyTicket));
+            }
+        }
+
+        Dictionary<TicketField, List<int>> possibleColumnMapping = new();
+        foreach (TicketField ticketField in ticketFields)
+        {
+            List<int> possibleColumns = new();
+            for (int column = 0; column < ticketFields.Count; column++)
+            {
+                bool isColumnValid = true;
+                for (int row = 0; row < validTickets.Count; row++)
+                {
+                    int number = validTickets[row][column];
+                    bool isInRange = false;
+                    foreach ((int lower, int upper) in ticketField.Ranges)
+                    {
+                        if (number >= lower && number <= upper)
+                        {
+                            isInRange = true;
+                            break;
+                        }
+                    }
+
+                    if (!isInRange)
+                    {
+                        isColumnValid = false;
+                        break;
+                    }
+                }
+
+                if (isColumnValid)
+                {
+                    possibleColumns.Add(column);
+                }
+            }
+
+            possibleColumnMapping[ticketField] = possibleColumns;
+        }
+
+        Dictionary<TicketField, int> fieldMapping = new();
+
+        // Find which column each field maps to if there are multiple options for a field (sudoku method)
+        while (true)
+        {
+            if (possibleColumnMapping.Keys.Count == 0)
+            {
+                break;
+            }
+
+            foreach ((TicketField ticketField, List<int> possibleColumns) in possibleColumnMapping)
+            {
+                // If we find a field with only one possible column then lock it in and remove option from other fields
+                if (possibleColumns.Count == 1)
+                {
+                    int column = possibleColumns[0];
+                    fieldMapping[ticketField] = column;
+                    possibleColumnMapping.Remove(ticketField);
+                    foreach ((TicketField ticketField1, List<int> possibleColumns1) in possibleColumnMapping)
+                    {
+                        possibleColumnMapping[ticketField1].Remove(column);
+                    }
+                }
+            }
+        }
+
+        long total = 1;
+
+        foreach ((TicketField ticketField, int column) in fieldMapping)
+        {
+            if (ticketField.Name.StartsWith("departure"))
+            {
+                total *= ticket[column];
+            }
+        }
 
         return total;
     }
