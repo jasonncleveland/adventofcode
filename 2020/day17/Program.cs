@@ -108,7 +108,6 @@ public class Program
     static long SolvePart2(string[] lines)
     {
         HashSet<(int x, int y, int z, int w)> activeCubes = new();
-        HashSet<(int x, int y, int z, int w)> locationsToCheck = new();
 
         for (int y = 0; y < lines.Length; y++)
         {
@@ -116,30 +115,30 @@ public class Program
             {
                 if (lines[y][x] == '#')
                 {
-                    (int x, int y, int z, int w) location = (x, y, 0, 0);
-                    activeCubes.Add(location);
-                    // Add neighbours to list to check
-                    HashSet<(int x, int y, int z, int w)> neighbours = GetNeighboursRec(location, location, 0);
-                    locationsToCheck.Add(location);
-                    locationsToCheck.UnionWith(neighbours);
+                    activeCubes.Add((x, y, 0, 0));
                 }
             }
         }
         
         for (int i = 0; i < 6; i++)
         {
-            HashSet<(int x, int y, int z, int w)> activeCubesCopy = new(activeCubes);
-            HashSet<(int x, int y, int z, int w)> locationsToCheckCopy = new(locationsToCheck);
-            foreach ((int x, int y, int z, int w) location in locationsToCheck)
+            // Find all neighbours of active cubes
+            // An inactive cube can only change state if it's touching an active cube
+            HashSet<(int x, int y, int z, int w)> neighbours = new();
+            foreach ((int x, int y, int z, int w) location in activeCubes)
             {
-                string key = string.Join(",", location);
-                int count = 0;
-                HashSet<(int x, int y, int z, int w)> checkedLocations = CountActiveNeighboursRec(activeCubes, location, location, 0, ref count);
-                locationsToCheckCopy.UnionWith(checkedLocations);
+                neighbours.Add(location);
+                neighbours.UnionWith(GetNeighboursRec(location, location, 0));
+            }
+
+            HashSet<(int x, int y, int z, int w)> activeCubesCopy = new(activeCubes);
+            foreach ((int x, int y, int z, int w) location in neighbours)
+            {
+                int activeNeighboursCount = CountActiveNeighboursRec(activeCubes, location, location, 0);
                 if (activeCubes.Contains(location))
                 {
                     // Current cube is active
-                    if (count < 2 || count > 3)
+                    if (activeNeighboursCount < 2 || activeNeighboursCount > 3)
                     {
                         activeCubesCopy.Remove(location);
                     }
@@ -147,7 +146,7 @@ public class Program
                 else
                 {
                     // Current cube is inactive
-                    if (count == 3)
+                    if (activeNeighboursCount == 3)
                     {
                         activeCubesCopy.Add(location);
                     }
@@ -155,7 +154,6 @@ public class Program
             }
 
             activeCubes = activeCubesCopy;
-            locationsToCheck = locationsToCheckCopy;
         }
 
         return activeCubes.Count;
@@ -198,45 +196,37 @@ public class Program
         return neighbours;
     }
 
-    static HashSet<(int x, int y, int z, int w)> CountActiveNeighboursRec(HashSet<(int x, int y, int z, int w)> activeCubes, (int x, int y, int z, int w) cube, (int x, int y, int z, int w) neighbour, int index, ref int activeNeighbours)
+    static int CountActiveNeighboursRec(HashSet<(int x, int y, int z, int w)> activeCubes, (int x, int y, int z, int w) cube, (int x, int y, int z, int w) neighbour, int index)
     {
-        HashSet<(int x, int y, int z, int w)> neighbours = new();
-
         if (index == 4)
         {
-            if (cube != neighbour)
-            {
-                if (activeCubes.Contains(neighbour))
-                {
-                    activeNeighbours += 1;
-                }
-                neighbours.Add(neighbour);
-            }
-            return neighbours;
+            return cube != neighbour && activeCubes.Contains(neighbour) ? 1 : 0;
         }
+
+        int total = 0;
 
         for (int i = -1; i <= 1; i++)
         {
             switch (index)
             {
                 case 0:
-                    neighbours.UnionWith(CountActiveNeighboursRec(activeCubes, cube, (cube.x + i, neighbour.y, neighbour.z, neighbour.w), index + 1, ref activeNeighbours));
+                    total += CountActiveNeighboursRec(activeCubes, cube, (cube.x + i, neighbour.y, neighbour.z, neighbour.w), index + 1);
                     break;
                 case 1:
-                    neighbours.UnionWith(CountActiveNeighboursRec(activeCubes, cube, (neighbour.x, cube.y + i, neighbour.z, neighbour.w), index + 1, ref activeNeighbours));
+                    total += CountActiveNeighboursRec(activeCubes, cube, (neighbour.x, cube.y + i, neighbour.z, neighbour.w), index + 1);
                     break;
                 case 2:
-                    neighbours.UnionWith(CountActiveNeighboursRec(activeCubes, cube, (neighbour.x, neighbour.y, cube.z + i, neighbour.w), index + 1, ref activeNeighbours));
+                    total += CountActiveNeighboursRec(activeCubes, cube, (neighbour.x, neighbour.y, cube.z + i, neighbour.w), index + 1);
                     break;
                 case 3:
-                    neighbours.UnionWith(CountActiveNeighboursRec(activeCubes, cube, (neighbour.x, neighbour.y, neighbour.z, cube.w + i), index + 1, ref activeNeighbours));
+                    total += CountActiveNeighboursRec(activeCubes, cube, (neighbour.x, neighbour.y, neighbour.z, cube.w + i), index + 1);
                     break;
                 default:
                     throw new Exception($"Invalid index {index}");
             }
         }
 
-        return neighbours;
+        return total;
     }
 
     static HashSet<(int, int, int)> CountActiveNeighbours(HashSet<(int, int, int)> activeCubes, (int x, int y, int z) cube, out int activeNeighbours)
