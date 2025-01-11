@@ -47,8 +47,7 @@ public class Program
 
         foreach (string line in lines)
         {
-            Evaluate(line, out long result);
-            total += result;
+            total += EvaluateWithBracketsRec(line, EvaluateSimple);
         }
 
         return total;
@@ -60,141 +59,13 @@ public class Program
 
         foreach (string line in lines)
         {
-            total += EvaluateWithBracketsRec(line);
+            total += EvaluateWithBracketsRec(line, EvaluateAdvanced);
         }
 
         return total;
     }
 
-    static int Evaluate(string input, out long result, int i = 0, int level = 0)
-    {
-        bool inNumber = false;
-        long previousNumber = -1;
-        char op = '\0';
-        Stack<char> stack = new();
-        for (; i < input.Length; i++)
-        {
-            char character = input[i];
-
-            if (character == '(')
-            {
-                i = Evaluate(input, out long number, i + 1, level + 1);
-                if (previousNumber != -1 && op != '\0')
-                {
-                    switch (op)
-                    {
-                        case '+':
-                            previousNumber += number;
-                            break;
-                        case '*' :
-                            previousNumber *= number;
-                            break;
-                        default:
-                            throw new Exception($"Invalid operator: {op}");
-                    }
-                    // Reset the operator
-                    op = '\0';
-                }
-                else
-                {
-                    previousNumber = number;
-                }
-                continue;
-            }
-
-            if (character == ')')
-            {
-                if (inNumber)
-                {
-                    long number = GetNumber(stack);
-                    if (previousNumber != -1 && op != '\0')
-                    {
-                        switch (op)
-                        {
-                            case '+':
-                                previousNumber += number;
-                                break;
-                            case '*' :
-                                previousNumber *= number;
-                                break;
-                            default:
-                                throw new Exception($"Invalid operator: {op}");
-                        }
-                        // Reset the operator
-                        op = '\0';
-                    }
-                    else
-                    {
-                        previousNumber = number;
-                    }
-                }
-                inNumber = false;
-                result = previousNumber;
-                return i;
-            }
-
-            if (char.IsDigit(character))
-            {
-                inNumber = true;
-                stack.Push(character);
-            }
-
-            if (char.IsWhiteSpace(character) || i == input.Length - 1)
-            {
-                if (inNumber)
-                {
-                    long number = GetNumber(stack);
-                    if (previousNumber != -1 && op != '\0')
-                    {
-                        switch (op)
-                        {
-                            case '+':
-                                previousNumber += number;
-                                break;
-                            case '*' :
-                                previousNumber *= number;
-                                break;
-                            default:
-                                throw new Exception($"Invalid operator: {op}");
-                        }
-                        // Reset the operator
-                        op = '\0';
-                    }
-                    else
-                    {
-                        previousNumber = number;
-                    }
-                }
-                inNumber = false;
-            }
-
-            if (character == '+' || character == '*')
-            {
-                op = character;
-            }
-        }
-
-        result = previousNumber;
-        return -1;
-    }
-
-    static long GetNumber(Stack<char> stack)
-    {
-        long total = 0;
-
-        total += stack.Pop() - '0';
-
-        int power = 1;
-        while (stack.Count > 0)
-        {
-            total += (stack.Pop() - '0') * (long)Math.Pow(10, power);
-            power++;
-        }
-
-        return total;
-    }
-
-    static long EvaluateWithBracketsRec(string input)
+    static long EvaluateWithBracketsRec(string input, Evaluate evaluateFunc)
     {
         List<string> formulaParts = new();
         for (int i = 0; i < input.Length; i++)
@@ -238,13 +109,41 @@ public class Program
                     closeBracketIndex = nextCloseBracketIndex;
                 } while (openBracketCount > 0);
                 string enclosedFormula = input.Substring(i + 1, closeBracketIndex - 1 - i);
-                long result = EvaluateWithBracketsRec(enclosedFormula);
+                long result = EvaluateWithBracketsRec(enclosedFormula, evaluateFunc);
                 formulaParts.Add(result.ToString());
                 i = closeBracketIndex + 1;
             }
         }
 
-        return EvaluateAdvanced(string.Join(" ", formulaParts));
+        return evaluateFunc(string.Join(" ", formulaParts));
+    }
+
+    delegate long Evaluate(string formula);
+
+    static long EvaluateSimple(string input)
+    {
+        string[] formulaParts = input.Split(' ');
+
+        long left = long.Parse(formulaParts[0]);
+
+        for (int i = 2; i < formulaParts.Length; i += 2)
+        {
+            string op = formulaParts[i - 1];
+            long right = long.Parse(formulaParts[i]);
+            switch (op)
+            {
+                case "+":
+                    left += right;
+                    break;
+                case "*":
+                    left *= right;
+                    break;
+                default:
+                    throw new Exception($"Invalid operator: {op}");
+            }
+        }
+
+        return left;
     }
 
     static long EvaluateAdvanced(string input)
@@ -258,6 +157,7 @@ public class Program
             string[] addends = multiplicand.Split(" + ");
 
             long sum = 0;
+
             foreach (string addend in addends)
             {
                 sum += long.Parse(addend);
