@@ -58,7 +58,10 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        foreach (string line in lines)
+        {
+            total += EvaluateWithBracketsRec(line);
+        }
 
         return total;
     }
@@ -189,5 +192,80 @@ public class Program
         }
 
         return total;
+    }
+
+    static long EvaluateWithBracketsRec(string input)
+    {
+        List<string> formulaParts = new();
+        for (int i = 0; i < input.Length; i++)
+        {
+            char character = input[i];
+
+            if (char.IsDigit(character))
+            {
+                formulaParts.Add(character.ToString());
+            }
+
+            if (character == '+' || character == '*')
+            {
+                formulaParts.Add(character.ToString());
+            }
+
+            if (character == '(')
+            {
+                int openBracketIndex = i;
+                int closeBracketIndex = input.IndexOf(')', openBracketIndex);
+                int openBracketCount = 0;
+                do
+                {
+                    int nextOpenBracketIndex = input.IndexOf('(', openBracketIndex + 1);
+                    int nextCloseBracketIndex = input.IndexOf(')', closeBracketIndex + 1);
+                    if (nextOpenBracketIndex < 0)
+                    {
+                        break;
+                    }
+
+                    openBracketCount++;
+
+                    if (closeBracketIndex < nextOpenBracketIndex)
+                    {
+                        openBracketCount--;
+                        break;
+                    }
+
+                    openBracketCount++;
+                    openBracketIndex = nextOpenBracketIndex;
+                    closeBracketIndex = nextCloseBracketIndex;
+                } while (openBracketCount > 0);
+                string enclosedFormula = input.Substring(i + 1, closeBracketIndex - 1 - i);
+                long result = EvaluateWithBracketsRec(enclosedFormula);
+                formulaParts.Add(result.ToString());
+                i = closeBracketIndex + 1;
+            }
+        }
+
+        return EvaluateAdvanced(string.Join(" ", formulaParts));
+    }
+
+    static long EvaluateAdvanced(string input)
+    {
+        string[] multiplicands = input.Split(" * ");
+
+        long product = 1;
+
+        foreach (string multiplicand in multiplicands)
+        {
+            string[] addends = multiplicand.Split(" + ");
+
+            long sum = 0;
+            foreach (string addend in addends)
+            {
+                sum += long.Parse(addend);
+            }
+
+            product *= sum;
+        }
+
+        return product;
     }
 }
