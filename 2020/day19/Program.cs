@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 public class Program
 {
@@ -48,8 +50,8 @@ public class Program
         int lineIndex = 0;
 
         // Read matching rules
-        Dictionary<int, char> charMap = new();
-        Dictionary<int, List<List<int>>> rulesMap = new();
+        Dictionary<int, string> charMap = new();
+        Dictionary<int, string> rulesMap = new();
         for (;; lineIndex++)
         {
             string line = lines[lineIndex];
@@ -61,31 +63,58 @@ public class Program
             int ruleId = int.Parse(lineParts[0]);
             if (lineParts[1].Contains('"'))
             {
-                charMap.Add(ruleId, lineParts[1][1]);
+                charMap.Add(ruleId, lineParts[1][1].ToString());
             }
             else
             {
-                string[] ruleOptions = lineParts[1].Split('|');
-                List<List<int>> ruleOptionsList = new();
+                string[] ruleOptions = lineParts[1].Split(" | ");
+                List<string> ruleOptionsList = new();
                 foreach (string ruleOption in ruleOptions)
                 {
-                    int[] rules = Array.ConvertAll<string, int>(ruleOption.Split(' ', StringSplitOptions.RemoveEmptyEntries), rule => int.Parse(rule));
-                    ruleOptionsList.Add(new(rules));
+                    string[] ruleOptionParts = ruleOption.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    ruleOptionsList.Add(string.Join("", ruleOptionParts.Select(r => $"{{{r}}}")));
                 }
-                rulesMap.Add(ruleId, ruleOptionsList);
+                rulesMap.Add(ruleId, string.Join("|", ruleOptionsList));
             }
         }
+
+        List<int> keys = rulesMap.Keys.ToList();
+        keys.Sort();
+
+        string pattern = @"\{(?<ruleId>\d+)\}";
+        string outputRegex = $"^{rulesMap[0]}$";
+        // Replace rules with rules
+        bool changesMade = true;
+        while (changesMade)
+        {
+            changesMade = false;
+            foreach (Match match in Regex.Matches(outputRegex, pattern))
+            {
+                int nextRuleId = int.Parse(match.Groups["ruleId"].Value);
+                if (rulesMap.ContainsKey(nextRuleId))
+                {
+                    outputRegex = outputRegex.Replace($"{{{nextRuleId}}}", $"(?:{rulesMap[nextRuleId]})");
+                    changesMade = true;
+                }
+            }
+        }
+
+        // Replace ruleIds with chars
+        foreach ((int ruleId, string character) in charMap)
+        {
+            outputRegex = outputRegex.Replace($"{{{ruleId}}}", $"(?:{character})");
+        }
+
+        Regex regex = new Regex(outputRegex, RegexOptions.Compiled);
 
         // Skip empty line
         lineIndex++;
 
-        // Read messages
+        // Read and check messages
         for (; lineIndex < lines.Length; lineIndex++)
         {
-            // This solution is slow and takes ~5 minutes to complete
             string line = lines[lineIndex];
-            List<List<char>> validString = TraverseRuleRec(rulesMap, charMap, 0, line);
-            if (validString.Count > 0 && validString.Find(s => s.Count == line.Length && string.Join("", s) == line) != null)
+            if (Regex.Match(line, outputRegex).Success)
             {
                 total += 1;
             }
@@ -101,58 +130,5 @@ public class Program
         // TODO: Implement logic to solve part 2
 
         return total;
-    }
-
-    static List<List<char>> TraverseRuleRec(Dictionary<int, List<List<int>>> rulesMap, Dictionary<int, char> charMap, int ruleId, string target)
-    {
-        if (charMap.ContainsKey(ruleId))
-        {
-            return new()
-            {
-                new()
-                {
-                    charMap[ruleId]
-                }
-            };
-        }
-        else if (rulesMap.ContainsKey(ruleId))
-        {
-            List<List<char>> possibleCombinations = new();
-            foreach (List<int> ruleOption in rulesMap[ruleId])
-            {
-                List<List<char>> allEndings = new();
-                for (int i = 0; i < ruleOption.Count; i++)
-                {
-                    int ruleOptionId = ruleOption[i];
-                    List<List<char>> endings = TraverseRuleRec(rulesMap, charMap, ruleOptionId, target);
-                    if (i == 0)
-                    {
-                        allEndings.AddRange(endings);
-                    }
-                    else
-                    {
-                        List<List<char>> allEndingsCopy = new();
-                        foreach (List<char> accEnding in allEndings)
-                        {
-                            foreach (List<char> currentEnding in endings)
-                            {
-                                List<char> combined = new();
-                                combined.AddRange(accEnding);
-                                combined.AddRange(currentEnding);
-                                allEndingsCopy.Add(combined);
-                            }
-                        }
-                        allEndings = allEndingsCopy;
-                    }
-                }
-                possibleCombinations.AddRange(allEndings);
-            }
-
-            return possibleCombinations;
-        }
-        else
-        {
-            throw new Exception($"This is not the conditional branch you are looking for");
-        }
     }
 }
