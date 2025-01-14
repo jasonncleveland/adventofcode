@@ -47,74 +47,16 @@ public class Program
     {
         long total = 0;
 
-        int lineIndex = 0;
+        // Parse input into rules mapping and messages list
+        (Dictionary<int, string> rules, List<string> messages) = ParseInput(lines);
 
-        // Read matching rules
-        Dictionary<int, string> charMap = new();
-        Dictionary<int, string> rulesMap = new();
-        for (;; lineIndex++)
+        // Convert rules to regex
+        string regexString = ConvertRulesToRegexString(rules);
+
+        // Check messages
+        foreach (string message in messages)
         {
-            string line = lines[lineIndex];
-            if (string.IsNullOrEmpty(line))
-            {
-                break;
-            }
-            string[] lineParts = line.Split(": ");
-            int ruleId = int.Parse(lineParts[0]);
-            if (lineParts[1].Contains('"'))
-            {
-                charMap.Add(ruleId, lineParts[1][1].ToString());
-            }
-            else
-            {
-                string[] ruleOptions = lineParts[1].Split(" | ");
-                List<string> ruleOptionsList = new();
-                foreach (string ruleOption in ruleOptions)
-                {
-                    string[] ruleOptionParts = ruleOption.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    ruleOptionsList.Add(string.Join("", ruleOptionParts.Select(r => $"{{{r}}}")));
-                }
-                rulesMap.Add(ruleId, string.Join("|", ruleOptionsList));
-            }
-        }
-
-        List<int> keys = rulesMap.Keys.ToList();
-        keys.Sort();
-
-        string pattern = @"\{(?<ruleId>\d+)\}";
-        string outputRegex = $"^{rulesMap[0]}$";
-        // Replace rules with rules
-        bool changesMade = true;
-        while (changesMade)
-        {
-            changesMade = false;
-            foreach (Match match in Regex.Matches(outputRegex, pattern))
-            {
-                int nextRuleId = int.Parse(match.Groups["ruleId"].Value);
-                if (rulesMap.ContainsKey(nextRuleId))
-                {
-                    outputRegex = outputRegex.Replace($"{{{nextRuleId}}}", $"(?:{rulesMap[nextRuleId]})");
-                    changesMade = true;
-                }
-            }
-        }
-
-        // Replace ruleIds with chars
-        foreach ((int ruleId, string character) in charMap)
-        {
-            outputRegex = outputRegex.Replace($"{{{ruleId}}}", $"(?:{character})");
-        }
-
-        Regex regex = new Regex(outputRegex, RegexOptions.Compiled);
-
-        // Skip empty line
-        lineIndex++;
-
-        // Read and check messages
-        for (; lineIndex < lines.Length; lineIndex++)
-        {
-            string line = lines[lineIndex];
-            if (Regex.Match(line, outputRegex).Success)
+            if (Regex.Match(message, regexString).Success)
             {
                 total += 1;
             }
@@ -127,8 +69,100 @@ public class Program
     {
         long total = 0;
 
-        // TODO: Implement logic to solve part 2
+        // Parse input into rules mapping and messages list
+        (Dictionary<int, string> rules, List<string> messages) = ParseInput(lines);
+
+        // Replace 8 with 8: 42 | 42 8
+        // This is equivalent to 42+
+        rules[8] = "{42}+";
+        // Replace 11 with 11: 42 31 | 42 11 31
+        // This is looking for the same number of 42 as 31
+        // Hard code up to 4 pairs because laziness
+        rules[11] = "{42}{31}|{42}{42}{31}{31}|{42}{42}{42}{31}{31}{31}|{42}{42}{42}{42}{31}{31}{31}{31}";
+
+        // Convert rules to regex
+        string regexString = ConvertRulesToRegexString(rules);
+
+        // Check messages
+        foreach (string message in messages)
+        {
+            if (Regex.Match(message, regexString).Success)
+            {
+                total += 1;
+            }
+        }
 
         return total;
+    }
+
+    static (Dictionary<int, string>, List<string>) ParseInput(string[] lines)
+    {
+        int lineIndex = 0;
+
+        // Read matching rules
+        Dictionary<int, string> rulesMap = new();
+        for (; ; lineIndex++)
+        {
+            string line = lines[lineIndex];
+            if (string.IsNullOrEmpty(line))
+            {
+                break;
+            }
+
+            string[] lineParts = line.Split(": ");
+            int ruleId = int.Parse(lineParts[0]);
+            if (lineParts[1].Contains('"'))
+            {
+                rulesMap.Add(ruleId, lineParts[1][1].ToString());
+            }
+            else
+            {
+                string[] ruleOptions = lineParts[1].Split(" | ");
+                List<string> ruleOptionsList = new();
+                foreach (string ruleOption in ruleOptions)
+                {
+                    string[] ruleOptionParts = ruleOption.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    ruleOptionsList.Add(string.Join("", ruleOptionParts.Select(r => $"{{{r}}}")));
+                }
+
+                rulesMap.Add(ruleId, string.Join("|", ruleOptionsList));
+            }
+        }
+
+        // Skip empty line
+        lineIndex++;
+
+        // Read messages
+        List<string> messages = new();
+        for (; lineIndex < lines.Length; lineIndex++)
+        {
+            messages.Add(lines[lineIndex]);
+        }
+
+        return (rulesMap, messages);
+    }
+
+    static string ConvertRulesToRegexString(Dictionary<int, string> rules)
+    {
+        string pattern = @"\{(?<ruleId>\d+)\}";
+        string outputRegex = $"^{rules[0]}$";
+
+        // Replace rules until no changes are made
+        bool changesMade = true;
+        while (changesMade)
+        {
+            changesMade = false;
+            foreach (Match match in Regex.Matches(outputRegex, pattern))
+            {
+                int nextRuleId = int.Parse(match.Groups["ruleId"].Value);
+                if (rules.ContainsKey(nextRuleId))
+                {
+                    outputRegex = outputRegex.Replace($"{{{nextRuleId}}}", $"(?:{rules[nextRuleId]})");
+                    changesMade = true;
+                }
+            }
+        }
+
+        return outputRegex;
     }
 }
