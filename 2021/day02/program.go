@@ -21,6 +21,10 @@ func main() {
 	start = time.Now()
 	part1 := Part1(instructions)
 	fmt.Printf("Part 1: %d (%s)\n", part1, time.Since(start))
+
+	start = time.Now()
+	part2 := Part2(instructions)
+	fmt.Printf("Part 2: %d (%s)\n", part2, time.Since(start))
 }
 
 func Part1(instructions []instruction) int64 {
@@ -35,6 +39,26 @@ func Part1(instructions []instruction) int64 {
 			depth += instruction.distance
 		case "up":
 			depth -= instruction.distance
+		}
+	}
+
+	return horizontalPosition * depth
+}
+
+func Part2(instructions []instruction) int64 {
+	horizontalPosition := int64(0)
+	depth := int64(0)
+	aim := int64(0)
+
+	for _, instruction := range instructions {
+		switch instruction.command {
+		case "forward":
+			horizontalPosition += instruction.distance
+			depth += aim * instruction.distance
+		case "down":
+			aim += instruction.distance
+		case "up":
+			aim -= instruction.distance
 		}
 	}
 
