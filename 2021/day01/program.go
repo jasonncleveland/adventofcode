@@ -15,13 +15,16 @@ func main() {
 
 	var start time.Time = time.Now()
 	lines := ReadFileLines(fileName)
+	numbers := ParseInput(lines)
 	fmt.Printf("File read: %s\n", time.Since(start))
 
 	start = time.Now()
-	numbers := ParseInput(lines)
-
 	part1 := Part1(numbers)
 	fmt.Printf("Part 1: %d (%s)\n", part1, time.Since(start))
+
+	start = time.Now()
+	part2 := Part2(numbers)
+	fmt.Printf("Part 2: %d (%s)\n", part2, time.Since(start))
 }
 
 func Part1(numbers []int64) int64 {
@@ -29,6 +32,19 @@ func Part1(numbers []int64) int64 {
 	increases := int64(0)
 	for i := 1; i < len(numbers); i++ {
 		number := numbers[i]
+		if number > previous {
+			increases++
+		}
+		previous = number
+	}
+	return increases
+}
+
+func Part2(numbers []int64) int64 {
+	previous := numbers[2] + numbers[1] + numbers[0]
+	increases := int64(0)
+	for i := 3; i < len(numbers); i++ {
+		number := numbers[i] + numbers[i-1] + numbers[i-2]
 		if number > previous {
 			increases++
 		}
