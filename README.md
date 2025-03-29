@@ -4,7 +4,7 @@ The C# dotnet template will need to be installed before it can be used
 
 ```bash
 # Install the template from the template directory
-dotnet new install template/
+dotnet new install template/dotnet/
 ```
 
 The template can now be used to generate a project
