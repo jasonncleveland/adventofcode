@@ -15,31 +15,56 @@ func main() {
 
 	var start time.Time = time.Now()
 	lines := ReadFileLines(fileName)
-	numbers, cards := ParseInput(lines)
 	fmt.Printf("File read: %s\n", time.Since(start))
 
 	start = time.Now()
-	part1 := Part1(numbers, cards)
+	part1 := Part1(lines)
 	fmt.Printf("Part 1: %d (%s)\n", part1, time.Since(start))
 
 	start = time.Now()
-	part2 := Part2(numbers, cards)
+	part2 := Part2(lines)
 	fmt.Printf("Part 2: %d (%s)\n", part2, time.Since(start))
 }
 
-func Part1(numbers []int64, cards [][5][5]int64) int64 {
+func Part1(lines [][]byte) int64 {
+	numbers, cards := ParseInput(lines)
+
 	for _, number := range numbers {
 		MarkNumber(cards, number)
-		if cardId := CheckBingo(cards); cardId != -1 {
-			score := ScoreCard(cards[cardId])
-			fmt.Printf("Found bingo on card %d after number %d with score %d\n", cardId, number, score)
+		if cardIds := CheckBingo(cards, nil); len(cardIds) > 0 {
+			score := ScoreCard(cards[cardIds[0]])
 			return score * number
 		}
 	}
 	return -1
 }
 
-func Part2(numbers []int64, cards [][5][5]int64) int64 {
+func Part2(lines [][]byte) int64 {
+	numbers, cards := ParseInput(lines)
+
+	var previousRound []int64
+	for _, number := range numbers {
+		MarkNumber(cards, number)
+		if cardIds := CheckBingo(cards, nil); len(cardIds) > 0 {
+			// If the number of cards with bingo equals the number of cards, we found the last card with bingo
+			if len(cardIds) == len(cards) {
+				occurences := make(map[int64]int)
+				for _, cardId := range previousRound {
+					occurences[cardId] += 1
+				}
+				for _, cardId := range cardIds {
+					occurences[cardId] += 1
+				}
+				for cardId, count := range occurences {
+					if count == 1 {
+						// The cardId that only has 1 occurence is the latest to be found
+						return ScoreCard(cards[cardId]) * number
+					}
+				}
+			}
+			previousRound = cardIds
+		}
+	}
 	return -1
 }
 
@@ -55,8 +80,11 @@ func MarkNumber(cards [][5][5]int64, number int64) {
 	}
 }
 
-func CheckBingo(cards [][5][5]int64) int64 {
+func CheckBingo(cards [][5][5]int64, checkedCards []int64) []int64 {
+	var cardIds []int64
 	for cardId, card := range cards {
+		foundBingo := false
+
 		// Check rows
 		for row := range card {
 			isBingo := true
@@ -67,8 +95,13 @@ func CheckBingo(cards [][5][5]int64) int64 {
 				}
 			}
 			if isBingo {
-				return int64(cardId)
+				cardIds = append(cardIds, int64(cardId))
+				foundBingo = true
+				break
 			}
+		}
+		if foundBingo {
+			continue
 		}
 
 		// Check columns
@@ -81,12 +114,17 @@ func CheckBingo(cards [][5][5]int64) int64 {
 				}
 			}
 			if isBingo {
-				return int64(cardId)
+				cardIds = append(cardIds, int64(cardId))
+				foundBingo = true
+				break
 			}
+		}
+		if foundBingo {
+			continue
 		}
 	}
 
-	return -1
+	return cardIds
 }
 
 func ScoreCard(card [5][5]int64) int64 {
