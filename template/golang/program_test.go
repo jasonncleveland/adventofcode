@@ -6,14 +6,15 @@ import (
 )
 
 func TestPart1(t *testing.T) {
-	numbers := [][]int64{
-		{0, 0, 0, 0, 0},
-		{0, 0, 1, 0, 0},
-		{0, 1, 1, 1, 0},
-		{0, 0, 1, 0, 0},
-		{0, 0, 0, 0, 0},
+	lines := [][]byte{
+		[]byte("00000"),
+		[]byte("00100"),
+		[]byte("01110"),
+		[]byte("00100"),
+		[]byte("00000"),
 	}
-	result := Part1(numbers)
+
+	result := Part1(lines)
 	if result == -1 {
 		t.Fatal("Function or tests for part 1 not implemented")
 	}
@@ -25,14 +26,15 @@ func TestPart1(t *testing.T) {
 }
 
 func TestPart2(t *testing.T) {
-	numbers := [][]int64{
-		{0, 0, 0, 0, 0},
-		{0, 0, 1, 0, 0},
-		{0, 1, 1, 1, 0},
-		{0, 0, 1, 0, 0},
-		{0, 0, 0, 0, 0},
+	lines := [][]byte{
+		[]byte("00000"),
+		[]byte("00100"),
+		[]byte("01110"),
+		[]byte("00100"),
+		[]byte("00000"),
 	}
-	result := Part2(numbers)
+
+	result := Part2(lines)
 	if result == -1 {
 		t.Fatal("Function or tests for part 2 not implemented")
 	}

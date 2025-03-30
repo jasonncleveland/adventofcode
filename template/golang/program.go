@@ -15,23 +15,22 @@ func main() {
 
 	var start time.Time = time.Now()
 	lines := ReadFileLines(fileName)
-	bits := ParseInput(lines)
 	fmt.Printf("File read: %s\n", time.Since(start))
 
 	start = time.Now()
-	part1 := Part1(bits)
+	part1 := Part1(lines)
 	fmt.Printf("Part 1: %d (%s)\n", part1, time.Since(start))
 
 	start = time.Now()
-	part2 := Part2(bits)
+	part2 := Part2(lines)
 	fmt.Printf("Part 2: %d (%s)\n", part2, time.Since(start))
 }
 
-func Part1(bits [][]int64) int64 {
+func Part1(lines [][]byte) int64 {
 	return -1
 }
 
-func Part2(bits [][]int64) int64 {
+func Part2(lines [][]byte) int64 {
 	return -1
 }
 
