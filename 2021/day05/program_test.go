@@ -49,7 +49,7 @@ func TestPart2(t *testing.T) {
 		t.Fatal("Function or tests for part 2 not implemented")
 	}
 
-	expected := int64(0)
+	expected := int64(12)
 	if result != expected {
 		t.Errorf("Error was incorrect, got: %d, want: %d.\n", result, expected)
 	}

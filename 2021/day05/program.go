@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"os"
 	"time"
 )
@@ -60,7 +61,33 @@ func Part1(lines [][]byte) int64 {
 }
 
 func Part2(lines [][]byte) int64 {
-	return -1
+	pointMap := make(map[string]int64)
+	for _, line := range ParseInput(lines) {
+		deltaX, deltaY := line.end.x-line.start.x, line.end.y-line.start.y
+		// Line is guaranteed to at 45 degrees if not straight
+		if deltaX != 0 {
+			deltaX /= int64(math.Abs(float64(deltaX)))
+		}
+		if deltaY != 0 {
+			deltaY /= int64(math.Abs(float64(deltaY)))
+		}
+
+		x := line.start.x
+		y := line.start.y
+		pointMap[fmt.Sprintf("%d,%d", x, y)] += 1
+		for x != line.end.x || y != line.end.y {
+			x += deltaX
+			y += deltaY
+			pointMap[fmt.Sprintf("%d,%d", x, y)] += 1
+		}
+	}
+	total := int64(0)
+	for _, count := range pointMap {
+		if count > 1 {
+			total++
+		}
+	}
+	return total
 }
 
 func ParseInput(lines [][]byte) []line {
