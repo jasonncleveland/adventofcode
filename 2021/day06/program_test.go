@@ -23,11 +23,7 @@ func TestPart1(t *testing.T) {
 
 func TestPart2(t *testing.T) {
 	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+		[]byte("3,4,3,1,2"),
 	}
 
 	result := Part2(lines)
@@ -35,7 +31,7 @@ func TestPart2(t *testing.T) {
 		t.Fatal("Function or tests for part 2 not implemented")
 	}
 
-	expected := int64(0)
+	expected := int64(26984457539)
 	if result != expected {
 		t.Errorf("Error was incorrect, got: %d, want: %d.\n", result, expected)
 	}

@@ -57,7 +57,33 @@ func Part1(lines [][]byte) int64 {
 }
 
 func Part2(lines [][]byte) int64 {
-	return -1
+	numbers := ParseInput(lines)[0]
+	lanternFishMap := make(map[int64]int64)
+
+	for _, number := range numbers {
+		lanternFishMap[number] += 1
+	}
+
+	for range 256 {
+		mapCopy := make(map[int64]int64)
+		for key, value := range lanternFishMap {
+			if key == 0 {
+				// Create a new fish with a lifespan of 8 and reset to 6
+				mapCopy[8] += value
+				mapCopy[6] += value
+			} else {
+				// Decrease lifespan
+				mapCopy[key-1] += value
+			}
+		}
+		lanternFishMap = mapCopy
+	}
+
+	total := int64(0)
+	for _, value := range lanternFishMap {
+		total += value
+	}
+	return total
 }
 
 func ParseInput(lines [][]byte) [][]int64 {
