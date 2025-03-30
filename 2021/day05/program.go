@@ -27,22 +27,60 @@ func main() {
 }
 
 func Part1(lines [][]byte) int64 {
-	return -1
+	pointMap := make(map[string]int64)
+	for _, line := range ParseInput(lines) {
+		if line.start.x != line.end.x && line.start.y != line.end.y {
+			// Ignore diagonal lines
+			continue
+		}
+
+		if line.start.x == line.end.x {
+			for y := line.start.y; y <= line.end.y; y++ {
+				pointMap[fmt.Sprintf("%d,%d", line.start.x, y)] += 1
+			}
+			for y := line.end.y; y <= line.start.y; y++ {
+				pointMap[fmt.Sprintf("%d,%d", line.start.x, y)] += 1
+			}
+		} else if line.start.y == line.end.y {
+			for x := line.start.x; x <= line.end.x; x++ {
+				pointMap[fmt.Sprintf("%d,%d", x, line.start.y)] += 1
+			}
+			for x := line.end.x; x <= line.start.x; x++ {
+				pointMap[fmt.Sprintf("%d,%d", x, line.start.y)] += 1
+			}
+		}
+	}
+	total := int64(0)
+	for _, count := range pointMap {
+		if count > 1 {
+			total++
+		}
+	}
+	return total
 }
 
 func Part2(lines [][]byte) int64 {
 	return -1
 }
 
-func ParseInput(lines [][]byte) [][]int64 {
-	var data [][]int64
+func ParseInput(lines [][]byte) []line {
+	var data []line
 
-	for _, line := range lines {
-		var bytes []int64
-		for _, bit := range line {
-			bytes = append(bytes, int64(bit-byte('0')))
-		}
-		data = append(data, bytes)
+	for _, item := range lines {
+		points := bytes.Split(item, []byte(" -> "))
+
+		startPoint := bytes.Split(points[0], []byte(","))
+		startX := ParseNumber(startPoint[0])
+		startY := ParseNumber(startPoint[1])
+
+		endPoint := bytes.Split(points[1], []byte(","))
+		endX := ParseNumber(endPoint[0])
+		endY := ParseNumber(endPoint[1])
+
+		data = append(data, line{
+			point{startX, startY},
+			point{endX, endY},
+		})
 	}
 
 	return data
@@ -56,4 +94,24 @@ func ReadFileLines(fileName string) [][]byte {
 	lines := bytes.Split(data, []byte("\n"))
 
 	return lines
+}
+
+func ParseNumber(bytes []byte) int64 {
+	magnitude := int64(1)
+	number := int64(0)
+	for index := range bytes {
+		number += int64(bytes[len(bytes)-1-index]-byte('0')) * magnitude
+		magnitude *= 10
+	}
+	return number
+}
+
+type point struct {
+	x int64
+	y int64
+}
+
+type line struct {
+	start point
+	end   point
 }
