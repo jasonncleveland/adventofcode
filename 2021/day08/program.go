@@ -25,27 +25,38 @@ func main() {
 	part2 := Part2(lines)
 	fmt.Printf("Part 2: %d (%s)\n", part2, time.Since(start))
 }
-
 func Part1(lines [][]byte) int64 {
-	return -1
+	entries := ParseInput(lines)
+
+	total := int64(0)
+	for _, entry := range entries {
+		for _, output := range entry.outputs {
+			if len(output) == 2 || len(output) == 4 || len(output) == 3 || len(output) == 7 {
+				total++
+			}
+		}
+	}
+	return total
 }
 
 func Part2(lines [][]byte) int64 {
 	return -1
 }
 
-func ParseInput(lines [][]byte) [][]int64 {
-	var data [][]int64
+func ParseInput(lines [][]byte) []entry {
+	var entries []entry
 
 	for _, line := range lines {
-		var bytes []int64
-		for _, bit := range line {
-			bytes = append(bytes, int64(bit-byte('0')))
-		}
-		data = append(data, bytes)
+		lineParts := bytes.Split(line, []byte(" | "))
+		inputs := bytes.Split(lineParts[0], []byte(" "))
+		outputs := bytes.Split(lineParts[1], []byte(" "))
+		entries = append(entries, entry{
+			inputs,
+			outputs,
+		})
 	}
 
-	return data
+	return entries
 }
 
 func ReadFileLines(fileName string) [][]byte {
@@ -56,4 +67,9 @@ func ReadFileLines(fileName string) [][]byte {
 	lines := bytes.Split(data, []byte("\n"))
 
 	return lines
+}
+
+type entry struct {
+	inputs  [][]byte
+	outputs [][]byte
 }
