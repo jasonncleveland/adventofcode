@@ -5,6 +5,7 @@ import (
 	"container/list"
 	"fmt"
 	"os"
+	"slices"
 	"time"
 )
 
@@ -60,7 +61,51 @@ func Part1(lines [][]byte) int64 {
 }
 
 func Part2(lines [][]byte) int64 {
-	return -1
+	scores := map[byte]int64{
+		byte(')'): 1,
+		byte(']'): 2,
+		byte('}'): 3,
+		byte('>'): 4,
+	}
+	expected := map[byte]byte{
+		byte(')'): byte('('),
+		byte('('): byte(')'),
+		byte(']'): byte('['),
+		byte('['): byte(']'),
+		byte('}'): byte('{'),
+		byte('{'): byte('}'),
+		byte('>'): byte('<'),
+		byte('<'): byte('>'),
+	}
+	var totals []int64
+	for _, line := range lines {
+		stack := list.New()
+		isValid := true
+		for _, character := range line {
+			if character == byte('(') || character == byte('[') || character == byte('{') || character == byte('<') {
+				stack.PushBack(character)
+			} else {
+				if expected[character] == stack.Back().Value.(byte) {
+					stack.Remove(stack.Back())
+				} else {
+					// Ignore invalid lines
+					isValid = false
+					break
+				}
+			}
+		}
+		// Fix incomplete lines
+		if isValid && stack.Len() > 0 {
+			total := int64(0)
+			for stack.Len() > 0 {
+				total = total*5 + scores[expected[stack.Back().Value.(byte)]]
+				stack.Remove(stack.Back())
+			}
+			totals = append(totals, total)
+		}
+	}
+	slices.Sort(totals)
+	return totals[len(totals)/2]
 }
 
 func ReadFileLines(fileName string) [][]byte {
