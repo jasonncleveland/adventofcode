@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"container/list"
 	"fmt"
 	"os"
 	"time"
@@ -27,25 +28,39 @@ func main() {
 }
 
 func Part1(lines [][]byte) int64 {
-	return -1
+	scores := map[byte]int64{
+		byte(')'): 3,
+		byte(']'): 57,
+		byte('}'): 1197,
+		byte('>'): 25137,
+	}
+	expected := map[byte]byte{
+		byte(')'): byte('('),
+		byte(']'): byte('['),
+		byte('}'): byte('{'),
+		byte('>'): byte('<'),
+	}
+	stack := list.New()
+	total := int64(0)
+	for _, line := range lines {
+		for _, character := range line {
+			if character == byte('(') || character == byte('[') || character == byte('{') || character == byte('<') {
+				stack.PushBack(character)
+			} else {
+				if expected[character] == stack.Back().Value.(byte) {
+					stack.Remove(stack.Back())
+				} else {
+					total += scores[character]
+					break
+				}
+			}
+		}
+	}
+	return total
 }
 
 func Part2(lines [][]byte) int64 {
 	return -1
-}
-
-func ParseInput(lines [][]byte) [][]int64 {
-	var data [][]int64
-
-	for _, line := range lines {
-		var bytes []int64
-		for _, bit := range line {
-			bytes = append(bytes, int64(bit-byte('0')))
-		}
-		data = append(data, bytes)
-	}
-
-	return data
 }
 
 func ReadFileLines(fileName string) [][]byte {
