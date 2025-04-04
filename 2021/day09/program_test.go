@@ -7,11 +7,11 @@ import (
 
 func TestPart1(t *testing.T) {
 	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+		[]byte("2199943210"),
+		[]byte("3987894921"),
+		[]byte("9856789892"),
+		[]byte("8767896789"),
+		[]byte("9899965678"),
 	}
 
 	result := Part1(lines)
@@ -19,7 +19,7 @@ func TestPart1(t *testing.T) {
 		t.Fatal("Function or tests for part 1 not implemented")
 	}
 
-	expected := int64(0)
+	expected := int64(15)
 	if result != expected {
 		t.Errorf("Error was incorrect, got: %d, want: %d.\n", result, expected)
 	}

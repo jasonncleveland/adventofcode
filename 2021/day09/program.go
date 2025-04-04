@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"os"
 	"time"
 )
@@ -27,7 +28,17 @@ func main() {
 }
 
 func Part1(lines [][]byte) int64 {
-	return -1
+	grid := ParseInput(lines)
+
+	total := int64(0)
+	for row := range grid {
+		for column := range grid[row] {
+			if IsLowPoint(grid, row, column) {
+				total += 1 + grid[row][column]
+			}
+		}
+	}
+	return total
 }
 
 func Part2(lines [][]byte) int64 {
@@ -56,4 +67,25 @@ func ReadFileLines(fileName string) [][]byte {
 	lines := bytes.Split(data, []byte("\n"))
 
 	return lines
+}
+
+func IsValid(grid [][]int64, row int, column int) bool {
+	return row >= 0 && row < len(grid) && column >= 0 && column < len(grid[row])
+}
+
+func IsLowPoint(grid [][]int64, row int, column int) bool {
+	var min int64 = math.MaxInt64
+	if IsValid(grid, row, column-1) && grid[row][column-1] < min {
+		min = grid[row][column-1]
+	}
+	if IsValid(grid, row, column+1) && grid[row][column+1] < min {
+		min = grid[row][column+1]
+	}
+	if IsValid(grid, row-1, column) && grid[row-1][column] < min {
+		min = grid[row-1][column]
+	}
+	if IsValid(grid, row+1, column) && grid[row+1][column] < min {
+		min = grid[row+1][column]
+	}
+	return grid[row][column] < min
 }
