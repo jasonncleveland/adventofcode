@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
+	"slices"
 	"time"
 )
 
@@ -42,7 +44,24 @@ func Part1(lines [][]byte) int64 {
 }
 
 func Part2(lines [][]byte) int64 {
-	return -1
+	grid := ParseInput(lines)
+
+	visited := make(map[coordinate]bool)
+
+	var basinSizes []int64
+	for row := range grid {
+		for column := range grid[row] {
+			position := coordinate{row, column}
+			if grid[row][column] != 9 && !visited[position] {
+				basinSizes = append(basinSizes, FindBasin(grid, position, visited))
+			}
+		}
+	}
+
+	slices.Sort(basinSizes)
+	slices.Reverse(basinSizes)
+
+	return basinSizes[0] * basinSizes[1] * basinSizes[2]
 }
 
 func ParseInput(lines [][]byte) [][]int64 {
@@ -88,4 +107,45 @@ func IsLowPoint(grid [][]int64, row int, column int) bool {
 		min = grid[row+1][column]
 	}
 	return grid[row][column] < min
+}
+
+func FindBasin(grid [][]int64, position coordinate, visited map[coordinate]bool) int64 {
+	queue := list.New()
+
+	queue.PushBack(position)
+	visited[position] = true
+
+	total := int64(0)
+	for queue.Len() > 0 {
+		point := queue.Front().Value.(coordinate)
+		queue.Remove(queue.Front())
+
+		row := point.row
+		column := point.column
+		total += 1
+
+		if !visited[coordinate{row, column - 1}] && IsValid(grid, row, column-1) && grid[row][column-1] != 9 {
+			visited[coordinate{row, column - 1}] = true
+			queue.PushBack(coordinate{row, column - 1})
+		}
+		if !visited[coordinate{row, column + 1}] && IsValid(grid, row, column+1) && grid[row][column+1] != 9 {
+			visited[coordinate{row, column + 1}] = true
+			queue.PushBack(coordinate{row, column + 1})
+		}
+		if !visited[coordinate{row - 1, column}] && IsValid(grid, row-1, column) && grid[row-1][column] != 9 {
+			visited[coordinate{row - 1, column}] = true
+			queue.PushBack(coordinate{row - 1, column})
+		}
+		if !visited[coordinate{row + 1, column}] && IsValid(grid, row+1, column) && grid[row+1][column] != 9 {
+			visited[coordinate{row + 1, column}] = true
+			queue.PushBack(coordinate{row + 1, column})
+		}
+	}
+
+	return total
+}
+
+type coordinate struct {
+	row    int
+	column int
 }
