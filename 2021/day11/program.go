@@ -37,7 +37,18 @@ func Part1(lines [][]byte) int64 {
 }
 
 func Part2(lines [][]byte) int64 {
-	return -1
+	grid := ParseInput(lines)
+
+	flashes := int64(0)
+	for step := int64(1); ; step++ {
+		flashesBefore := flashes
+		ProcessStep(grid, &flashes)
+
+		if flashes-flashesBefore == 100 {
+			// Stop when all octopuses have flashed at the same time
+			return step
+		}
+	}
 }
 
 func ParseInput(lines [][]byte) [][]int64 {
