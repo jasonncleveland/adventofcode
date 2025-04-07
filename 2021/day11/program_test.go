@@ -7,11 +7,16 @@ import (
 
 func TestPart1(t *testing.T) {
 	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+		[]byte("5483143223"),
+		[]byte("2745854711"),
+		[]byte("5264556173"),
+		[]byte("6141336146"),
+		[]byte("6357385478"),
+		[]byte("4167524645"),
+		[]byte("2176841721"),
+		[]byte("6882881134"),
+		[]byte("4846848554"),
+		[]byte("5283751526"),
 	}
 
 	result := Part1(lines)
@@ -19,7 +24,7 @@ func TestPart1(t *testing.T) {
 		t.Fatal("Function or tests for part 1 not implemented")
 	}
 
-	expected := int64(0)
+	expected := int64(1656)
 	if result != expected {
 		t.Errorf("Error was incorrect, got: %d, want: %d.\n", result, expected)
 	}
@@ -47,18 +52,28 @@ func TestPart2(t *testing.T) {
 
 func TestParseInput(t *testing.T) {
 	expected := [][]int64{
-		{0, 0, 0, 0, 0},
-		{0, 0, 1, 0, 0},
-		{0, 1, 1, 1, 0},
-		{0, 0, 1, 0, 0},
-		{0, 0, 0, 0, 0},
+		{5, 4, 8, 3, 1, 4, 3, 2, 2, 3},
+		{2, 7, 4, 5, 8, 5, 4, 7, 1, 1},
+		{5, 2, 6, 4, 5, 5, 6, 1, 7, 3},
+		{6, 1, 4, 1, 3, 3, 6, 1, 4, 6},
+		{6, 3, 5, 7, 3, 8, 5, 4, 7, 8},
+		{4, 1, 6, 7, 5, 2, 4, 6, 4, 5},
+		{2, 1, 7, 6, 8, 4, 1, 7, 2, 1},
+		{6, 8, 8, 2, 8, 8, 1, 1, 3, 4},
+		{4, 8, 4, 6, 8, 4, 8, 5, 5, 4},
+		{5, 2, 8, 3, 7, 5, 1, 5, 2, 6},
 	}
 	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+		[]byte("5483143223"),
+		[]byte("2745854711"),
+		[]byte("5264556173"),
+		[]byte("6141336146"),
+		[]byte("6357385478"),
+		[]byte("4167524645"),
+		[]byte("2176841721"),
+		[]byte("6882881134"),
+		[]byte("4846848554"),
+		[]byte("5283751526"),
 	}
 
 	result := ParseInput(lines)
