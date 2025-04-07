@@ -70,30 +70,79 @@ func TestPart1(t *testing.T) {
 			t.Fatal("Function or tests for part 1 not implemented")
 		}
 
-		expected := test.expected
-		if result != expected {
-			t.Errorf("Result was incorrect, got: %d, want: %d.\n", result, expected)
+		if result != test.expected {
+			t.Errorf("Result was incorrect, got: %d, want: %d.\n", result, test.expected)
 		}
 	}
 }
 
 func TestPart2(t *testing.T) {
-	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+	tests := []struct {
+		input    [][]byte
+		expected int64
+	}{
+		{
+			[][]byte{
+				[]byte("start-A"),
+				[]byte("start-b"),
+				[]byte("A-c"),
+				[]byte("A-b"),
+				[]byte("b-d"),
+				[]byte("A-end"),
+				[]byte("b-end"),
+			},
+			36,
+		},
+		{
+
+			[][]byte{
+				[]byte("dc-end"),
+				[]byte("HN-start"),
+				[]byte("start-kj"),
+				[]byte("dc-start"),
+				[]byte("dc-HN"),
+				[]byte("LN-dc"),
+				[]byte("HN-end"),
+				[]byte("kj-sa"),
+				[]byte("kj-HN"),
+				[]byte("kj-dc"),
+			},
+			103,
+		},
+		{
+			[][]byte{
+				[]byte("fs-end"),
+				[]byte("he-DX"),
+				[]byte("fs-he"),
+				[]byte("start-DX"),
+				[]byte("pj-DX"),
+				[]byte("end-zg"),
+				[]byte("zg-sl"),
+				[]byte("zg-pj"),
+				[]byte("pj-he"),
+				[]byte("RW-he"),
+				[]byte("fs-DX"),
+				[]byte("pj-RW"),
+				[]byte("zg-RW"),
+				[]byte("start-pj"),
+				[]byte("he-WI"),
+				[]byte("zg-he"),
+				[]byte("pj-fs"),
+				[]byte("start-RW"),
+			},
+			3509,
+		},
 	}
 
-	result := Part2(lines)
-	if result == -1 {
-		t.Fatal("Function or tests for part 2 not implemented")
-	}
+	for _, test := range tests {
+		result := Part2(test.input)
+		if result == -1 {
+			t.Fatal("Function or tests for part 2 not implemented")
+		}
 
-	expected := int64(0)
-	if result != expected {
-		t.Errorf("Error was incorrect, got: %d, want: %d.\n", result, expected)
+		if result != test.expected {
+			t.Errorf("Result was incorrect, got: %d, want: %d.\n", result, test.expected)
+		}
 	}
 }
 

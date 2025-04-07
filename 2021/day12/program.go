@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"slices"
-	"strings"
 	"time"
 )
 
@@ -32,11 +31,13 @@ func main() {
 func Part1(lines [][]byte) int64 {
 	caves := ParseInput(lines)
 
-	return TraverseCaves(caves)
+	return TraverseCaves(caves, false)
 }
 
 func Part2(lines [][]byte) int64 {
-	return -1
+	caves := ParseInput(lines)
+
+	return TraverseCaves(caves, true)
 }
 
 func ParseInput(lines [][]byte) map[string][]string {
@@ -61,10 +62,10 @@ func ReadFileLines(fileName string) [][]byte {
 	return lines
 }
 
-func TraverseCaves(caves map[string][]string) int64 {
+func TraverseCaves(caves map[string][]string, allowSingleDuplicate bool) int64 {
 	queue := list.New()
 
-	queue.PushBack(node{"start", []string{"start"}})
+	queue.PushBack(node{"start", []string{"start"}, false})
 
 	var total int64 = 0
 	for queue.Len() > 0 {
@@ -77,21 +78,31 @@ func TraverseCaves(caves map[string][]string) int64 {
 		}
 
 		for _, next := range caves[cave.name] {
-			if slices.Contains(cave.visited, next) {
+			if next == "start" {
 				continue
 			}
 
+			duplicateFound := cave.duplicateFound
+			if slices.Contains(cave.visited, next) {
+				if allowSingleDuplicate && !duplicateFound {
+					duplicateFound = true
+				} else {
+					continue
+				}
+			}
+
 			visited := slices.Clone(cave.visited)
-			if strings.ToLower(next) == next {
+			if next > "Z" {
 				visited = append(visited, next)
 			}
-			queue.PushBack(node{next, visited})
+			queue.PushBack(node{next, visited, duplicateFound})
 		}
 	}
 	return total
 }
 
 type node struct {
-	name    string
-	visited []string
+	name           string
+	visited        []string
+	duplicateFound bool
 }
