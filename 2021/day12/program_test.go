@@ -2,26 +2,78 @@ package main
 
 import (
 	"os"
+	"reflect"
 	"testing"
 )
 
 func TestPart1(t *testing.T) {
-	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+	tests := []struct {
+		input    [][]byte
+		expected int64
+	}{
+		{
+			[][]byte{
+				[]byte("start-A"),
+				[]byte("start-b"),
+				[]byte("A-c"),
+				[]byte("A-b"),
+				[]byte("b-d"),
+				[]byte("A-end"),
+				[]byte("b-end"),
+			},
+			10,
+		},
+		{
+
+			[][]byte{
+				[]byte("dc-end"),
+				[]byte("HN-start"),
+				[]byte("start-kj"),
+				[]byte("dc-start"),
+				[]byte("dc-HN"),
+				[]byte("LN-dc"),
+				[]byte("HN-end"),
+				[]byte("kj-sa"),
+				[]byte("kj-HN"),
+				[]byte("kj-dc"),
+			},
+			19,
+		},
+		{
+			[][]byte{
+				[]byte("fs-end"),
+				[]byte("he-DX"),
+				[]byte("fs-he"),
+				[]byte("start-DX"),
+				[]byte("pj-DX"),
+				[]byte("end-zg"),
+				[]byte("zg-sl"),
+				[]byte("zg-pj"),
+				[]byte("pj-he"),
+				[]byte("RW-he"),
+				[]byte("fs-DX"),
+				[]byte("pj-RW"),
+				[]byte("zg-RW"),
+				[]byte("start-pj"),
+				[]byte("he-WI"),
+				[]byte("zg-he"),
+				[]byte("pj-fs"),
+				[]byte("start-RW"),
+			},
+			226,
+		},
 	}
 
-	result := Part1(lines)
-	if result == -1 {
-		t.Fatal("Function or tests for part 1 not implemented")
-	}
+	for _, test := range tests {
+		result := Part1(test.input)
+		if result == -1 {
+			t.Fatal("Function or tests for part 1 not implemented")
+		}
 
-	expected := int64(0)
-	if result != expected {
-		t.Errorf("Error was incorrect, got: %d, want: %d.\n", result, expected)
+		expected := test.expected
+		if result != expected {
+			t.Errorf("Result was incorrect, got: %d, want: %d.\n", result, expected)
+		}
 	}
 }
 
@@ -46,34 +98,27 @@ func TestPart2(t *testing.T) {
 }
 
 func TestParseInput(t *testing.T) {
-	expected := [][]int64{
-		{0, 0, 0, 0, 0},
-		{0, 0, 1, 0, 0},
-		{0, 1, 1, 1, 0},
-		{0, 0, 1, 0, 0},
-		{0, 0, 0, 0, 0},
+	expected := map[string][]string{
+		"start": {"A", "b"},
+		"A":     {"start", "c", "b", "end"},
+		"b":     {"start", "A", "d", "end"},
+		"c":     {"A"},
+		"d":     {"b"},
+		"end":   {"A", "b"},
 	}
 	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+		[]byte("start-A"),
+		[]byte("start-b"),
+		[]byte("A-c"),
+		[]byte("A-b"),
+		[]byte("b-d"),
+		[]byte("A-end"),
+		[]byte("b-end"),
 	}
 
 	result := ParseInput(lines)
-	if len(result) != len(expected) {
-		t.Fatalf("Length of result is not equal to the expected length, got: %d, want %d\n", len(result), len(expected))
-	}
-	for i := range result {
-		if len(result[i]) != len(expected[i]) {
-			t.Fatalf("Length of result is not equal to the expected length, got: %d, want %d\n", len(result[i]), len(expected[i]))
-		}
-		for j := range result[i] {
-			if result[i][j] != expected[i][j] {
-				t.Errorf("Value at index %d in result is not equal to expected, got: %d, want: %d\n", i, result[i][j], expected[i][j])
-			}
-		}
+	if !reflect.DeepEqual(result, expected) {
+		t.Fatalf("Result is not equal to expected, got: %v, want %v\n", result, expected)
 	}
 }
 

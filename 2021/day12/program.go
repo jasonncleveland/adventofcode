@@ -2,8 +2,11 @@ package main
 
 import (
 	"bytes"
+	"container/list"
 	"fmt"
 	"os"
+	"slices"
+	"strings"
 	"time"
 )
 
@@ -27,22 +30,22 @@ func main() {
 }
 
 func Part1(lines [][]byte) int64 {
-	return -1
+	caves := ParseInput(lines)
+
+	return TraverseCaves(caves)
 }
 
 func Part2(lines [][]byte) int64 {
 	return -1
 }
 
-func ParseInput(lines [][]byte) [][]int64 {
-	var data [][]int64
+func ParseInput(lines [][]byte) map[string][]string {
+	data := make(map[string][]string)
 
 	for _, line := range lines {
-		var bytes []int64
-		for _, bit := range line {
-			bytes = append(bytes, int64(bit-byte('0')))
-		}
-		data = append(data, bytes)
+		lineParts := bytes.Split(line, []byte("-"))
+		data[string(lineParts[0])] = append(data[string(lineParts[0])], string(lineParts[1]))
+		data[string(lineParts[1])] = append(data[string(lineParts[1])], string(lineParts[0]))
 	}
 
 	return data
@@ -56,4 +59,39 @@ func ReadFileLines(fileName string) [][]byte {
 	lines := bytes.Split(data, []byte("\n"))
 
 	return lines
+}
+
+func TraverseCaves(caves map[string][]string) int64 {
+	queue := list.New()
+
+	queue.PushBack(node{"start", []string{"start"}})
+
+	var total int64 = 0
+	for queue.Len() > 0 {
+		cave := queue.Front().Value.(node)
+		queue.Remove(queue.Front())
+
+		if cave.name == "end" {
+			total++
+			continue
+		}
+
+		for _, next := range caves[cave.name] {
+			if slices.Contains(cave.visited, next) {
+				continue
+			}
+
+			visited := slices.Clone(cave.visited)
+			if strings.ToLower(next) == next {
+				visited = append(visited, next)
+			}
+			queue.PushBack(node{next, visited})
+		}
+	}
+	return total
+}
+
+type node struct {
+	name    string
+	visited []string
 }
