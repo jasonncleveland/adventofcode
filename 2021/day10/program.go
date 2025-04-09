@@ -1,4 +1,4 @@
-package main
+package day10
 
 import (
 	"bytes"
@@ -9,12 +9,7 @@ import (
 	"time"
 )
 
-func main() {
-	if len(os.Args) < 2 {
-		panic("must provide input file name as first command line argument")
-	}
-	fileName := os.Args[1]
-
+func Run(fileName string) {
 	var start time.Time = time.Now()
 	lines := ReadFileLines(fileName)
 	fmt.Printf("File read: %s\n", time.Since(start))

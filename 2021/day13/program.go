@@ -1,4 +1,4 @@
-package main
+package day13
 
 import (
 	"bytes"
@@ -8,12 +8,7 @@ import (
 	"time"
 )
 
-func main() {
-	if len(os.Args) < 2 {
-		panic("must provide input file name as first command line argument")
-	}
-	fileName := os.Args[1]
-
+func Run(fileName string) {
 	var start time.Time = time.Now()
 	lines := ReadFileLines(fileName)
 	fmt.Printf("File read: %s\n", time.Since(start))
@@ -63,7 +58,7 @@ func Part2(lines [][]byte) string {
 			if uniqueCoordinates[point{column, row}] {
 				// Print the rune purple and bold (\033[1;35m) then reset (\033[0m)
 				// stringBuilder.WriteString("\033[1;35m")
-				stringBuilder.WriteRune('#')
+				stringBuilder.WriteRune('█')
 				// stringBuilder.WriteString("\033[0m")
 			} else {
 				stringBuilder.WriteRune(' ')

@@ -1,4 +1,4 @@
-package main
+package day10
 
 import (
 	"os"
