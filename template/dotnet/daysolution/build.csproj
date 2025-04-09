@@ -4,6 +4,9 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
         <StartupObject>Program</StartupObject>
+        <PublishAot>true</PublishAot>
+
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     </PropertyGroup>
 
 </Project>
