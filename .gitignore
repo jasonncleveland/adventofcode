@@ -1,6 +1,12 @@
+# C#
 *.exe
 
 bin/
 obj/
 
+# Go
+program
+coverage*
+
+# JetBrains
 .idea/
