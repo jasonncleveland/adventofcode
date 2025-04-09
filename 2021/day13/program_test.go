@@ -43,23 +43,41 @@ func TestPart1(t *testing.T) {
 }
 
 func TestPart2(t *testing.T) {
-	t.Skip()
+	expected := `
+#####
+#   #
+#   #
+#   #
+#####
+`
 	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+		[]byte("6,10"),
+		[]byte("0,14"),
+		[]byte("9,10"),
+		[]byte("0,3"),
+		[]byte("10,4"),
+		[]byte("4,11"),
+		[]byte("6,0"),
+		[]byte("6,12"),
+		[]byte("4,1"),
+		[]byte("0,13"),
+		[]byte("10,12"),
+		[]byte("3,4"),
+		[]byte("3,0"),
+		[]byte("8,4"),
+		[]byte("1,10"),
+		[]byte("2,14"),
+		[]byte("8,10"),
+		[]byte("9,0"),
+		[]byte(""),
+		[]byte("fold along y=7"),
+		[]byte("fold along x=5"),
 	}
 
 	result := Part2(lines)
-	if result == -1 {
-		t.Fatal("Function or tests for part 2 not implemented")
-	}
 
-	expected := int64(0)
 	if result != expected {
-		t.Errorf("Result was incorrect, got: %d, want: %d.\n", result, expected)
+		t.Errorf("Result was incorrect, got: %v, want: %v.\n", result, expected)
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -23,36 +24,77 @@ func main() {
 
 	start = time.Now()
 	part2 := Part2(lines)
-	fmt.Printf("Part 2: %d (%s)\n", part2, time.Since(start))
+	fmt.Printf("Part 2: %s (%s)\n", part2, time.Since(start))
 }
 
 func Part1(lines [][]byte) int64 {
-	coordinates, instructions := ParseInput(lines)
+	var coordinates, instructions []point = ParseInput(lines)
+
+	// Only process the first instruction
+	var uniqueCoordinates map[point]bool = GetUniqueCoordinates(coordinates, instructions[:1])
+
+	return int64(len(uniqueCoordinates))
+}
+
+func Part2(lines [][]byte) string {
+	var coordinates, instructions []point = ParseInput(lines)
+
+	var uniqueCoordinates map[point]bool = GetUniqueCoordinates(coordinates, instructions)
+
+	// Calculate the boundaries of the output text
+	var maxX, maxY int64
+	for coordinate := range uniqueCoordinates {
+		if coordinate.x > maxX {
+			maxX = coordinate.x
+		}
+		if coordinate.y > maxY {
+			maxY = coordinate.y
+		}
+	}
+	width := maxX + 1
+	height := maxY + 1
+
+	// Build the output text string
+	var stringBuilder strings.Builder
+	stringBuilder.Grow(int(width * height))
+	stringBuilder.WriteRune('\n')
+	for row := range height {
+		for column := range width {
+			if uniqueCoordinates[point{column, row}] {
+				// Print the rune purple and bold (\033[1;35m) then reset (\033[0m)
+				// stringBuilder.WriteString("\033[1;35m")
+				stringBuilder.WriteRune('#')
+				// stringBuilder.WriteString("\033[0m")
+			} else {
+				stringBuilder.WriteRune(' ')
+			}
+		}
+		stringBuilder.WriteRune('\n')
+	}
+	return stringBuilder.String()
+}
+
+func GetUniqueCoordinates(coordinates []point, instructions []point) map[point]bool {
+	var uniqueCoordinates map[point]bool
 
 	for _, instruction := range instructions {
-		uniqueCoordinates := map[point]bool{}
+		uniqueCoordinates = map[point]bool{}
 		for index, coordinate := range coordinates {
+			newCoordinate := coordinate
 			if instruction.x > 0 && coordinate.x > instruction.x {
 				delta := coordinate.x - instruction.x
-				newCoordinate := point{instruction.x - delta, coordinate.y}
-				uniqueCoordinates[newCoordinate] = true
+				newCoordinate = point{instruction.x - delta, coordinate.y}
 				coordinates[index] = newCoordinate
 			} else if instruction.y > 0 && coordinate.y > instruction.y {
 				delta := coordinate.y - instruction.y
-				newCoordinate := point{coordinate.x, instruction.y - delta}
-				uniqueCoordinates[newCoordinate] = true
+				newCoordinate = point{coordinate.x, instruction.y - delta}
 				coordinates[index] = newCoordinate
-			} else {
-				uniqueCoordinates[coordinate] = true
 			}
+			uniqueCoordinates[newCoordinate] = true
 		}
-		return int64(len(uniqueCoordinates))
 	}
-	return -1
-}
 
-func Part2(lines [][]byte) int64 {
-	return -1
+	return uniqueCoordinates
 }
 
 func ParseInput(lines [][]byte) ([]point, []point) {
