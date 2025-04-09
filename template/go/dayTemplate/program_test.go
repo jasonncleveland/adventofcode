@@ -1,4 +1,4 @@
-package main
+package dayTemplate
 
 import (
 	"os"
@@ -21,7 +21,7 @@ func TestPart1(t *testing.T) {
 
 	expected := int64(0)
 	if result != expected {
-		t.Errorf("Error was incorrect, got: %d, want: %d.\n", result, expected)
+		t.Errorf("Result was incorrect, got: %v, want: %v.\n", result, expected)
 	}
 }
 
@@ -41,12 +41,12 @@ func TestPart2(t *testing.T) {
 
 	expected := int64(0)
 	if result != expected {
-		t.Errorf("Error was incorrect, got: %d, want: %d.\n", result, expected)
+		t.Errorf("Result was incorrect, got: %v, want: %v.\n", result, expected)
 	}
 }
 
 func TestParseInput(t *testing.T) {
-	numbers := [][]int64{
+	expected := [][]int64{
 		{0, 0, 0, 0, 0},
 		{0, 0, 1, 0, 0},
 		{0, 1, 1, 1, 0},
@@ -62,16 +62,16 @@ func TestParseInput(t *testing.T) {
 	}
 
 	result := ParseInput(lines)
-	if len(result) != len(numbers) {
-		t.Fatalf("Length of result %d is not equal to the expected length %d\n", len(result), len(numbers))
+	if len(result) != len(expected) {
+		t.Fatalf("Length of result is not equal to the expected length, got: %d, want %d\n", len(result), len(expected))
 	}
 	for i := range result {
-		if len(result[i]) != len(numbers[i]) {
-			t.Fatalf("Length of result %d is not equal to the expected length %d\n", len(result[i]), len(numbers[i]))
+		if len(result[i]) != len(expected[i]) {
+			t.Fatalf("Length of result is not equal to the expected length, got: %d, want %d\n", len(result[i]), len(expected[i]))
 		}
 		for j := range result[i] {
-			if result[i][j] != numbers[i][j] {
-				t.Errorf("Number at index %d in result %d is not equal to expected %d\n", i, result[i][j], numbers[i][j])
+			if result[i][j] != expected[i][j] {
+				t.Errorf("Value at index %d in result is not equal to expected, got: %d, want: %d\n", i, result[i][j], expected[i][j])
 			}
 		}
 	}
