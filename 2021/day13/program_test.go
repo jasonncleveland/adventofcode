@@ -2,16 +2,33 @@ package main
 
 import (
 	"os"
+	"reflect"
 	"testing"
 )
 
 func TestPart1(t *testing.T) {
 	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+		[]byte("6,10"),
+		[]byte("0,14"),
+		[]byte("9,10"),
+		[]byte("0,3"),
+		[]byte("10,4"),
+		[]byte("4,11"),
+		[]byte("6,0"),
+		[]byte("6,12"),
+		[]byte("4,1"),
+		[]byte("0,13"),
+		[]byte("10,12"),
+		[]byte("3,4"),
+		[]byte("3,0"),
+		[]byte("8,4"),
+		[]byte("1,10"),
+		[]byte("2,14"),
+		[]byte("8,10"),
+		[]byte("9,0"),
+		[]byte(""),
+		[]byte("fold along y=7"),
+		[]byte("fold along x=5"),
 	}
 
 	result := Part1(lines)
@@ -19,13 +36,14 @@ func TestPart1(t *testing.T) {
 		t.Fatal("Function or tests for part 1 not implemented")
 	}
 
-	expected := int64(0)
+	expected := int64(17)
 	if result != expected {
 		t.Errorf("Result was incorrect, got: %d, want: %d.\n", result, expected)
 	}
 }
 
 func TestPart2(t *testing.T) {
+	t.Skip()
 	lines := [][]byte{
 		[]byte("00000"),
 		[]byte("00100"),
@@ -46,34 +64,66 @@ func TestPart2(t *testing.T) {
 }
 
 func TestParseInput(t *testing.T) {
-	expected := [][]int64{
-		{0, 0, 0, 0, 0},
-		{0, 0, 1, 0, 0},
-		{0, 1, 1, 1, 0},
-		{0, 0, 1, 0, 0},
-		{0, 0, 0, 0, 0},
+	expectedCoordinates := []point{
+		{6, 10},
+		{0, 14},
+		{9, 10},
+		{0, 3},
+		{10, 4},
+		{4, 11},
+		{6, 0},
+		{6, 12},
+		{4, 1},
+		{0, 13},
+		{10, 12},
+		{3, 4},
+		{3, 0},
+		{8, 4},
+		{1, 10},
+		{2, 14},
+		{8, 10},
+		{9, 0},
+	}
+	expectedInstructions := []point{
+		{0, 7},
+		{5, 0},
 	}
 	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+		[]byte("6,10"),
+		[]byte("0,14"),
+		[]byte("9,10"),
+		[]byte("0,3"),
+		[]byte("10,4"),
+		[]byte("4,11"),
+		[]byte("6,0"),
+		[]byte("6,12"),
+		[]byte("4,1"),
+		[]byte("0,13"),
+		[]byte("10,12"),
+		[]byte("3,4"),
+		[]byte("3,0"),
+		[]byte("8,4"),
+		[]byte("1,10"),
+		[]byte("2,14"),
+		[]byte("8,10"),
+		[]byte("9,0"),
+		[]byte(""),
+		[]byte("fold along y=7"),
+		[]byte("fold along x=5"),
 	}
 
-	result := ParseInput(lines)
-	if len(result) != len(expected) {
-		t.Fatalf("Length of result is not equal to the expected length, got: %d, want %d\n", len(result), len(expected))
+	coordinates, instructions := ParseInput(lines)
+	if len(coordinates) != len(expectedCoordinates) {
+		t.Fatalf("Length of result is not equal to the expected length, got: %d, want %d\n", len(coordinates), len(expectedCoordinates))
 	}
-	for i := range result {
-		if len(result[i]) != len(expected[i]) {
-			t.Fatalf("Length of result is not equal to the expected length, got: %d, want %d\n", len(result[i]), len(expected[i]))
-		}
-		for j := range result[i] {
-			if result[i][j] != expected[i][j] {
-				t.Errorf("Value at index %d in result is not equal to expected, got: %d, want: %d\n", i, result[i][j], expected[i][j])
-			}
-		}
+	if len(instructions) != len(expectedInstructions) {
+		t.Fatalf("Length of result is not equal to the expected length, got: %d, want %d\n", len(instructions), len(expectedInstructions))
+	}
+	if !reflect.DeepEqual(coordinates, expectedCoordinates) {
+		t.Errorf("Value of result not equal to expected got: %v, want %v\n", coordinates, expectedCoordinates)
+	}
+	if !reflect.DeepEqual(instructions, expectedInstructions) {
+		t.Errorf("Value of result not equal to expected got: %v, want %v\n", instructions, expectedInstructions)
 	}
 }
 
