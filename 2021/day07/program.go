@@ -108,7 +108,7 @@ func ParseInput(lines [][]byte) [][]int64 {
 	for _, line := range lines {
 		var numbers []int64
 		for _, number := range bytes.Split(line, []byte(",")) {
-			numbers = append(numbers, ParseNumber(number))
+			numbers = append(numbers, utils.ParseNumber(number))
 		}
 		data = append(data, numbers)
 	}

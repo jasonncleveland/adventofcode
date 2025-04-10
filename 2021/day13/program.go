@@ -105,8 +105,8 @@ func ParseInput(lines [][]byte) ([]utils.Point2D, []utils.Point2D) {
 			break
 		}
 		lineParts := bytes.Split(line, []byte(","))
-		x := ParseNumber(lineParts[0])
-		y := ParseNumber(lineParts[1])
+		x := utils.ParseNumber(lineParts[0])
+		y := utils.ParseNumber(lineParts[1])
 		coordinates = append(coordinates, utils.Point2D{X: x, Y: y})
 	}
 
@@ -118,7 +118,7 @@ func ParseInput(lines [][]byte) ([]utils.Point2D, []utils.Point2D) {
 		lineParts := bytes.Split(line, []byte(" "))
 		instructionParts := bytes.Split(lineParts[2], []byte("="))
 		axis := instructionParts[0]
-		value := ParseNumber(instructionParts[1])
+		value := utils.ParseNumber(instructionParts[1])
 		var x, y int64
 		switch axis[0] {
 		case byte('x'):
@@ -130,19 +130,4 @@ func ParseInput(lines [][]byte) ([]utils.Point2D, []utils.Point2D) {
 	}
 
 	return coordinates, instructions
-}
-
-func ParseNumber(bytes []byte) int64 {
-	magnitude := int64(1)
-	number := int64(0)
-	for index := range bytes {
-		number += int64(bytes[len(bytes)-1-index]-byte('0')) * magnitude
-		magnitude *= 10
-	}
-	return number
-}
-
-type point struct {
-	x int64
-	y int64
 }
