@@ -19,6 +19,7 @@ import (
 	"github.com/jasonncleveland/adventofcode/2021/day11"
 	"github.com/jasonncleveland/adventofcode/2021/day12"
 	"github.com/jasonncleveland/adventofcode/2021/day13"
+	"github.com/jasonncleveland/adventofcode/2021/day14"
 )
 
 func main() {
@@ -87,6 +88,10 @@ func main() {
 	if runAllDays || dayToRun == "day13" {
 		fmt.Println("Day 13")
 		day13.Run(filepath.Join("day13", fileName))
+	}
+	if runAllDays || dayToRun == "day14" {
+		fmt.Println("Day 14")
+		day14.Run(filepath.Join("day14", fileName))
 	}
 
 	fmt.Printf("Total: %s\n", time.Since(start))
