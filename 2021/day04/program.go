@@ -3,13 +3,14 @@ package day04
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"time"
+
+	"github.com/jasonncleveland/adventofcode/2021/utils"
 )
 
 func Run(fileName string) {
 	var start time.Time = time.Now()
-	lines := ReadFileLines(fileName)
+	lines := utils.ReadFileLines(fileName)
 	fmt.Printf("File read: %s\n", time.Since(start))
 
 	start = time.Now()
@@ -170,14 +171,4 @@ func ParseInput(lines [][]byte) ([]int64, [][5][5]int64) {
 	}
 
 	return numbers, cards
-}
-
-func ReadFileLines(fileName string) [][]byte {
-	data, err := os.ReadFile(fileName)
-	if err != nil {
-		panic(err)
-	}
-	lines := bytes.Split(data, []byte("\n\n"))
-
-	return lines
 }

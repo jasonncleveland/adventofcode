@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"math"
-	"os"
 	"time"
+
+	"github.com/jasonncleveland/adventofcode/2021/utils"
 )
 
 func Run(fileName string) {
 	var start time.Time = time.Now()
-	lines := ReadFileLines(fileName)
+	lines := utils.ReadFileLines(fileName)
 	fmt.Printf("File read: %s\n", time.Since(start))
 
 	start = time.Now()
@@ -106,34 +107,4 @@ func ParseInput(lines [][]byte) []line {
 	}
 
 	return data
-}
-
-func ReadFileLines(fileName string) [][]byte {
-	data, err := os.ReadFile(fileName)
-	if err != nil {
-		panic(err)
-	}
-	lines := bytes.Split(data, []byte("\n"))
-
-	return lines
-}
-
-func ParseNumber(bytes []byte) int64 {
-	magnitude := int64(1)
-	number := int64(0)
-	for index := range bytes {
-		number += int64(bytes[len(bytes)-1-index]-byte('0')) * magnitude
-		magnitude *= 10
-	}
-	return number
-}
-
-type point struct {
-	x int64
-	y int64
-}
-
-type line struct {
-	start point
-	end   point
 }

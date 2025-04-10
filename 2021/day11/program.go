@@ -1,15 +1,15 @@
 package day11
 
 import (
-	"bytes"
 	"fmt"
-	"os"
 	"time"
+
+	"github.com/jasonncleveland/adventofcode/2021/utils"
 )
 
 func Run(fileName string) {
 	var start time.Time = time.Now()
-	lines := ReadFileLines(fileName)
+	lines := utils.ReadFileLines(fileName)
 	fmt.Printf("File read: %s\n", time.Since(start))
 
 	start = time.Now()
@@ -58,30 +58,6 @@ func ParseInput(lines [][]byte) [][]int64 {
 	}
 
 	return data
-}
-
-func ReadFileLines(fileName string) [][]byte {
-	data, err := os.ReadFile(fileName)
-	if err != nil {
-		panic(err)
-	}
-	lines := bytes.Split(data, []byte("\n"))
-
-	return lines
-}
-
-func PrintGrid(grid [][]int64) {
-	for row := range grid {
-		for column := range grid[row] {
-			if grid[row][column] == 0 {
-				// Print the number red (\033[31) and bold (\033[1m) then reset (\033[0m)
-				fmt.Printf("\033[1m\033[31m%d\033[0m", grid[row][column])
-			} else {
-				fmt.Print(grid[row][column])
-			}
-		}
-		fmt.Println()
-	}
 }
 
 func ProcessStep(grid [][]int64, flashes *int64) {

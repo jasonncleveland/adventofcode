@@ -3,13 +3,14 @@ package day02
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"time"
+
+	"github.com/jasonncleveland/adventofcode/2021/utils"
 )
 
 func Run(fileName string) {
 	var start time.Time = time.Now()
-	lines := ReadFileLines(fileName)
+	lines := utils.ReadFileLines(fileName)
 	instructions := ParseInput(lines)
 	fmt.Printf("File read: %s\n", time.Since(start))
 
@@ -73,16 +74,6 @@ func ParseInput(lines [][]byte) []instruction {
 	}
 
 	return instructions
-}
-
-func ReadFileLines(fileName string) [][]byte {
-	data, err := os.ReadFile(fileName)
-	if err != nil {
-		panic(err)
-	}
-	lines := bytes.Split(data, []byte("\n"))
-
-	return lines
 }
 
 type instruction struct {

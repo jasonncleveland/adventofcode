@@ -3,14 +3,15 @@ package day08
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"slices"
 	"time"
+
+	"github.com/jasonncleveland/adventofcode/2021/utils"
 )
 
 func Run(fileName string) {
 	var start time.Time = time.Now()
-	lines := ReadFileLines(fileName)
+	lines := utils.ReadFileLines(fileName)
 	fmt.Printf("File read: %s\n", time.Since(start))
 
 	start = time.Now()
@@ -83,16 +84,6 @@ func ParseInput(lines [][]byte) []entry {
 	}
 
 	return entries
-}
-
-func ReadFileLines(fileName string) [][]byte {
-	data, err := os.ReadFile(fileName)
-	if err != nil {
-		panic(err)
-	}
-	lines := bytes.Split(data, []byte("\n"))
-
-	return lines
 }
 
 func FindDiff(first []byte, second []byte) []byte {
