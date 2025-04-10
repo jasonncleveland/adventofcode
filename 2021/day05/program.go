@@ -26,24 +26,24 @@ func Run(fileName string) {
 func Part1(lines [][]byte) int64 {
 	pointMap := make(map[string]int64)
 	for _, line := range ParseInput(lines) {
-		if line.start.x != line.end.x && line.start.y != line.end.y {
+		if line.Start.X != line.End.X && line.Start.Y != line.End.Y {
 			// Ignore diagonal lines
 			continue
 		}
 
-		if line.start.x == line.end.x {
-			for y := line.start.y; y <= line.end.y; y++ {
-				pointMap[fmt.Sprintf("%d,%d", line.start.x, y)] += 1
+		if line.Start.X == line.End.X {
+			for y := line.Start.Y; y <= line.End.Y; y++ {
+				pointMap[fmt.Sprintf("%d,%d", line.Start.X, y)] += 1
 			}
-			for y := line.end.y; y <= line.start.y; y++ {
-				pointMap[fmt.Sprintf("%d,%d", line.start.x, y)] += 1
+			for y := line.End.Y; y <= line.Start.Y; y++ {
+				pointMap[fmt.Sprintf("%d,%d", line.Start.X, y)] += 1
 			}
-		} else if line.start.y == line.end.y {
-			for x := line.start.x; x <= line.end.x; x++ {
-				pointMap[fmt.Sprintf("%d,%d", x, line.start.y)] += 1
+		} else if line.Start.Y == line.End.Y {
+			for x := line.Start.X; x <= line.End.X; x++ {
+				pointMap[fmt.Sprintf("%d,%d", x, line.Start.Y)] += 1
 			}
-			for x := line.end.x; x <= line.start.x; x++ {
-				pointMap[fmt.Sprintf("%d,%d", x, line.start.y)] += 1
+			for x := line.End.X; x <= line.Start.X; x++ {
+				pointMap[fmt.Sprintf("%d,%d", x, line.Start.Y)] += 1
 			}
 		}
 	}
@@ -59,7 +59,7 @@ func Part1(lines [][]byte) int64 {
 func Part2(lines [][]byte) int64 {
 	pointMap := make(map[string]int64)
 	for _, line := range ParseInput(lines) {
-		deltaX, deltaY := line.end.x-line.start.x, line.end.y-line.start.y
+		deltaX, deltaY := line.End.X-line.Start.X, line.End.Y-line.Start.Y
 		// Line is guaranteed to at 45 degrees if not straight
 		if deltaX != 0 {
 			deltaX /= int64(math.Abs(float64(deltaX)))
@@ -68,10 +68,10 @@ func Part2(lines [][]byte) int64 {
 			deltaY /= int64(math.Abs(float64(deltaY)))
 		}
 
-		x := line.start.x
-		y := line.start.y
+		x := line.Start.X
+		y := line.Start.Y
 		pointMap[fmt.Sprintf("%d,%d", x, y)] += 1
-		for x != line.end.x || y != line.end.y {
+		for x != line.End.X || y != line.End.Y {
 			x += deltaX
 			y += deltaY
 			pointMap[fmt.Sprintf("%d,%d", x, y)] += 1
@@ -86,23 +86,23 @@ func Part2(lines [][]byte) int64 {
 	return total
 }
 
-func ParseInput(lines [][]byte) []line {
-	var data []line
+func ParseInput(lines [][]byte) []utils.Line {
+	var data []utils.Line
 
 	for _, item := range lines {
 		points := bytes.Split(item, []byte(" -> "))
 
 		startPoint := bytes.Split(points[0], []byte(","))
-		startX := ParseNumber(startPoint[0])
-		startY := ParseNumber(startPoint[1])
+		startX := utils.ParseNumber(startPoint[0])
+		startY := utils.ParseNumber(startPoint[1])
 
 		endPoint := bytes.Split(points[1], []byte(","))
-		endX := ParseNumber(endPoint[0])
-		endY := ParseNumber(endPoint[1])
+		endX := utils.ParseNumber(endPoint[0])
+		endY := utils.ParseNumber(endPoint[1])
 
-		data = append(data, line{
-			point{startX, startY},
-			point{endX, endY},
+		data = append(data, utils.Line{
+			Start: utils.Point2D{X: startX, Y: startY},
+			End:   utils.Point2D{X: endX, Y: endY},
 		})
 	}
 

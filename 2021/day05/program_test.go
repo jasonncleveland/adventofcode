@@ -2,6 +2,8 @@ package day05
 
 import (
 	"testing"
+
+	"github.com/jasonncleveland/adventofcode/2021/utils"
 )
 
 func TestPart1(t *testing.T) {
@@ -55,17 +57,17 @@ func TestPart2(t *testing.T) {
 }
 
 func TestParseInput(t *testing.T) {
-	expected := []line{
-		{point{0, 9}, point{5, 9}},
-		{point{8, 0}, point{0, 8}},
-		{point{9, 4}, point{3, 4}},
-		{point{2, 2}, point{2, 1}},
-		{point{7, 0}, point{7, 4}},
-		{point{6, 4}, point{2, 0}},
-		{point{0, 9}, point{2, 9}},
-		{point{3, 4}, point{1, 4}},
-		{point{0, 0}, point{8, 8}},
-		{point{5, 5}, point{8, 2}},
+	expected := []utils.Line{
+		{Start: utils.Point2D{X: 0, Y: 9}, End: utils.Point2D{X: 5, Y: 9}},
+		{Start: utils.Point2D{X: 8, Y: 0}, End: utils.Point2D{X: 0, Y: 8}},
+		{Start: utils.Point2D{X: 9, Y: 4}, End: utils.Point2D{X: 3, Y: 4}},
+		{Start: utils.Point2D{X: 2, Y: 2}, End: utils.Point2D{X: 2, Y: 1}},
+		{Start: utils.Point2D{X: 7, Y: 0}, End: utils.Point2D{X: 7, Y: 4}},
+		{Start: utils.Point2D{X: 6, Y: 4}, End: utils.Point2D{X: 2, Y: 0}},
+		{Start: utils.Point2D{X: 0, Y: 9}, End: utils.Point2D{X: 2, Y: 9}},
+		{Start: utils.Point2D{X: 3, Y: 4}, End: utils.Point2D{X: 1, Y: 4}},
+		{Start: utils.Point2D{X: 0, Y: 0}, End: utils.Point2D{X: 8, Y: 8}},
+		{Start: utils.Point2D{X: 5, Y: 5}, End: utils.Point2D{X: 8, Y: 2}},
 	}
 	lines := [][]byte{
 		[]byte("0,9 -> 5,9"),

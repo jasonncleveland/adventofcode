@@ -24,27 +24,27 @@ func Run(fileName string) {
 }
 
 func Part1(lines [][]byte) int64 {
-	var coordinates, instructions []point = ParseInput(lines)
+	var coordinates, instructions []utils.Point2D = ParseInput(lines)
 
 	// Only process the first instruction
-	var uniqueCoordinates map[point]bool = GetUniqueCoordinates(coordinates, instructions[:1])
+	var uniqueCoordinates map[utils.Point2D]bool = GetUniqueCoordinates(coordinates, instructions[:1])
 
 	return int64(len(uniqueCoordinates))
 }
 
 func Part2(lines [][]byte) string {
-	var coordinates, instructions []point = ParseInput(lines)
+	var coordinates, instructions []utils.Point2D = ParseInput(lines)
 
-	var uniqueCoordinates map[point]bool = GetUniqueCoordinates(coordinates, instructions)
+	var uniqueCoordinates map[utils.Point2D]bool = GetUniqueCoordinates(coordinates, instructions)
 
 	// Calculate the boundaries of the output text
 	var maxX, maxY int64
 	for coordinate := range uniqueCoordinates {
-		if coordinate.x > maxX {
-			maxX = coordinate.x
+		if coordinate.X > maxX {
+			maxX = coordinate.X
 		}
-		if coordinate.y > maxY {
-			maxY = coordinate.y
+		if coordinate.Y > maxY {
+			maxY = coordinate.Y
 		}
 	}
 	width := maxX + 1
@@ -56,7 +56,7 @@ func Part2(lines [][]byte) string {
 	stringBuilder.WriteRune('\n')
 	for row := range height {
 		for column := range width {
-			if uniqueCoordinates[point{column, row}] {
+			if uniqueCoordinates[utils.Point2D{X: column, Y: row}] {
 				// Print the rune purple and bold (\033[1;35m) then reset (\033[0m)
 				// stringBuilder.WriteString("\033[1;35m")
 				stringBuilder.WriteRune('█')
@@ -70,20 +70,20 @@ func Part2(lines [][]byte) string {
 	return stringBuilder.String()
 }
 
-func GetUniqueCoordinates(coordinates []point, instructions []point) map[point]bool {
-	var uniqueCoordinates map[point]bool
+func GetUniqueCoordinates(coordinates []utils.Point2D, instructions []utils.Point2D) map[utils.Point2D]bool {
+	var uniqueCoordinates map[utils.Point2D]bool
 
 	for _, instruction := range instructions {
-		uniqueCoordinates = map[point]bool{}
+		uniqueCoordinates = map[utils.Point2D]bool{}
 		for index, coordinate := range coordinates {
 			newCoordinate := coordinate
-			if instruction.x > 0 && coordinate.x > instruction.x {
-				delta := coordinate.x - instruction.x
-				newCoordinate = point{instruction.x - delta, coordinate.y}
+			if instruction.X > 0 && coordinate.X > instruction.X {
+				delta := coordinate.X - instruction.X
+				newCoordinate = utils.Point2D{X: instruction.X - delta, Y: coordinate.Y}
 				coordinates[index] = newCoordinate
-			} else if instruction.y > 0 && coordinate.y > instruction.y {
-				delta := coordinate.y - instruction.y
-				newCoordinate = point{coordinate.x, instruction.y - delta}
+			} else if instruction.Y > 0 && coordinate.Y > instruction.Y {
+				delta := coordinate.Y - instruction.Y
+				newCoordinate = utils.Point2D{X: coordinate.X, Y: instruction.Y - delta}
 				coordinates[index] = newCoordinate
 			}
 			uniqueCoordinates[newCoordinate] = true
@@ -93,9 +93,9 @@ func GetUniqueCoordinates(coordinates []point, instructions []point) map[point]b
 	return uniqueCoordinates
 }
 
-func ParseInput(lines [][]byte) ([]point, []point) {
-	var coordinates []point
-	var instructions []point
+func ParseInput(lines [][]byte) ([]utils.Point2D, []utils.Point2D) {
+	var coordinates []utils.Point2D
+	var instructions []utils.Point2D
 
 	index := 0
 	// Parse coordinates
@@ -107,7 +107,7 @@ func ParseInput(lines [][]byte) ([]point, []point) {
 		lineParts := bytes.Split(line, []byte(","))
 		x := ParseNumber(lineParts[0])
 		y := ParseNumber(lineParts[1])
-		coordinates = append(coordinates, point{x, y})
+		coordinates = append(coordinates, utils.Point2D{X: x, Y: y})
 	}
 
 	index++
@@ -126,7 +126,7 @@ func ParseInput(lines [][]byte) ([]point, []point) {
 		case byte('y'):
 			y = value
 		}
-		instructions = append(instructions, point{x, y})
+		instructions = append(instructions, utils.Point2D{X: x, Y: y})
 	}
 
 	return coordinates, instructions

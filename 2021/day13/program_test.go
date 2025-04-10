@@ -3,6 +3,8 @@ package day13
 import (
 	"reflect"
 	"testing"
+
+	"github.com/jasonncleveland/adventofcode/2021/utils"
 )
 
 func TestPart1(t *testing.T) {
@@ -43,11 +45,11 @@ func TestPart1(t *testing.T) {
 
 func TestPart2(t *testing.T) {
 	expected := `
-#####
-#   #
-#   #
-#   #
-#####
+█████
+█   █
+█   █
+█   █
+█████
 `
 	lines := [][]byte{
 		[]byte("6,10"),
@@ -81,29 +83,29 @@ func TestPart2(t *testing.T) {
 }
 
 func TestParseInput(t *testing.T) {
-	expectedCoordinates := []point{
-		{6, 10},
-		{0, 14},
-		{9, 10},
-		{0, 3},
-		{10, 4},
-		{4, 11},
-		{6, 0},
-		{6, 12},
-		{4, 1},
-		{0, 13},
-		{10, 12},
-		{3, 4},
-		{3, 0},
-		{8, 4},
-		{1, 10},
-		{2, 14},
-		{8, 10},
-		{9, 0},
+	expectedCoordinates := []utils.Point2D{
+		{X: 6, Y: 10},
+		{X: 0, Y: 14},
+		{X: 9, Y: 10},
+		{X: 0, Y: 3},
+		{X: 10, Y: 4},
+		{X: 4, Y: 11},
+		{X: 6, Y: 0},
+		{X: 6, Y: 12},
+		{X: 4, Y: 1},
+		{X: 0, Y: 13},
+		{X: 10, Y: 12},
+		{X: 3, Y: 4},
+		{X: 3, Y: 0},
+		{X: 8, Y: 4},
+		{X: 1, Y: 10},
+		{X: 2, Y: 14},
+		{X: 8, Y: 10},
+		{X: 9, Y: 0},
 	}
-	expectedInstructions := []point{
-		{0, 7},
-		{5, 0},
+	expectedInstructions := []utils.Point2D{
+		{X: 0, Y: 7},
+		{X: 5, Y: 0},
 	}
 	lines := [][]byte{
 		[]byte("6,10"),
