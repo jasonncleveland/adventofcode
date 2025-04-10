@@ -22,7 +22,7 @@ func Run(fileName string) {
 }
 
 func Part1(lines [][]byte) int64 {
-	grid := ParseInput(lines)
+	grid := utils.ParseIntGrid(lines)
 
 	flashes := int64(0)
 	for range 100 {
@@ -32,7 +32,7 @@ func Part1(lines [][]byte) int64 {
 }
 
 func Part2(lines [][]byte) int64 {
-	grid := ParseInput(lines)
+	grid := utils.ParseIntGrid(lines)
 
 	flashes := int64(0)
 	for step := int64(1); ; step++ {
@@ -44,20 +44,6 @@ func Part2(lines [][]byte) int64 {
 			return step
 		}
 	}
-}
-
-func ParseInput(lines [][]byte) [][]int64 {
-	var data [][]int64
-
-	for _, line := range lines {
-		var bytes []int64
-		for _, bit := range line {
-			bytes = append(bytes, int64(bit-byte('0')))
-		}
-		data = append(data, bytes)
-	}
-
-	return data
 }
 
 func ProcessStep(grid [][]int64, flashes *int64) {

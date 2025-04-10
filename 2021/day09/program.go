@@ -25,7 +25,7 @@ func Run(fileName string) {
 }
 
 func Part1(lines [][]byte) int64 {
-	grid := ParseInput(lines)
+	grid := utils.ParseIntGrid(lines)
 
 	total := int64(0)
 	for row := range grid {
@@ -39,7 +39,7 @@ func Part1(lines [][]byte) int64 {
 }
 
 func Part2(lines [][]byte) int64 {
-	grid := ParseInput(lines)
+	grid := utils.ParseIntGrid(lines)
 
 	visited := make(map[coordinate]bool)
 
@@ -57,20 +57,6 @@ func Part2(lines [][]byte) int64 {
 	slices.Reverse(basinSizes)
 
 	return basinSizes[0] * basinSizes[1] * basinSizes[2]
-}
-
-func ParseInput(lines [][]byte) [][]int64 {
-	var data [][]int64
-
-	for _, line := range lines {
-		var bytes []int64
-		for _, bit := range line {
-			bytes = append(bytes, int64(bit-byte('0')))
-		}
-		data = append(data, bytes)
-	}
-
-	return data
 }
 
 func IsValid(grid [][]int64, row int, column int) bool {

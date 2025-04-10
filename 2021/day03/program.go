@@ -11,7 +11,7 @@ import (
 func Run(fileName string) {
 	var start time.Time = time.Now()
 	lines := utils.ReadFileLines(fileName)
-	bits := ParseInput(lines)
+	bits := utils.ParseIntGrid(lines)
 	fmt.Printf("File read: %s\n", time.Since(start))
 
 	start = time.Now()
@@ -166,18 +166,4 @@ func Part2(bits [][]int64) int64 {
 	}
 
 	return oxygenGeneratorRating * co2ScrubberRating
-}
-
-func ParseInput(lines [][]byte) [][]int64 {
-	var numbers [][]int64
-
-	for _, line := range lines {
-		var bits []int64
-		for _, bit := range line {
-			bits = append(bits, int64(bit-byte('0')))
-		}
-		numbers = append(numbers, bits)
-	}
-
-	return numbers
 }
