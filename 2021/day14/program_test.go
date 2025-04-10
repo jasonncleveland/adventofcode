@@ -40,13 +40,25 @@ func TestPart1(t *testing.T) {
 }
 
 func TestPart2(t *testing.T) {
-	t.Skip()
 	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+		[]byte("NNCB"),
+		[]byte(""),
+		[]byte("CH -> B"),
+		[]byte("HH -> N"),
+		[]byte("CB -> H"),
+		[]byte("NH -> C"),
+		[]byte("HB -> C"),
+		[]byte("HC -> B"),
+		[]byte("HN -> C"),
+		[]byte("NN -> C"),
+		[]byte("BH -> H"),
+		[]byte("NC -> B"),
+		[]byte("NB -> B"),
+		[]byte("BN -> B"),
+		[]byte("BB -> N"),
+		[]byte("BC -> B"),
+		[]byte("CC -> N"),
+		[]byte("CN -> C"),
 	}
 
 	result := Part2(lines)
@@ -54,14 +66,14 @@ func TestPart2(t *testing.T) {
 		t.Fatal("Function or tests for part 2 not implemented")
 	}
 
-	expected := int64(0)
+	expected := int64(2188189693529)
 	if result != expected {
 		t.Errorf("Result was incorrect, got: %v, want: %v.\n", result, expected)
 	}
 }
 
 func TestParseInput(t *testing.T) {
-	expectedTemplate := "NNCB"
+	expectedTemplate := []byte("NNCB")
 	expectedRules := map[string]byte{
 		"CH": byte('B'),
 		"HH": byte('N'),
