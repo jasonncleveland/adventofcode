@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"slices"
 )
 
 type Coordinate struct {
@@ -13,6 +14,8 @@ type Item struct {
 	Coordinate
 	Priority int64
 }
+
+type IntRow []int64
 
 type IntGrid [][]int64
 
@@ -89,6 +92,7 @@ func (grid IntGrid) Djikstra(start Coordinate, end Coordinate) int64 {
 			queue = append(queue, Item{Coordinate: Coordinate{Row: row + 1, Column: column}, Priority: item.Priority + grid.At(row+1, column)})
 		}
 
+		// Sort the list by priority to make a Priority Queue
 		slices.SortStableFunc(queue, func(a, b Item) int {
 			return int(a.Priority - b.Priority)
 		})
