@@ -22,23 +22,11 @@ func Run(fileName string) {
 }
 
 func Part1(lines [][]byte) int64 {
-	return -1
+	var grid utils.IntGrid = utils.ParseIntGrid(lines)
+
+	return grid.Djikstra(utils.Coordinate{Row: 0, Column: 0}, utils.Coordinate{Row: len(grid) - 1, Column: len(grid) - 1})
 }
 
 func Part2(lines [][]byte) int64 {
 	return -1
-}
-
-func ParseInput(lines [][]byte) [][]int64 {
-	var data [][]int64
-
-	for _, line := range lines {
-		var bytes []int64
-		for _, bit := range line {
-			bytes = append(bytes, int64(bit-byte('0')))
-		}
-		data = append(data, bytes)
-	}
-
-	return data
 }
