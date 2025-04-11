@@ -43,3 +43,73 @@ func TestParseIntGrid(t *testing.T) {
 		}
 	}
 }
+
+func TestGridIsValid(t *testing.T) {
+	grid := IntGrid{
+		{0, 1, 0},
+		{1, 0, 1},
+		{0, 1, 0},
+	}
+
+	tests := []struct {
+		input    Coordinate
+		expected bool
+	}{
+		{
+			Coordinate{Row: 1, Column: 1},
+			true,
+		},
+		{
+			Coordinate{Row: -1, Column: -1},
+			false,
+		},
+		{
+			Coordinate{Row: 37, Column: 42},
+			false,
+		},
+	}
+
+	for _, test := range tests {
+		result := grid.IsValid(test.input.Row, test.input.Column)
+
+		if result != test.expected {
+			t.Errorf("Result was not equal to expected, got: %t, want: %t.\n", result, test.expected)
+		}
+	}
+}
+
+func TestGridAt(t *testing.T) {
+	grid := IntGrid{
+		{0, 1, 0},
+		{1, 0, 1},
+		{0, 1, 0},
+	}
+
+	// Test valid
+	expected := int64(1)
+	result := grid.At(0, 1)
+
+	if result != expected {
+		t.Errorf("Result was not equal to expected, got: %d, want: %d.\n", result, expected)
+	}
+
+	// Test error
+	defer func() {
+		if r := recover(); r == nil {
+			t.Fatal("Expected to recover panic from file open error")
+		}
+	}()
+	grid.At(-1, -1)
+}
+
+func TestGridPrint(t *testing.T) {
+	grid := IntGrid{
+		{0, 1, 1, 1, 0},
+		{1, 0, 1, 0, 1},
+		{1, 1, 0, 1, 1},
+		{1, 0, 1, 0, 1},
+		{0, 1, 1, 1, 0},
+	}
+
+	grid.Print(0)
+}
