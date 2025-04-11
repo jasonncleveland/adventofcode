@@ -58,9 +58,12 @@ func (grid IntGrid) Print(highlightValue int64) {
 	}
 }
 
-func (grid IntGrid) Djikstra(start Coordinate, end Coordinate) int64 {
+func (grid IntGrid) Dijkstra(start Coordinate, end Coordinate) int64 {
 	var queue []Item = make([]Item, 1, len(grid)*len(grid))
-	visited := map[Coordinate]bool{}
+	visited := make([][]bool, len(grid))
+	for row := range grid {
+		visited[row] = make([]bool, len(grid[row]))
+	}
 
 	queue[0] = Item{Coordinate: start, Priority: 0}
 
@@ -75,20 +78,20 @@ func (grid IntGrid) Djikstra(start Coordinate, end Coordinate) int64 {
 			return item.Priority
 		}
 
-		if grid.IsValid(row, column-1) && !visited[Coordinate{Row: row, Column: column - 1}] {
-			visited[Coordinate{Row: row, Column: column - 1}] = true
+		if grid.IsValid(row, column-1) && !visited[row][column-1] {
+			visited[row][column-1] = true
 			queue = append(queue, Item{Coordinate: Coordinate{Row: row, Column: column - 1}, Priority: item.Priority + grid.At(row, column-1)})
 		}
-		if grid.IsValid(row, column+1) && !visited[Coordinate{Row: row, Column: column + 1}] {
-			visited[Coordinate{Row: row, Column: column + 1}] = true
+		if grid.IsValid(row, column+1) && !visited[row][column+1] {
+			visited[row][column+1] = true
 			queue = append(queue, Item{Coordinate: Coordinate{Row: row, Column: column + 1}, Priority: item.Priority + grid.At(row, column+1)})
 		}
-		if grid.IsValid(row-1, column) && !visited[Coordinate{Row: row - 1, Column: column}] {
-			visited[Coordinate{Row: row - 1, Column: column}] = true
+		if grid.IsValid(row-1, column) && !visited[row-1][column] {
+			visited[row-1][column] = true
 			queue = append(queue, Item{Coordinate: Coordinate{Row: row - 1, Column: column}, Priority: item.Priority + grid.At(row-1, column)})
 		}
-		if grid.IsValid(row+1, column) && !visited[Coordinate{Row: row + 1, Column: column}] {
-			visited[Coordinate{Row: row + 1, Column: column}] = true
+		if grid.IsValid(row+1, column) && !visited[row+1][column] {
+			visited[row+1][column] = true
 			queue = append(queue, Item{Coordinate: Coordinate{Row: row + 1, Column: column}, Priority: item.Priority + grid.At(row+1, column)})
 		}
 

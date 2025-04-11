@@ -24,7 +24,7 @@ func Run(fileName string) {
 func Part1(lines [][]byte) int64 {
 	var grid utils.IntGrid = utils.ParseIntGrid(lines)
 
-	return grid.Djikstra(utils.Coordinate{Row: 0, Column: 0}, utils.Coordinate{Row: len(grid) - 1, Column: len(grid) - 1})
+	return grid.Dijkstra(utils.Coordinate{Row: 0, Column: 0}, utils.Coordinate{Row: len(grid) - 1, Column: len(grid) - 1})
 }
 
 func Part2(lines [][]byte) int64 {
@@ -53,5 +53,5 @@ func Part2(lines [][]byte) int64 {
 		}
 	}
 
-	return expandedGrid.Djikstra(utils.Coordinate{Row: 0, Column: 0}, utils.Coordinate{Row: len(expandedGrid) - 1, Column: len(expandedGrid) - 1})
+	return expandedGrid.Dijkstra(utils.Coordinate{Row: 0, Column: 0}, utils.Coordinate{Row: len(expandedGrid) - 1, Column: len(expandedGrid) - 1})
 }
