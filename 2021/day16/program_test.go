@@ -48,21 +48,68 @@ func TestPart1(t *testing.T) {
 }
 
 func TestPart2(t *testing.T) {
-	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+	tests := []struct {
+		input    [][]byte
+		expected int64
+	}{
+		{
+			[][]byte{
+				[]byte("C200B40A82"),
+			},
+			3,
+		},
+		{
+			[][]byte{
+				[]byte("04005AC33890"),
+			},
+			54,
+		},
+		{
+			[][]byte{
+				[]byte("880086C3E88112"),
+			},
+			7,
+		},
+		{
+			[][]byte{
+				[]byte("CE00C43D881120"),
+			},
+			9,
+		},
+		{
+			[][]byte{
+				[]byte("D8005AC2A8F0"),
+			},
+			1,
+		},
+		{
+			[][]byte{
+				[]byte("F600BC2D8F"),
+			},
+			0,
+		},
+		{
+			[][]byte{
+				[]byte("9C005AC2F8F0"),
+			},
+			0,
+		},
+		{
+			[][]byte{
+				[]byte("9C0141080250320F1802104A08"),
+			},
+			1,
+		},
 	}
 
-	result := Part2(lines)
-	if result == -1 {
-		t.Fatal("Function or tests for part 2 not implemented")
-	}
+	for _, test := range tests {
+		result := Part2(test.input)
+		if result == -1 {
+			t.Fatal("Function or tests for part 2 not implemented")
+		}
 
-	expected := int64(0)
-	if result != expected {
-		t.Errorf("Result was incorrect, got: %v, want: %v.\n", result, expected)
+		if result != test.expected {
+			t.Errorf("Result was incorrect, got: %d, want: %d.\n", result, test.expected)
+		}
 	}
 }

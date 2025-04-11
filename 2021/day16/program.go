@@ -2,6 +2,7 @@ package day16
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -26,12 +27,19 @@ func Run(fileName string) {
 func Part1(lines [][]byte) int64 {
 	binaryString := ConvertHexToBinary(lines[0])
 
+	var total int64 = 0
 	var index int = 0
-	return ParsePacket(binaryString, &index)
+	ParsePacket(binaryString, &index, &total)
+
+	return total
 }
 
 func Part2(lines [][]byte) int64 {
-	return -1
+	binaryString := ConvertHexToBinary(lines[0])
+
+	var total int64 = 0
+	var index int = 0
+	return ParsePacket(binaryString, &index, &total)
 }
 
 func ConvertHexToBinary(hexString []byte) string {
@@ -61,14 +69,51 @@ func ConvertHexToBinary(hexString []byte) string {
 	return builder.String()
 }
 
-func ParsePacket(packet string, index *int) int64 {
+func ParsePacket(packet string, index *int, total *int64) int64 {
 	version, _ := strconv.ParseInt(packet[*index:*index+3], 2, 8)
 	*index += 3
 	typeId, _ := strconv.ParseInt(packet[*index:*index+3], 2, 8)
 	*index += 3
 
-	total := version
+	*total += version
+
 	switch typeId {
+	case 0:
+		// Sum of all sub-packets
+		subPackets := GetSubPackets(packet, index, total)
+		var sum int64 = 0
+		for _, subPacket := range subPackets {
+			sum += subPacket
+		}
+		return sum
+	case 1:
+		// Product of all sub-packets
+		subPackets := GetSubPackets(packet, index, total)
+		var product int64 = 1
+		for _, subPacket := range subPackets {
+			product *= subPacket
+		}
+		return product
+	case 2:
+		// Minimum of all sub-packets
+		subPackets := GetSubPackets(packet, index, total)
+		var min int64 = math.MaxInt64
+		for _, subPacket := range subPackets {
+			if subPacket < min {
+				min = subPacket
+			}
+		}
+		return min
+	case 3:
+		// Maximum of all sub packets
+		subPackets := GetSubPackets(packet, index, total)
+		var max int64 = math.MinInt64
+		for _, subPacket := range subPackets {
+			if subPacket > max {
+				max = subPacket
+			}
+		}
+		return max
 	case 4:
 		// Literal value
 		var result strings.Builder
@@ -80,25 +125,57 @@ func ParsePacket(packet string, index *int) int64 {
 				break
 			}
 		}
-		strconv.ParseInt(result.String(), 2, 64)
-	default:
-		// Sub-packets
-		lengthTypeId := packet[*index] - '0'
-		*index++
-		if lengthTypeId == 0 {
-			bitLength, _ := strconv.ParseInt(packet[*index:*index+15], 2, 64)
-			*index += 15
-			finalIndex := *index + int(bitLength)
-			for *index < finalIndex {
-				total += ParsePacket(packet, index)
-			}
+		value, _ := strconv.ParseInt(result.String(), 2, 64)
+		return value
+	case 5:
+		// Greater than (1 if first sub-packet is greater than second sub-packet else 0)
+		subPackets := GetSubPackets(packet, index, total)
+		if subPackets[0] > subPackets[1] {
+			return 1
 		} else {
-			subPacketCount, _ := strconv.ParseInt(packet[*index:*index+11], 2, 64)
-			*index += 11
-			for range subPacketCount {
-				total += ParsePacket(packet, index)
-			}
+			return 0
+		}
+	case 6:
+		// Less than (1 if first sub-packet is less than second sub-packet else 0)
+		subPackets := GetSubPackets(packet, index, total)
+		if subPackets[0] < subPackets[1] {
+			return 1
+		} else {
+			return 0
+		}
+	case 7:
+		// Equal to (1 if first sub-packet is equal to second sub-packet else 0)
+		subPackets := GetSubPackets(packet, index, total)
+		if subPackets[0] == subPackets[1] {
+			return 1
+		} else {
+			return 0
+		}
+	default:
+		panic(fmt.Errorf("invalid packet type found [%d]. must be between 0-7", typeId))
+	}
+}
+
+func GetSubPackets(packet string, index *int, total *int64) []int64 {
+	var subPackets []int64
+
+	lengthTypeId := packet[*index] - '0'
+	*index++
+
+	if lengthTypeId == 0 {
+		bitLength, _ := strconv.ParseInt(packet[*index:*index+15], 2, 64)
+		*index += 15
+		finalIndex := *index + int(bitLength)
+		for *index < finalIndex {
+			subPackets = append(subPackets, ParsePacket(packet, index, total))
+		}
+	} else {
+		subPacketCount, _ := strconv.ParseInt(packet[*index:*index+11], 2, 64)
+		*index += 11
+		for range subPacketCount {
+			subPackets = append(subPackets, ParsePacket(packet, index, total))
 		}
 	}
-	return total
+
+	return subPackets
 }
