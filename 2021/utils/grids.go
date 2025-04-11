@@ -1,18 +1,13 @@
 package utils
 
 import (
+	"container/heap"
 	"fmt"
-	"slices"
 )
 
 type Coordinate struct {
 	Row    int
 	Column int
-}
-
-type Item struct {
-	Coordinate
-	Priority int64
 }
 
 type IntRow []int64
@@ -59,17 +54,16 @@ func (grid IntGrid) Print(highlightValue int64) {
 }
 
 func (grid IntGrid) Dijkstra(start Coordinate, end Coordinate) int64 {
-	var queue []Item = make([]Item, 1, len(grid)*len(grid))
 	visited := make([][]bool, len(grid))
 	for row := range grid {
 		visited[row] = make([]bool, len(grid[row]))
 	}
 
-	queue[0] = Item{Coordinate: start, Priority: 0}
+	pq := PriorityQueue{&QueueItem{Coordinate: start, Priority: 0}}
+	heap.Init(&pq)
 
-	for len(queue) > 0 {
-		item := queue[0]
-		queue = queue[1:]
+	for pq.Len() > 0 {
+		item := heap.Pop(&pq).(*QueueItem)
 
 		row := item.Row
 		column := item.Column
@@ -80,25 +74,20 @@ func (grid IntGrid) Dijkstra(start Coordinate, end Coordinate) int64 {
 
 		if grid.IsValid(row, column-1) && !visited[row][column-1] {
 			visited[row][column-1] = true
-			queue = append(queue, Item{Coordinate: Coordinate{Row: row, Column: column - 1}, Priority: item.Priority + grid.At(row, column-1)})
+			heap.Push(&pq, &QueueItem{Coordinate: Coordinate{Row: row, Column: column - 1}, Priority: item.Priority + grid.At(row, column-1)})
 		}
 		if grid.IsValid(row, column+1) && !visited[row][column+1] {
 			visited[row][column+1] = true
-			queue = append(queue, Item{Coordinate: Coordinate{Row: row, Column: column + 1}, Priority: item.Priority + grid.At(row, column+1)})
+			heap.Push(&pq, &QueueItem{Coordinate: Coordinate{Row: row, Column: column + 1}, Priority: item.Priority + grid.At(row, column+1)})
 		}
 		if grid.IsValid(row-1, column) && !visited[row-1][column] {
 			visited[row-1][column] = true
-			queue = append(queue, Item{Coordinate: Coordinate{Row: row - 1, Column: column}, Priority: item.Priority + grid.At(row-1, column)})
+			heap.Push(&pq, &QueueItem{Coordinate: Coordinate{Row: row - 1, Column: column}, Priority: item.Priority + grid.At(row-1, column)})
 		}
 		if grid.IsValid(row+1, column) && !visited[row+1][column] {
 			visited[row+1][column] = true
-			queue = append(queue, Item{Coordinate: Coordinate{Row: row + 1, Column: column}, Priority: item.Priority + grid.At(row+1, column)})
+			heap.Push(&pq, &QueueItem{Coordinate: Coordinate{Row: row + 1, Column: column}, Priority: item.Priority + grid.At(row+1, column)})
 		}
-
-		// Sort the list by priority to make a Priority Queue
-		slices.SortStableFunc(queue, func(a, b Item) int {
-			return int(a.Priority - b.Priority)
-		})
 	}
 
 	return -1
