@@ -54,3 +54,45 @@ func (grid IntGrid) Print(highlightValue int64) {
 		fmt.Printf("\n")
 	}
 }
+
+func (grid IntGrid) Djikstra(start Coordinate, end Coordinate) int64 {
+	var queue []Item = make([]Item, 1, len(grid)*len(grid))
+	visited := map[Coordinate]bool{}
+
+	queue[0] = Item{Coordinate: start, Priority: 0}
+
+	for len(queue) > 0 {
+		item := queue[0]
+		queue = queue[1:]
+
+		row := item.Row
+		column := item.Column
+
+		if item.Coordinate == end {
+			return item.Priority
+		}
+
+		if grid.IsValid(row, column-1) && !visited[Coordinate{Row: row, Column: column - 1}] {
+			visited[Coordinate{Row: row, Column: column - 1}] = true
+			queue = append(queue, Item{Coordinate: Coordinate{Row: row, Column: column - 1}, Priority: item.Priority + grid.At(row, column-1)})
+		}
+		if grid.IsValid(row, column+1) && !visited[Coordinate{Row: row, Column: column + 1}] {
+			visited[Coordinate{Row: row, Column: column + 1}] = true
+			queue = append(queue, Item{Coordinate: Coordinate{Row: row, Column: column + 1}, Priority: item.Priority + grid.At(row, column+1)})
+		}
+		if grid.IsValid(row-1, column) && !visited[Coordinate{Row: row - 1, Column: column}] {
+			visited[Coordinate{Row: row - 1, Column: column}] = true
+			queue = append(queue, Item{Coordinate: Coordinate{Row: row - 1, Column: column}, Priority: item.Priority + grid.At(row-1, column)})
+		}
+		if grid.IsValid(row+1, column) && !visited[Coordinate{Row: row + 1, Column: column}] {
+			visited[Coordinate{Row: row + 1, Column: column}] = true
+			queue = append(queue, Item{Coordinate: Coordinate{Row: row + 1, Column: column}, Priority: item.Priority + grid.At(row+1, column)})
+		}
+
+		slices.SortStableFunc(queue, func(a, b Item) int {
+			return int(a.Priority - b.Priority)
+		})
+	}
+
+	return -1
+}

@@ -113,3 +113,20 @@ func TestGridPrint(t *testing.T) {
 
 	grid.Print(0)
 }
+
+func TestGridDjikstra(t *testing.T) {
+	grid := IntGrid{
+		{1, 8, 8, 8, 8},
+		{1, 8, 8, 8, 8},
+		{1, 1, 1, 1, 8},
+		{8, 8, 8, 1, 8},
+		{8, 8, 8, 1, 1},
+	}
+
+	expected := int64(8)
+	result := grid.Djikstra(Coordinate{0, 0}, Coordinate{4, 4})
+
+	if result != expected {
+		t.Errorf("Result was not equal to expected, got: %d, want: %d.\n", result, expected)
+	}
+}
