@@ -1,7 +1,10 @@
 package day17
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/jasonncleveland/adventofcode/2021/utils"
@@ -22,9 +25,53 @@ func Run(fileName string) {
 }
 
 func Part1(lines [][]byte) int64 {
-	return -1
+	split := bytes.Split(bytes.Split(lines[0], []byte(": "))[1], []byte(", "))
+	x := bytes.Split(split[0][2:], []byte(".."))
+	y := bytes.Split(split[1][2:], []byte(".."))
+	start := utils.Point2D{X: utils.ParseNumber(x[0]), Y: utils.ParseNumber(y[1])}
+	end := utils.Point2D{X: utils.ParseNumber(x[1]), Y: utils.ParseNumber(y[0])}
+
+	// Brute force solution to check every possible velocity
+	var maxY int64 = math.MinInt64
+	for vx := range int(start.X) {
+		for vy := range 125 {
+			velocity := utils.Point2D{X: int64(vx), Y: int64(vy)}
+			result, err := CheckTrajectory(velocity, start, end)
+			if err == nil {
+				if result > maxY {
+					maxY = result
+				}
+			}
+		}
+	}
+	return maxY
 }
 
 func Part2(lines [][]byte) int64 {
 	return -1
+}
+
+func CheckTrajectory(velocity utils.Point2D, start utils.Point2D, end utils.Point2D) (int64, error) {
+	current := utils.Point2D{X: 0, Y: 0}
+	var maxY int64 = math.MinInt64
+	for {
+		if current.X >= start.X && current.X <= end.X && current.Y <= start.Y && current.Y >= end.Y {
+			return maxY, nil
+		}
+		if current.X > end.X || current.Y < end.Y {
+			return -1, errors.New("overshot the target")
+		}
+		current.X += velocity.X
+		current.Y += velocity.Y
+		if current.Y > maxY {
+			maxY = current.Y
+		}
+		if velocity.X > 0 {
+			velocity.X--
+		}
+		if velocity.X < 0 {
+			velocity.X++
+		}
+		velocity.Y--
+	}
 }

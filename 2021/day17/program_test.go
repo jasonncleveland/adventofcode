@@ -6,11 +6,7 @@ import (
 
 func TestPart1(t *testing.T) {
 	lines := [][]byte{
-		[]byte("00000"),
-		[]byte("00100"),
-		[]byte("01110"),
-		[]byte("00100"),
-		[]byte("00000"),
+		[]byte("target area: x=20..30, y=-10..-5"),
 	}
 
 	result := Part1(lines)
@@ -18,7 +14,7 @@ func TestPart1(t *testing.T) {
 		t.Fatal("Function or tests for part 1 not implemented")
 	}
 
-	expected := int64(0)
+	expected := int64(45)
 	if result != expected {
 		t.Errorf("Result was incorrect, got: %v, want: %v.\n", result, expected)
 	}
