@@ -33,10 +33,9 @@ func Part1(lines [][]byte) int64 {
 
 	// Brute force solution to check every possible velocity
 	var maxY int64 = math.MinInt64
-	for vx := range int(start.X) {
-		for vy := range 125 {
-			velocity := utils.Point2D{X: int64(vx), Y: int64(vy)}
-			result, err := CheckTrajectory(velocity, start, end)
+	for vx := range int(end.X) + 1 {
+		for vy := range end.Y * -1 {
+			result, err := CheckTrajectory(utils.Point2D{X: int64(vx), Y: int64(vy)}, start, end)
 			if err == nil {
 				if result > maxY {
 					maxY = result
@@ -48,7 +47,23 @@ func Part1(lines [][]byte) int64 {
 }
 
 func Part2(lines [][]byte) int64 {
-	return -1
+	split := bytes.Split(bytes.Split(lines[0], []byte(": "))[1], []byte(", "))
+	x := bytes.Split(split[0][2:], []byte(".."))
+	y := bytes.Split(split[1][2:], []byte(".."))
+	start := utils.Point2D{X: utils.ParseNumber(x[0]), Y: utils.ParseNumber(y[1])}
+	end := utils.Point2D{X: utils.ParseNumber(x[1]), Y: utils.ParseNumber(y[0])}
+
+	// Brute force solution to check every possible velocity
+	var valid int64 = 0
+	for vx := range int(end.X) + 1 {
+		for vy := end.Y; vy < end.Y*-1; vy++ {
+			_, err := CheckTrajectory(utils.Point2D{X: int64(vx), Y: int64(vy)}, start, end)
+			if err == nil {
+				valid++
+			}
+		}
+	}
+	return valid
 }
 
 func CheckTrajectory(velocity utils.Point2D, start utils.Point2D, end utils.Point2D) (int64, error) {
@@ -68,9 +83,6 @@ func CheckTrajectory(velocity utils.Point2D, start utils.Point2D, end utils.Poin
 		}
 		if velocity.X > 0 {
 			velocity.X--
-		}
-		if velocity.X < 0 {
-			velocity.X++
 		}
 		velocity.Y--
 	}
