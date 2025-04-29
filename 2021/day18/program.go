@@ -2,6 +2,7 @@ package day18
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/jasonncleveland/adventofcode/2021/utils"
@@ -33,7 +34,22 @@ func Part1(lines [][]byte) int64 {
 }
 
 func Part2(lines [][]byte) int64 {
-	return -1
+	var max int64 = math.MinInt64
+
+	for i, first := range lines {
+		for j, second := range lines {
+			if i == j {
+				continue
+			}
+
+			total := Add(Parse(first), Parse(second))
+			if total.Magnitude() > max {
+				max = total.Magnitude()
+			}
+		}
+	}
+
+	return max
 }
 
 func ParseInput(lines [][]byte) []*SnailNumber {
