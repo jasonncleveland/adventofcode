@@ -22,22 +22,25 @@ func Run(fileName string) {
 }
 
 func Part1(lines [][]byte) int64 {
-	return -1
+	var snailNumbers []*SnailNumber = ParseInput(lines)
+
+	var total *SnailNumber = snailNumbers[0]
+	for i := 1; i < len(snailNumbers); i++ {
+		snailNumber := snailNumbers[i]
+		total = Add(total, snailNumber)
+	}
+	return total.Magnitude()
 }
 
 func Part2(lines [][]byte) int64 {
 	return -1
 }
 
-func ParseInput(lines [][]byte) [][]int64 {
-	var data [][]int64
+func ParseInput(lines [][]byte) []*SnailNumber {
+	data := make([]*SnailNumber, len(lines))
 
-	for _, line := range lines {
-		var bytes []int64
-		for _, bit := range line {
-			bytes = append(bytes, int64(bit-byte('0')))
-		}
-		data = append(data, bytes)
+	for i, line := range lines {
+		data[i] = Parse(line)
 	}
 
 	return data
