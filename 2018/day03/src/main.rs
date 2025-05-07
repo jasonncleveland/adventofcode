@@ -72,7 +72,31 @@ fn part1(file_contents: &str) -> i64 {
 }
 
 fn part2(file_contents: &str) -> i64 {
-    -1
+    let claims = parse_input(file_contents);
+
+    let mut tiles: HashMap<(i64, i64), i64> = HashMap::new();
+    for claim in &claims {
+        for x in claim.origin.x..claim.origin.x + claim.width {
+            for y in claim.origin.y..claim.origin.y + claim.height {
+                tiles.entry((x, y))
+                    .and_modify(|c| *c += 1)
+                    .or_insert(1);
+            }
+        }
+    }
+
+    'Outer:
+    for claim in &claims {
+        for x in claim.origin.x..claim.origin.x + claim.width {
+            for y in claim.origin.y..claim.origin.y + claim.height {
+                if *tiles.get(&(x, y)).unwrap() > 1 {
+                    continue 'Outer;
+                }
+            }
+        }
+        return claim.id;
+    }
+    panic!("Should not be here");
 }
 
 #[derive(Debug)]
@@ -111,9 +135,11 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        let input: [&str; 0] = [
+        let input: [&str; 1] = [
+            "#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2",
         ];
-        let expected: [i64; 0] = [
+        let expected: [i64; 1] = [
+            3,
         ];
 
         for i in 0..input.len() {
