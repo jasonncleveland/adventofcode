@@ -53,8 +53,30 @@ fn part1(file_contents: &str) -> i64 {
     twos * threes
 }
 
-fn part2(file_contents: &str) -> i64 {
-    -1
+fn part2(file_contents: &str) -> String {
+    let lines : Vec<&str> = file_contents.lines().collect();
+    for i in 0..lines.len() {
+        for j in 0..lines.len() {
+            if i == j {
+                continue;
+            }
+            let first: Vec<char> = lines[i].chars().collect();
+            let second: Vec<char> = lines[j].chars().collect();
+            let mut same: Vec<char> = Vec::new();
+            let mut diff = 0;
+            for k in 0..first.len() {
+                if first[k] != second[k] {
+                    diff += 1;
+                } else {
+                    same.push(first[k]);
+                }
+            }
+            if diff == 1 {
+                return same.iter().collect::<String>();
+            }
+        }
+    }
+    String::new()
 }
 
 #[cfg(test)]
@@ -78,10 +100,10 @@ mod tests {
     #[test]
     fn test_part2() {
         let input: [&str; 1] = [
-            "",
+            "abcde\nfghij\nklmno\npqrst\nfguij\naxcye\nwvxyz",
         ];
-        let expected: [i64; 1] = [
-            0,
+        let expected: [&str; 1] = [
+            "fgij",
         ];
 
         for i in 0..input.len() {
