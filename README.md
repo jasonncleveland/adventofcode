@@ -57,3 +57,32 @@ go test ./... -coverprofile=coverage.out && go tool cover -func=coverage.out
 # View test coverage
 go tool cover -func=coverage.out
 ```
+
+## Rust
+
+Running code using cargo CLI
+```bash
+# Run code
+cargo run -- <data-file>
+
+# Compile code with release optimizations
+cargo build --release
+
+# Run optimized release build
+cargo run --profile release -- <data-file>
+```
+
+Running tests using cargo CLI
+```bash
+# Run tests in the current project
+cargo test
+```
+
+Running linter using cargo CLI
+```bash
+# Run linter
+cargo clippy
+
+# Fix linter problems
+cargo clippy --fix
+```

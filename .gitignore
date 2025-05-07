@@ -8,5 +8,9 @@ obj/
 program
 coverage*
 
+# Rust
+target/
+main
+
 # JetBrains
 .idea/
