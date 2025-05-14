@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::time;
-use regex::Regex;
+use chrono::{NaiveDateTime, Timelike};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -29,36 +29,67 @@ fn read_file(file_name: &str) -> String {
         .expect("Something went wrong reading the file")
 }
 
+fn parse_input(file_contents: &str) -> Vec<GuardRecord> {
+   let mut records: Vec<GuardRecord> = Vec::new();
+
+    for line in file_contents.lines() {
+        let mut guard_id: i16 = -1;
+        let mut record_type: GuardRecordType = GuardRecordType::Start;
+
+        let datetime_str = &line[..18];
+        let log_str = &line[19..];
+        let datetime = NaiveDateTime::parse_from_str(datetime_str, "[%Y-%m-%d %H:%M]").unwrap();
+        if log_str.starts_with("Guard") {
+            let log_parts = log_str.split(" ").collect::<Vec<&str>>();
+            guard_id = log_parts[1][1..].parse::<i16>().unwrap();
+            record_type = GuardRecordType::Start;
+        } else if log_str.starts_with("falls asleep") {
+            record_type = GuardRecordType::Sleep;
+        } else if log_str.starts_with("wakes up") {
+            record_type = GuardRecordType::Wake;
+        }
+        records.push(GuardRecord {
+            datetime,
+            guard_id,
+            record_type
+        })
+    }
+
+    records.sort_by(|a, b| a.datetime.cmp(&b.datetime));
+
+    records
+}
+
 fn part1(file_contents: &str) -> i64 {
-    let re = Regex::new(r"^\[(?<year>\d{4})\-(?<month>\d{2})\-(?<day>\d{2}) (?<hour>\d{2}):(?<minute>\d{2})\] (?<log>(?:Guard #(?<guard>\d+) begins shift)|(?:falls asleep)|(?:wakes up))$").unwrap();
+    let records = parse_input(file_contents);
+
     let mut guard: &mut Guard = &mut Guard::new();
-    let mut last_minute: i64 = -1;
-    let mut guards: HashMap<i64, Guard> = HashMap::new();
-    let mut lines : Vec<&str> = file_contents.lines().collect();
-    lines.sort();
-    for line in lines {
-        let capture = re.captures(line).unwrap();
-        let minute: i64 = capture.name("minute").unwrap().as_str().parse::<i64>().unwrap();
-        let log: &str = capture.name("log").unwrap().as_str();
-        if log.starts_with("Guard") {
-            let guard_id = capture.name("guard").unwrap().as_str().parse::<i64>().unwrap();
-            guards.entry(guard_id).or_insert(Guard {
-                id: guard_id,
-                minutes: HashMap::new(),
-                minutes_asleep: 0,
-            });
-            guard = guards.get_mut(&guard_id).unwrap();
-        } else if log.starts_with("falls asleep") {
-            last_minute = minute;
-        } else if log.starts_with("wakes up") {
-            guard.minutes_asleep += minute - last_minute;
-            for i in last_minute..minute {
-                guard.minutes.entry(i).and_modify(|m| *m += 1).or_insert(1);
-            }
+    let mut last_minute: u32 = 0;
+    let mut guards: HashMap<i16, Guard> = HashMap::new();
+
+    for record in records {
+        match record.record_type {
+            GuardRecordType::Start => {
+                guards.entry(record.guard_id).or_insert(Guard {
+                    id: record.guard_id,
+                    minutes: HashMap::new(),
+                    minutes_asleep: 0,
+                });
+                guard = guards.get_mut(&record.guard_id).unwrap();
+            },
+            GuardRecordType::Sleep => {
+                last_minute = record.datetime.minute();
+            },
+            GuardRecordType::Wake => {
+                guard.minutes_asleep += record.datetime.minute() - last_minute;
+                for i in last_minute..record.datetime.minute() {
+                    guard.minutes.entry(i).and_modify(|m| *m += 1).or_insert(1);
+                }
+            },
         }
     }
 
-    let mut most_minutes_asleep = i64::MIN;
+    let mut most_minutes_asleep = u32::MIN;
     let mut total: i64 = -1;
     for (_, guard) in guards {
         if guard.minutes_asleep > most_minutes_asleep {
@@ -67,7 +98,7 @@ fn part1(file_contents: &str) -> i64 {
             for (minute, count) in guard.minutes {
                 if count > most_times_asleep {
                     most_times_asleep = count;
-                    total = guard.id * minute;
+                    total = guard.id as i64 * minute as i64;
                 }
             }
         }
@@ -76,14 +107,66 @@ fn part1(file_contents: &str) -> i64 {
 }
 
 fn part2(file_contents: &str) -> i64 {
-    -1
+    let records = parse_input(file_contents);
+
+    let mut guard: &mut Guard = &mut Guard::new();
+    let mut last_minute: u32 = 0;
+    let mut guards: HashMap<i16, Guard> = HashMap::new();
+
+    for record in records {
+        match record.record_type {
+            GuardRecordType::Start => {
+                guards.entry(record.guard_id).or_insert(Guard {
+                    id: record.guard_id,
+                    minutes: HashMap::new(),
+                    minutes_asleep: 0,
+                });
+                guard = guards.get_mut(&record.guard_id).unwrap();
+            },
+            GuardRecordType::Sleep => {
+                last_minute = record.datetime.minute();
+            },
+            GuardRecordType::Wake => {
+                guard.minutes_asleep += record.datetime.minute() - last_minute;
+                for i in last_minute..record.datetime.minute() {
+                    guard.minutes.entry(i).and_modify(|m| *m += 1).or_insert(1);
+                }
+            },
+        }
+    }
+
+    let mut most_times_asleep = i64::MIN;
+    let mut total: i64 = -1;
+    for (_, guard) in guards {
+        for (minute, count) in guard.minutes {
+            if count > most_times_asleep {
+                most_times_asleep = count;
+                total = guard.id as i64 * minute as i64;
+            }
+        }
+    }
+    total
+}
+
+#[derive(Debug)]
+enum GuardRecordType {
+    Start,
+    Sleep,
+    Wake,
+}
+
+#[derive(Debug)]
+struct GuardRecord {
+    datetime: NaiveDateTime,
+    guard_id: i16,
+    record_type: GuardRecordType,
 }
 
 #[derive(Debug)]
 struct Guard {
-    id: i64,
-    minutes: HashMap<i64, i64>,
-    minutes_asleep: i64,
+    id: i16,
+    minutes: HashMap<u32, i64>,
+    minutes_asleep: u32,
 }
 
 impl Guard {
@@ -128,8 +211,26 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        let input: &str = "";
-        let expected: i64 = 0;
+        let input: &str=
+            "\
+[1518-11-01 00:00] Guard #10 begins shift
+[1518-11-01 00:05] falls asleep
+[1518-11-01 00:25] wakes up
+[1518-11-01 00:30] falls asleep
+[1518-11-01 00:55] wakes up
+[1518-11-01 23:58] Guard #99 begins shift
+[1518-11-02 00:40] falls asleep
+[1518-11-02 00:50] wakes up
+[1518-11-03 00:05] Guard #10 begins shift
+[1518-11-03 00:24] falls asleep
+[1518-11-03 00:29] wakes up
+[1518-11-04 00:02] Guard #99 begins shift
+[1518-11-04 00:36] falls asleep
+[1518-11-04 00:46] wakes up
+[1518-11-05 00:03] Guard #99 begins shift
+[1518-11-05 00:45] falls asleep
+[1518-11-05 00:55] wakes up";
+        let expected: i64 = 4455;
 
         assert_eq!(part2(input), expected);
     }
