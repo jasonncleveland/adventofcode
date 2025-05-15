@@ -33,6 +33,27 @@ fn parse_input(file_contents: &str) -> Vec<char> {
 
 fn part1(file_contents: &str) -> i64 {
     let mut units: Vec<char> = parse_input(file_contents);
+    react_polymer(&mut units)
+}
+
+fn part2(file_contents: &str) -> i64 {
+    let mut min = i64::MAX;
+    for upper in 'A'..='Z' {
+        let lower = ((upper as u8) + 32) as char;
+        let mut units: Vec<char> = parse_input(file_contents);
+        let original_length = units.len();
+        units.retain(|c| *c != lower && *c != upper);
+        if units.len() != original_length {
+            let result = react_polymer(&mut units);
+            if result < min {
+                min = result;
+            }
+        }
+    }
+    min
+}
+
+fn react_polymer(units: &mut Vec<char>) -> i64 {
     let mut index = 1;
     while index < units.len() {
         if index < 1 {
@@ -41,6 +62,7 @@ fn part1(file_contents: &str) -> i64 {
         let lchar = units[index - 1] as u8;
         let rchar = units[index] as u8;
         if lchar.abs_diff(rchar) == 32 {
+            // This is slow because rust doesn't support linked lists...
             units.remove(index);
             units.remove(index - 1);
             index = index - 1;
@@ -49,10 +71,6 @@ fn part1(file_contents: &str) -> i64 {
         }
     }
     units.len() as i64
-}
-
-fn part2(file_contents: &str) -> i64 {
-    -1
 }
 
 #[cfg(test)]
@@ -83,9 +101,11 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        let input: [&str; 0] = [
+        let input: [&str; 1] = [
+            "dabAcCaCBAcCcaDA",
         ];
-        let expected: [i64; 0] = [
+        let expected: [i64; 1] = [
+            4,
         ];
 
         for i in 0..input.len() {
