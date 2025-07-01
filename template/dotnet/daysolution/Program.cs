@@ -4,7 +4,7 @@ using System.IO;
 
 public class Program
 {
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
         if (args.Length > 0)
         {
@@ -40,7 +40,7 @@ public class Program
         }
     }
 
-    static long SolvePart1(string[] lines)
+    public static long SolvePart1(string[] lines)
     {
         long total = 0;
 
@@ -49,7 +49,7 @@ public class Program
         return total;
     }
 
-    static long SolvePart2(string[] lines)
+    public static long SolvePart2(string[] lines)
     {
         long total = 0;
 
