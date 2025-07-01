@@ -42,7 +42,9 @@ fn part1(file_contents: &str) -> i64 {
 }
 
 fn part2(file_contents: &str) -> i64 {
-    -1
+    let (player_count, last_marble_value) = parse_input(file_contents);
+
+    simulate_game(player_count, last_marble_value * 100)
 }
 
 fn simulate_game(player_count: i64, max_marble: i64) -> i64 {
@@ -108,11 +110,21 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        let input: [&str; 1] = [
-            "",
+        let input: [&str; 6] = [
+            "9 players; last marble is worth 25 points",
+            "10 players; last marble is worth 1618 points",
+            "13 players; last marble is worth 7999 points",
+            "17 players; last marble is worth 1104 points",
+            "21 players; last marble is worth 6111 points",
+            "30 players; last marble is worth 5807 points",
         ];
-        let expected: [i64; 1] = [
-            0,
+        let expected: [i64; 6] = [
+            22563,
+            74765078,
+            1406506154,
+            20548882,
+            507583214,
+            320997431,
         ];
 
         for i in 0..input.len() {
