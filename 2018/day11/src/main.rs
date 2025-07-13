@@ -43,7 +43,7 @@ fn part1(file_contents: &str) -> String {
                 continue;
             }
 
-            let power_level = calculate_fuel_cell_power_level(serial_number, x, y);
+            let power_level = calculate_fuel_cell_power_level(serial_number, x, y, 3);
             if power_level > max_power_level {
                 max_power_level = power_level;
                 max_power_level_x = x;
@@ -55,15 +55,50 @@ fn part1(file_contents: &str) -> String {
     format!("{},{}", max_power_level_x, max_power_level_y)
 }
 
-fn part2(file_contents: &str) -> i64 {
-    -1
+fn part2(file_contents: &str) -> String {
+    let serial_number = parse_input(file_contents);
+
+    let mut max_power_level = i64::MIN;
+    let mut max_power_level_x = 0;
+    let mut max_power_level_y = 0;
+    let mut max_power_level_size = 0;
+    let mut previous_level_max = 0;
+    for s in 1..=300 {
+        let mut current_level_max = i64::MIN;
+        for x in 1..=300 {
+            for y in 1..=300 {
+                if x + 2 > 300 || y + 2 > 300 {
+                    continue;
+                }
+
+                let power_level = calculate_fuel_cell_power_level(serial_number, x, y, s);
+                if power_level > max_power_level {
+                    max_power_level = power_level;
+                    max_power_level_x = x;
+                    max_power_level_y = y;
+                    max_power_level_size = s;
+                }
+                if power_level > current_level_max {
+                    current_level_max = power_level;
+                }
+            }
+        }
+
+        // If the max value is decreasing when increasing the square then we can exit early
+        if current_level_max < previous_level_max {
+            break;
+        }
+        previous_level_max = current_level_max;
+    }
+
+    format!("{},{},{}", max_power_level_x, max_power_level_y, max_power_level_size)
 }
 
-fn calculate_fuel_cell_power_level(serial_number: i64, x: i64, y: i64) -> i64 {
+fn calculate_fuel_cell_power_level(serial_number: i64, x: i64, y: i64, size: i64) -> i64 {
     let mut power_level = 0;
 
-    for ix in 0..=2 {
-        for iy in 0..=2 {
+    for ix in 0..size {
+        for iy in 0..size {
             let local_power_level = calculate_power_level(serial_number, x + ix, y + iy);
             power_level += local_power_level;
         }
@@ -130,11 +165,13 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        let input: [&str; 1] = [
-            "",
+        let input: [&str; 2] = [
+            "18",
+            "42",
         ];
-        let expected: [i64; 1] = [
-            0,
+        let expected: [&str; 2] = [
+            "90,269,16",
+            "232,251,12",
         ];
 
         for i in 0..input.len() {
