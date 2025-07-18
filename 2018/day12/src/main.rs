@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::time;
@@ -27,16 +28,61 @@ fn read_file(file_name: &str) -> String {
         .expect("Something went wrong reading the file")
 }
 
-fn parse_input(file_contents: &str) -> Vec<i64> {
-    let mut numbers: Vec<i64> = Vec::new();
-    for line in file_contents.lines() {
-        numbers.push(line.parse::<i64>().unwrap());
+fn parse_input(file_contents: &str) -> (Vec<char>, HashMap<String, char>) {
+    let input_parts = file_contents.split("\n\n").collect::<Vec<&str>>();
+
+    let state: Vec<char> = input_parts[0].split(": ").collect::<Vec<&str>>()[1].chars().collect();
+
+    let mut mutations: HashMap<String, char> = HashMap::new();
+    for line in input_parts[1].split("\n") {
+        let mutation = line.split(" => ").collect::<Vec<&str>>();
+        mutations.insert(mutation[0].to_string(), mutation[1].chars().next().unwrap());
     }
-    numbers
+
+    (state, mutations)
 }
 
 fn part1(file_contents: &str) -> i64 {
-    -1
+    let (mut state, mutations) = parse_input(file_contents);
+
+    let mut offset: i64 = 0;
+    for _ in 0..20 {
+        // Add 2 empty pots on the left to help calculations
+        state.insert(0, '.');
+        state.insert(0, '.');
+        offset += 2;
+        // Add 3 empty pots on the right to help calculations
+        state.push('.');
+        state.push('.');
+        state.push('.');
+
+        let mut current_state = state.clone();
+        for pot_index in 2..current_state.len()-2 {
+            let row: Vec<char> = vec![
+                state[pot_index - 2],
+                state[pot_index - 1],
+                state[pot_index],
+                state[pot_index + 1],
+                state[pot_index + 2],
+            ];
+
+            let next_value = mutations.get(&String::from_iter(&row));
+            if next_value.is_some() {
+                current_state[pot_index] = *next_value.unwrap();
+            } else {
+                current_state[pot_index] = '.';
+            }
+        }
+        state = current_state;
+    }
+
+    let mut total: i64 = 0;
+    for (i, pot) in state.iter().enumerate() {
+        if *pot == '#' {
+            total += i as i64 - offset;
+        }
+    }
+    total
 }
 
 fn part2(file_contents: &str) -> i64 {
@@ -50,10 +96,25 @@ mod tests {
     #[test]
     fn test_part1() {
         let input: [&str; 1] = [
-            "",
+            "initial state: #..#.#..##......###...###
+
+...## => #
+..#.. => #
+.#... => #
+.#.#. => #
+.#.## => #
+.##.. => #
+.#### => #
+#.#.# => #
+#.### => #
+##.#. => #
+##.## => #
+###.. => #
+###.# => #
+####. => #",
         ];
         let expected: [i64; 1] = [
-            0,
+            325,
         ];
 
         for i in 0..input.len() {
