@@ -82,8 +82,22 @@ fn part1(file_contents: &str) -> String {
     }
 }
 
-fn part2(file_contents: &str) -> i64 {
-    -1
+fn part2(file_contents: &str) -> String {
+    let (tracks, mut carts) = parse_input(file_contents);
+
+    loop {
+        // Sort the carts by position so that the top-left-most cart is first
+        carts.sort_by(|a, b| a.position.cmp(&b.position));
+
+        // Move all carts and remove any that collide
+        move_carts_with_removal(&tracks, &mut carts);
+
+        // Stop when there is a single cart remaining
+        if carts.len() == 1 {
+            let position = carts.first().unwrap().position;
+            return format!("{},{}", position.1, position.0);
+        }
+    }
 }
 
 fn move_carts(tracks: &HashMap<(usize, usize), char>, carts: &mut [Cart]) -> Option<(usize, usize)> {
@@ -96,6 +110,30 @@ fn move_carts(tracks: &HashMap<(usize, usize), char>, carts: &mut [Cart]) -> Opt
         }
     }
     None
+}
+
+fn move_carts_with_removal(tracks: &HashMap<(usize, usize), char>, carts: &mut Vec<Cart>) {
+    // Copy the carts to allow easy mutation and removal
+    let mut remaining_carts: VecDeque<Cart> = VecDeque::from_iter(carts.clone());
+
+    while !remaining_carts.is_empty() {
+        // Move the copied cart
+        let mut cart = remaining_carts.pop_front().unwrap();
+        move_cart(tracks, &mut cart);
+
+        // Update the original cart
+        let old_cart = carts.iter_mut().find(|c| c.id == cart.id).unwrap();
+        old_cart.position = cart.position;
+        old_cart.direction = cart.direction;
+        old_cart.next_turn = cart.next_turn;
+
+        let result = check_for_collisions(carts);
+        if result.is_some() {
+            // Remove collided carts
+            remaining_carts.retain(|c| c.position != cart.position);
+            carts.retain(|c| c.position != cart.position);
+        }
+    }
 }
 
 fn move_cart(tracks: &HashMap<(usize, usize), char>, cart: &mut Cart) -> Option<bool> {
@@ -189,7 +227,7 @@ fn get_direction_after_intersection(cart: &Cart, turn: &Turn) -> char {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Cart {
     id: i64,
     position: (usize, usize),
@@ -197,7 +235,7 @@ struct Cart {
     next_turn: VecDeque<Turn>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 enum Turn {
     Left,
     Right,
@@ -230,10 +268,16 @@ mod tests {
     #[test]
     fn test_part2() {
         let input: [&str; 1] = [
-            "",
+            "/>-<\\
+|   |
+| /<+-\\
+| | | v
+\\>+</ |
+  |   ^
+  \\<->/",
         ];
-        let expected: [i64; 1] = [
-            0,
+        let expected: [&str; 1] = [
+            "6,4",
         ];
 
         for i in 0..input.len() {
