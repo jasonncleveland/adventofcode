@@ -55,17 +55,29 @@ fn part2(file_contents: &str) -> i64 {
 
     let mut total_offset = 0;
 
-    // Calculate the score at iterations 200 and 400 to calculate the delta every 200 generations
-    total_offset += simulate_generations(&mut current_state, &mutations, 200);
-    let score_after_200 = calculate_score(&current_state, total_offset);
+    let mut is_score_converging = false;
+    let mut last_score = 0;
+    let mut last_score_delta = 0;
+    let mut generations = 0;
 
-    total_offset += simulate_generations(&mut current_state, &mutations, 200);
-    let score_after_400 = calculate_score(&current_state, total_offset);
+    // Perform generations until we have three consecutive generations with the same score delta
+    loop {
+        total_offset += simulate_generations(&mut current_state, &mutations, 1);
+        let current_score = calculate_score(&current_state, total_offset);
+        let current_score_delta = current_score - last_score;
+        if current_score_delta == last_score_delta {
+            match is_score_converging {
+                true => break,
+                false => is_score_converging = true,
+            }
+        }
+        last_score_delta = current_score_delta;
+        last_score = current_score;
+        generations += 1;
+    }
 
-    let score_delta = score_after_400 - score_after_200;
-
-    // Calculate the remaining iterations then divide by 200 to determine how much score to add
-    score_after_400 + (score_delta * ((50_000_000_000 - 400) / 200))
+    // Multiply the score delta by the remaining generations to add to the current score
+    last_score + (last_score_delta * (50_000_000_000 - generations))
 }
 
 fn simulate_generations(state: &mut Vec<char>, mutations: &HashMap<String, char>, iterations: i64) -> i64 {
@@ -105,7 +117,7 @@ fn simulate_generations(state: &mut Vec<char>, mutations: &HashMap<String, char>
     offset
 }
 
-fn calculate_score(state: &Vec<char>, offset: i64) -> i64 {
+fn calculate_score(state: &[char], offset: i64) -> i64 {
     let mut total: i64 = 0;
     for (i, pot) in state.iter().enumerate() {
         if *pot == '#' {
