@@ -45,8 +45,34 @@ fn parse_input(file_contents: &str) -> (Vec<char>, HashMap<String, char>) {
 fn part1(file_contents: &str) -> i64 {
     let (mut state, mutations) = parse_input(file_contents);
 
+    let offset = simulate_generations(&mut state, &mutations, 20);
+
+    calculate_score(&state, offset)
+}
+
+fn part2(file_contents: &str) -> i64 {
+    let (mut current_state, mutations) = parse_input(file_contents);
+
+    let mut total_offset = 0;
+
+    // Calculate the score at iterations 200 and 400 to calculate the delta every 200 generations
+    total_offset += simulate_generations(&mut current_state, &mutations, 200);
+    let score_after_200 = calculate_score(&current_state, total_offset);
+
+    total_offset += simulate_generations(&mut current_state, &mutations, 200);
+    let score_after_400 = calculate_score(&current_state, total_offset);
+
+    let score_delta = score_after_400 - score_after_200;
+
+    // Calculate the remaining iterations then divide by 200 to determine how much score to add
+    score_after_400 + (score_delta * ((50_000_000_000 - 400) / 200))
+}
+
+fn simulate_generations(state: &mut Vec<char>, mutations: &HashMap<String, char>, iterations: i64) -> i64 {
+    // Keep track of the left side offset to know how many zeros were added for padding
     let mut offset: i64 = 0;
-    for _ in 0..20 {
+
+    for _ in 0..iterations {
         // Add 2 empty pots on the left to help calculations
         state.insert(0, '.');
         state.insert(0, '.');
@@ -73,9 +99,13 @@ fn part1(file_contents: &str) -> i64 {
                 current_state[pot_index] = '.';
             }
         }
-        state = current_state;
+        *state = current_state;
     }
 
+    offset
+}
+
+fn calculate_score(state: &Vec<char>, offset: i64) -> i64 {
     let mut total: i64 = 0;
     for (i, pot) in state.iter().enumerate() {
         if *pot == '#' {
@@ -83,10 +113,6 @@ fn part1(file_contents: &str) -> i64 {
         }
     }
     total
-}
-
-fn part2(file_contents: &str) -> i64 {
-    -1
 }
 
 #[cfg(test)]
@@ -125,10 +151,25 @@ mod tests {
     #[test]
     fn test_part2() {
         let input: [&str; 1] = [
-            "",
+            "initial state: #..#.#..##......###...###
+
+...## => #
+..#.. => #
+.#... => #
+.#.#. => #
+.#.## => #
+.##.. => #
+.#### => #
+#.#.# => #
+#.### => #
+##.#. => #
+##.## => #
+###.. => #
+###.# => #
+####. => #",
         ];
         let expected: [i64; 1] = [
-            0,
+            999999999374,
         ];
 
         for i in 0..input.len() {
