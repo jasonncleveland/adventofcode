@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::env;
 use std::fs;
 use std::time;
@@ -65,8 +66,52 @@ fn part1(file_contents: &str) -> String {
     output
 }
 
-fn part2(file_contents: &str) -> i64 {
-    -1
+fn part2(file_contents: &str) -> usize {
+    let expected = file_contents.chars().map(|c| c.to_digit(10).unwrap() as usize).collect::<Vec<usize>>();
+
+    let mut recipes: Vec<usize> = vec![3, 7];
+    let mut stack: VecDeque<usize> = VecDeque::from(expected.clone());
+
+    let mut first_elf_index = 0;
+    let mut second_elf_index = 1;
+
+    let mut is_checking = false;
+    let mut found_index = 0;
+    loop {
+        let new_recipe = recipes[first_elf_index] + recipes[second_elf_index];
+        if new_recipe > 9 {
+            recipes.push(new_recipe / 10);
+            if is_checking && new_recipe / 10 != *stack.front().unwrap() {
+                is_checking = false;
+                stack = VecDeque::from(expected.clone());
+            }
+            if new_recipe / 10 == *stack.front().unwrap() {
+                is_checking = true;
+                stack.pop_front();
+                found_index = recipes.len();
+            }
+            if stack.is_empty() {
+                break;
+            }
+        }
+        recipes.push(new_recipe % 10);
+        if is_checking && new_recipe % 10 != *stack.front().unwrap() {
+            is_checking = false;
+            stack = VecDeque::from(expected.clone());
+        }
+        if new_recipe % 10 == *stack.front().unwrap() {
+            is_checking = true;
+            stack.pop_front();
+            found_index = recipes.len();
+        }
+        if stack.is_empty() {
+            break;
+        }
+        first_elf_index = (first_elf_index + 1 + recipes[first_elf_index]) % recipes.len();
+        second_elf_index = (second_elf_index + 1 + recipes[second_elf_index]) % recipes.len();
+    }
+
+    found_index - expected.len()
 }
 
 #[cfg(test)]
@@ -95,11 +140,17 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        let input: [&str; 1] = [
-            "",
+        let input: [&str; 4] = [
+            "51589",
+            "01245",
+            "92510",
+            "59414",
         ];
-        let expected: [i64; 1] = [
-            0,
+        let expected: [usize; 4] = [
+            9,
+            5,
+            18,
+            2018,
         ];
 
         for i in 0..input.len() {
