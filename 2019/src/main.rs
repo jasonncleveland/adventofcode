@@ -2,11 +2,12 @@ mod shared;
 mod days;
 
 use std::env;
-use std::time;
+use std::time::Instant;
 
+use days::day01;
 use shared::io::read_file;
 
-const HIGHEST_DAY_IMPLEMENTED: u8 = 0;
+const HIGHEST_DAY_IMPLEMENTED: u8 = 1;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -33,19 +34,21 @@ fn main() {
 }
 
 fn run_all_days(file_name: &str) {
+    let all_days_timer = Instant::now();
     for day in 1..=HIGHEST_DAY_IMPLEMENTED {
         run_single_day(day, file_name);
     }
+    println!("All days: ({:?})", all_days_timer.elapsed());
 }
 
 fn run_single_day(day: u8, file_name: &str) {
     println!("Running day {:02} with file {}", day, file_name);
 
-    let input_timer = time::Instant::now();
+    let input_timer = Instant::now();
     let file_contents = read_file(format!("day{:02}/{}", day, file_name));
     println!("File read: ({:?})", input_timer.elapsed());
 
-    let day_timer = time::Instant::now();
+    let day_timer = Instant::now();
     let solve = get_day_module(day);
     let (part1, part2) = solve(file_contents);
     println!("Day {:02}: ({}, {}) ({:?})", day, part1, part2, day_timer.elapsed());
@@ -53,6 +56,7 @@ fn run_single_day(day: u8, file_name: &str) {
 
 fn get_day_module(day: u8)  -> fn(String) -> (String, String) {
     match day {
+        1 => day01::solve,
         _ => panic!("Invalid day provided")
     }
 }
