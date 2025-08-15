@@ -4,19 +4,24 @@ mod days;
 use std::env;
 use std::time::Instant;
 
+use env_logger;
+use log::{debug, info, trace};
+
 use days::{day01, day02};
 use shared::io::read_file;
 
 const HIGHEST_DAY_IMPLEMENTED: u8 = 2;
 
 fn main() {
+    env_logger::init();
+
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
         panic!("Must pass filename as argument");
     }
     let file_name = &args[1];
-    println!("Reading file: {}", file_name);
+    trace!("Reading file: {}", file_name);
 
     let mut selected_day: Option<u8> = None;
     if args.len() >= 3 {
@@ -38,20 +43,20 @@ fn run_all_days(file_name: &str) {
     for day in 1..=HIGHEST_DAY_IMPLEMENTED {
         run_single_day(day, file_name);
     }
-    println!("All days: ({:?})", all_days_timer.elapsed());
+    debug!("All days: ({:?})", all_days_timer.elapsed());
 }
 
 fn run_single_day(day: u8, file_name: &str) {
-    println!("Running day {:02} with file {}", day, file_name);
+    info!("Running day {:02} with file {}", day, file_name);
 
     let input_timer = Instant::now();
     let file_contents = read_file(format!("day{:02}/{}", day, file_name));
-    println!("File read: ({:?})", input_timer.elapsed());
+    debug!("File read: ({:?})", input_timer.elapsed());
 
     let day_timer = Instant::now();
     let solve = get_day_module(day);
     let (part1, part2) = solve(file_contents);
-    println!("Day {:02}: ({}, {}) ({:?})", day, part1, part2, day_timer.elapsed());
+    info!("Day {:02}: ({}, {}) ({:?})", day, part1, part2, day_timer.elapsed());
 }
 
 fn get_day_module(day: u8)  -> fn(String) -> (String, String) {

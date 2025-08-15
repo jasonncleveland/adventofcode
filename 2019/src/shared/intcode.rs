@@ -1,3 +1,5 @@
+use log::{trace};
+
 #[derive(Debug)]
 pub struct IntCodeComputer {
     pub memory: Vec<usize>,
@@ -13,12 +15,13 @@ pub fn initialize_computer(memory: &[usize]) -> IntCodeComputer {
 
 impl IntCodeComputer {
     fn process_instruction(&mut self) -> bool {
+        trace!("Processing instruction: [{}] ({})", self.instruction_pointer, self.memory[self.instruction_pointer]);
         match self.memory[self.instruction_pointer] {
             1 => {
                 let first_address = self.memory[self.instruction_pointer + 1];
                 let second_address = self.memory[self.instruction_pointer + 2];
                 let third_address = self.memory[self.instruction_pointer + 3];
-                println!(
+                trace!(
                     "Adding [{}] ({}) + [{}] ({}) = [{}] ({})",
                     first_address,
                     self.memory[first_address],
@@ -35,7 +38,7 @@ impl IntCodeComputer {
                 let first_address = self.memory[self.instruction_pointer + 1];
                 let second_address = self.memory[self.instruction_pointer + 2];
                 let third_address = self.memory[self.instruction_pointer + 3];
-                println!(
+                trace!(
                     "Multiplying [{}] ({}) + [{}] ({}) = [{}] ({})",
                     first_address,
                     self.memory[first_address],

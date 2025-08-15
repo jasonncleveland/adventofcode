@@ -1,17 +1,19 @@
 use std::time::Instant;
 
+use log::debug;
+
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
-    println!("File parse: ({:?})", parse_timer.elapsed());
+    debug!("File parse: ({:?})", parse_timer.elapsed());
 
     let part1_timer = Instant::now();
     let part1 = solve_part_1(&input);
-    println!("Part 1: {} ({:?})", part1, part1_timer.elapsed());
+    debug!("Part 1: {} ({:?})", part1, part1_timer.elapsed());
 
     let part2_timer = Instant::now();
     let part2 = solve_part_2(&input);
-    println!("Part 2: {} ({:?})", part2, part2_timer.elapsed());
+    debug!("Part 2: {} ({:?})", part2, part2_timer.elapsed());
 
     (part1.to_string(), part2.to_string())
 }

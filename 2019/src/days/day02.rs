@@ -1,3 +1,5 @@
+use log::{debug, trace};
+
 use std::time::Instant;
 
 use crate::shared::intcode::initialize_computer;
@@ -5,15 +7,15 @@ use crate::shared::intcode::initialize_computer;
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
-    println!("File parse: ({:?})", parse_timer.elapsed());
+    debug!("File parse: ({:?})", parse_timer.elapsed());
 
     let part1_timer = Instant::now();
     let part1 = solve_part_1(&input);
-    println!("Part 1: {} ({:?})", part1, part1_timer.elapsed());
+    debug!("Part 1: {} ({:?})", part1, part1_timer.elapsed());
 
     let part2_timer = Instant::now();
     let part2 = solve_part_2(&input);
-    println!("Part 2: {} ({:?})", part2, part2_timer.elapsed());
+    debug!("Part 2: {} ({:?})", part2, part2_timer.elapsed());
 
     (part1.to_string(), part2.to_string())
 }
@@ -39,12 +41,13 @@ fn solve_part_1(input: &[usize]) -> usize {
 fn solve_part_2(input: &[usize]) -> usize {
     for noun in 0..100 {
         for verb in 0..100 {
+            trace!("Noun: {}, Verb: {}", noun, verb);
             let mut computer = initialize_computer(input);
             computer.memory[1] = noun;
             computer.memory[2] = verb;
             computer.run();
             if computer.memory[0] == 19690720 {
-                println!("Found noun: {} verb: {}", noun, verb);
+                trace!("Found noun: {} verb: {}", noun, verb);
                 return 100 * noun + verb
             }
         }
