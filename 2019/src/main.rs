@@ -4,10 +4,10 @@ mod days;
 use std::env;
 use std::time::Instant;
 
-use days::day01;
+use days::{day01, day02};
 use shared::io::read_file;
 
-const HIGHEST_DAY_IMPLEMENTED: u8 = 1;
+const HIGHEST_DAY_IMPLEMENTED: u8 = 2;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -57,6 +57,7 @@ fn run_single_day(day: u8, file_name: &str) {
 fn get_day_module(day: u8)  -> fn(String) -> (String, String) {
     match day {
         1 => day01::solve,
-        _ => panic!("Invalid day provided")
+        2 => day02::solve,
+        other => panic!("Invalid day provided: {}. Day must be less than {}", other, HIGHEST_DAY_IMPLEMENTED),
     }
 }
