@@ -1,0 +1,58 @@
+mod shared;
+mod days;
+
+use std::env;
+use std::time;
+
+use shared::io::read_file;
+
+const HIGHEST_DAY_IMPLEMENTED: u8 = 0;
+
+fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() < 2 {
+        panic!("Must pass filename as argument");
+    }
+    let file_name = &args[1];
+    println!("Reading file: {}", file_name);
+
+    let mut selected_day: Option<u8> = None;
+    if args.len() >= 3 {
+        // Specific day given
+        if let Ok(value) = args[2].parse::<u8>() {
+            selected_day = Some(value);
+        }
+    }
+
+    if let Some(day) = selected_day {
+        run_single_day(day, file_name);
+    } else {
+        run_all_days(file_name);
+    }
+}
+
+fn run_all_days(file_name: &str) {
+    for day in 1..=HIGHEST_DAY_IMPLEMENTED {
+        run_single_day(day, file_name);
+    }
+}
+
+fn run_single_day(day: u8, file_name: &str) {
+    println!("Running day {:02} with file {}", day, file_name);
+
+    let input_timer = time::Instant::now();
+    let file_contents = read_file(format!("day{:02}/{}", day, file_name));
+    println!("File read: ({:?})", input_timer.elapsed());
+
+    let day_timer = time::Instant::now();
+    let solve = get_day_module(day);
+    let (part1, part2) = solve(file_contents);
+    println!("Day {:02}: ({}, {}) ({:?})", day, part1, part2, day_timer.elapsed());
+}
+
+fn get_day_module(day: u8)  -> fn(String) -> (String, String) {
+    match day {
+        _ => panic!("Invalid day provided")
+    }
+}
