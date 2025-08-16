@@ -4,13 +4,16 @@ mod days;
 use std::env;
 use std::time::Instant;
 
-use env_logger;
 use log::{debug, info, trace};
 
-use days::{day01, day02};
+use days::{
+    day01,
+    day02,
+    day03,
+};
 use shared::io::read_file;
 
-const HIGHEST_DAY_IMPLEMENTED: u8 = 2;
+const HIGHEST_DAY_IMPLEMENTED: u8 = 3;
 
 fn main() {
     env_logger::init();
@@ -63,6 +66,7 @@ fn get_day_module(day: u8)  -> fn(String) -> (String, String) {
     match day {
         1 => day01::solve,
         2 => day02::solve,
+        3 => day03::solve,
         other => panic!("Invalid day provided: {}. Day must be less than {}", other, HIGHEST_DAY_IMPLEMENTED),
     }
 }
