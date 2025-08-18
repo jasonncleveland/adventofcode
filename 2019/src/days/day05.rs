@@ -1,4 +1,4 @@
-use log::{debug, trace};
+use log::debug;
 
 use std::time::Instant;
 
@@ -23,25 +23,20 @@ pub fn solve(file_contents: String) -> (String, String) {
 
 fn solve_part_1(input: &[i64]) -> i64 {
     let mut computer = initialize_computer(input);
-    computer.memory[1] = 12;
-    computer.memory[2] = 2;
+    computer.input.push(1);
     computer.run();
-    computer.memory[0]
+    if let Some(result) = computer.output.last() {
+        return *result;
+    }
+    unreachable!();
 }
 
 fn solve_part_2(input: &[i64]) -> i64 {
-    for noun in 0..100 {
-        for verb in 0..100 {
-            trace!("Noun: {}, Verb: {}", noun, verb);
-            let mut computer = initialize_computer(input);
-            computer.memory[1] = noun;
-            computer.memory[2] = verb;
-            computer.run();
-            if computer.memory[0] == 19690720 {
-                trace!("Found noun: {} verb: {}", noun, verb);
-                return 100 * noun + verb
-            }
-        }
+    let mut computer = initialize_computer(input);
+    computer.input.push(5);
+    computer.run();
+    if let Some(result) = computer.output.last() {
+        return *result;
     }
-    panic!("Could not find a noun and verb")
+    unreachable!();
 }
