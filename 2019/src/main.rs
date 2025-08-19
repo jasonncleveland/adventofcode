@@ -12,10 +12,11 @@ use days::{
     day03,
     day04,
     day05,
+    day06,
 };
 use shared::io::read_file;
 
-const HIGHEST_DAY_IMPLEMENTED: u8 = 5;
+const HIGHEST_DAY_IMPLEMENTED: u8 = 6;
 
 fn main() {
     env_logger::init();
@@ -48,7 +49,7 @@ fn run_all_days(file_name: &str) {
     for day in 1..=HIGHEST_DAY_IMPLEMENTED {
         run_single_day(day, file_name);
     }
-    debug!("All days: ({:?})", all_days_timer.elapsed());
+    info!("Total runtime: ({:?})", all_days_timer.elapsed());
 }
 
 fn run_single_day(day: u8, file_name: &str) {
@@ -71,6 +72,7 @@ fn get_day_module(day: u8)  -> fn(String) -> (String, String) {
         3 => day03::solve,
         4 => day04::solve,
         5 => day05::solve,
+        6 => day06::solve,
         other => panic!("Invalid day provided: {}. Day must be less than {}", other, HIGHEST_DAY_IMPLEMENTED),
     }
 }
