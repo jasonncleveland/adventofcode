@@ -1,8 +1,8 @@
-use log::debug;
-
 use std::time::Instant;
 
-use crate::shared::intcode::initialize_computer;
+use log::debug;
+
+use crate::shared::intcode::IntCodeComputer;
 use crate::shared::io::parse_int_list;
 
 pub fn solve(file_contents: String) -> (String, String) {
@@ -22,20 +22,20 @@ pub fn solve(file_contents: String) -> (String, String) {
 }
 
 fn solve_part_1(input: &[i64]) -> i64 {
-    let mut computer = initialize_computer(input);
-    computer.input.push(1);
+    let mut computer = IntCodeComputer::new(input);
+    computer.input.push_back(1);
     computer.run();
-    if let Some(result) = computer.output.last() {
+    if let Some(result) = computer.output.back() {
         return *result;
     }
     unreachable!();
 }
 
 fn solve_part_2(input: &[i64]) -> i64 {
-    let mut computer = initialize_computer(input);
-    computer.input.push(5);
+    let mut computer = IntCodeComputer::new(input);
+    computer.input.push_back(5);
     computer.run();
-    if let Some(result) = computer.output.last() {
+    if let Some(result) = computer.output.back() {
         return *result;
     }
     unreachable!();

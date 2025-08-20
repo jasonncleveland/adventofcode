@@ -1,8 +1,8 @@
-use log::{debug, trace};
-
 use std::time::Instant;
 
-use crate::shared::intcode::initialize_computer;
+use log::{debug, trace};
+
+use crate::shared::intcode::IntCodeComputer;
 use crate::shared::io::parse_int_list;
 
 pub fn solve(file_contents: String) -> (String, String) {
@@ -22,7 +22,7 @@ pub fn solve(file_contents: String) -> (String, String) {
 }
 
 fn solve_part_1(input: &[i64]) -> i64 {
-    let mut computer = initialize_computer(input);
+    let mut computer = IntCodeComputer::new(input);
     computer.memory[1] = 12;
     computer.memory[2] = 2;
     computer.run();
@@ -33,7 +33,7 @@ fn solve_part_2(input: &[i64]) -> i64 {
     for noun in 0..100 {
         for verb in 0..100 {
             trace!("Noun: {}, Verb: {}", noun, verb);
-            let mut computer = initialize_computer(input);
+            let mut computer = IntCodeComputer::new(input);
             computer.memory[1] = noun;
             computer.memory[2] = verb;
             computer.run();
