@@ -3,7 +3,8 @@ use std::time::Instant;
 
 use log::debug;
 
-use crate::shared::geometry::{LineSegment2d, Point2d};
+use crate::shared::line::LineSegment2d;
+use crate::shared::point::Point2d;
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
@@ -36,7 +37,7 @@ pub fn parse_input(file_contents: String) -> (Vec<LineData>, Vec<LineData>) {
 fn get_line_segments(instructions: &str) -> Vec<LineData> {
     let mut segments: Vec<LineData> = Vec::new();
     let mut steps = 0;
-    let mut previous = Point2d { x: 0, y: 0 };
+    let mut previous = Point2d::new(0, 0);
     for instruction in instructions.split(',') {
         if let Ok(num) = instruction[1..].parse::<i64>() {
             steps += num;
@@ -48,7 +49,7 @@ fn get_line_segments(instructions: &str) -> Vec<LineData> {
                 "D" => current.y += num,
                 other => panic!("Unknown direction: {}", other),
             }
-            segments.push(LineData { line: LineSegment2d { start: previous, end: current }, steps });
+            segments.push(LineData { line: LineSegment2d::new(previous, current), steps });
             previous = current;
         }
     }
@@ -81,7 +82,7 @@ fn find_closest_intersection(input: &(Vec<LineData>, Vec<LineData>), get_distanc
 
                 if min_y <= second.line.start.y && second.line.start.y <= max_y
                     && min_x <= first.line.start.x && first.line.start.x <= max_x {
-                    let intersection = Point2d { x: first.line.start.x, y: second.line.start.y };
+                    let intersection = Point2d::new(first.line.start.x, second.line.start.y);
                     let distance = get_distance(intersection, first, second);
                     if distance == 0 {
                         // Ignore intersection at origin point
@@ -100,7 +101,7 @@ fn find_closest_intersection(input: &(Vec<LineData>, Vec<LineData>), get_distanc
 
                 if min_x <= second.line.start.x && second.line.start.x <= max_x
                     && min_y <= first.line.start.y && first.line.start.y <= max_y {
-                    let intersection = Point2d { x: second.line.start.x, y: first.line.start.y };
+                    let intersection = Point2d::new(second.line.start.x, first.line.start.y);
                     let distance = get_distance(intersection, first, second);
                     if distance == 0 {
                         // Ignore intersection at origin point
@@ -117,7 +118,7 @@ fn find_closest_intersection(input: &(Vec<LineData>, Vec<LineData>), get_distanc
 }
 
 fn choose_shortest_manhattan_distance(intersection: Point2d, _: &LineData, _: &LineData) -> i64 {
-    intersection.manhattan(&Point2d { x: 0, y: 0 })
+    intersection.manhattan(&Point2d::new(0, 0))
 }
 
 fn choose_shortest_total_steps(intersection: Point2d, first: &LineData, second: &LineData) -> i64 {
