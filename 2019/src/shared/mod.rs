@@ -1,6 +1,8 @@
-pub mod permutations;
+pub mod colour;
+pub mod direction;
 pub mod io;
 pub mod intcode;
 pub mod line;
 pub mod math;
+pub mod permutations;
 pub mod point;

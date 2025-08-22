@@ -1,6 +1,8 @@
 ﻿use std::fmt;
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+use super::direction::Direction;
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd)]
 pub struct Point2d {
     pub x: i64,
     pub y: i64,
@@ -38,6 +40,15 @@ impl Point2d {
         let dx = self.x as f64 - other.x as f64;
         let dy = self.y as f64 - other.y as f64;
         dx.atan2(dy)
+    }
+
+    pub fn next(&self, direction: &Direction) -> Point2d {
+        match direction {
+            Direction::Up => Point2d::new(self.x, self.y - 1),
+            Direction::Down => Point2d::new(self.x, self.y + 1),
+            Direction::Left => Point2d::new(self.x - 1, self.y),
+            Direction::Right => Point2d::new(self.x + 1, self.y),
+        }
     }
 }
 
