@@ -1,11 +1,9 @@
-use std::collections::HashMap;
 use std::time::Instant;
 
 use log::{debug, trace};
 
-use crate::shared::colour::Colour;
 use crate::shared::direction::{get_next_direction, Direction};
-use crate::shared::intcode::{IntCodeComputer, IntCodeError};
+use crate::shared::intcode::{IntCodeComputer, IntCodeError, IntCodeDisplay};
 use crate::shared::io::parse_int_list;
 use crate::shared::point2d::Point2d;
 
@@ -27,28 +25,28 @@ pub fn solve(file_contents: String) -> (String, String) {
 
 fn solve_part_1(input: &[i64]) -> usize {
     let mut robot = IntCodeComputer::new(input);
-    let mut tiles: HashMap<Point2d, Colour> = HashMap::new();
+    let mut screen = IntCodeDisplay::new();
 
     // The starting tile is black
     robot.input.push_back(0);
-    paint_tiles(&mut tiles, &mut robot);
+    paint_tiles(&mut screen, &mut robot);
 
     // Count number of unique painted tiles
-    tiles.len()
+    screen.pixels.len()
 }
 
 fn solve_part_2(input: &[i64]) -> String {
     let mut robot = IntCodeComputer::new(input);
-    let mut tiles: HashMap<Point2d, Colour> = HashMap::new();
+    let mut screen = IntCodeDisplay::new();
 
     // The starting tile is white
     robot.input.push_back(1);
-    paint_tiles(&mut tiles, &mut robot);
+    paint_tiles(&mut screen, &mut robot);
 
-    print_tiles(&tiles)
+    screen.to_string()
 }
 
-fn paint_tiles(tiles: &mut HashMap<Point2d, Colour>, robot: &mut IntCodeComputer) {
+fn paint_tiles(screen: &mut IntCodeDisplay, robot: &mut IntCodeComputer) {
     let mut current_position = Point2d::new(0, 0);
     let mut current_direction = Direction::Up;
 
@@ -65,8 +63,8 @@ fn paint_tiles(tiles: &mut HashMap<Point2d, Colour>, robot: &mut IntCodeComputer
             Err(IntCodeError::NoInputGiven) => {
                 // Get colour and direction
                 let next_colour = match robot.output.pop_front() {
-                    Some(0) => Colour::Black,
-                    Some(1) => Colour::White,
+                    Some(0) => '.',
+                    Some(1) => '#',
                     _ => unreachable!(),
                 };
                 let turn_direction = match robot.output.pop_front() {
@@ -77,7 +75,7 @@ fn paint_tiles(tiles: &mut HashMap<Point2d, Colour>, robot: &mut IntCodeComputer
 
                 // Paint the current tile
                 trace!("Painting hull at {} {}", current_position, next_colour);
-                tiles.insert(current_position, next_colour);
+                screen.pixels.insert(current_position, next_colour);
 
                 // Move to next tile
                 let next_direction = get_next_direction(&current_direction, &turn_direction);
@@ -89,57 +87,14 @@ fn paint_tiles(tiles: &mut HashMap<Point2d, Colour>, robot: &mut IntCodeComputer
                 current_position = next_position;
 
                 // Get colour of current position
-                let current_colour = match tiles.get(&current_position) {
-                    Some(Colour::Black) => 0,
-                    Some(Colour::White) => 1,
-                    None => 0,
+                let current_colour = match screen.pixels.get(&current_position) {
+                    Some('.') => 0,
+                    Some('#') => 1,
+                    _ => 0,
                 };
                 robot.input.push_back(current_colour);
             },
             Err(error) => panic!("Unexpected error: {}", error),
         }
     }
-}
-
-fn print_tiles(tiles: &HashMap<Point2d, Colour>) -> String {
-    // Get boundaries
-    let mut min_x = i64::MAX;
-    let mut min_y = i64::MAX;
-    let mut max_x = i64::MIN;
-    let mut max_y = i64::MIN;
-
-    for point in tiles.keys() {
-        if let Some(c) = tiles.get(point) && *c != Colour::White {
-            continue;
-        }
-
-        if point.x < min_x {
-            min_x = point.x;
-        }
-        if point.y < min_y {
-            min_y = point.y;
-        }
-        if point.x > max_x {
-            max_x = point.x;
-        }
-        if point.y > max_y {
-            max_y = point.y;
-        }
-    }
-
-    // Get tile values
-    let mut output = String::new();
-    for y in min_y..=max_y {
-        output.push('\n');
-        for x in min_x..=max_x {
-            let value = match tiles.get(&Point2d::new(x, y)) {
-                Some(Colour::Black) => '.',
-                Some(Colour::White) => '#',
-                None => '.',
-            };
-            output.push(value);
-        }
-    }
-
-    output
 }

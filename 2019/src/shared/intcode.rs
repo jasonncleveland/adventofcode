@@ -1,7 +1,9 @@
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 use std::fmt;
 
 use log::{error, trace};
+
+use super::point2d::Point2d;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct IntCodeComputer {
@@ -244,6 +246,55 @@ impl IntCodeComputer {
                 Err(e) => panic!("{}", e),
             }
         }
+    }
+}
+
+pub struct IntCodeDisplay {
+    pub pixels: HashMap<Point2d, char>,
+}
+
+impl fmt::Display for IntCodeDisplay {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Get boundaries
+        let mut min_x = i64::MAX;
+        let mut min_y = i64::MAX;
+        let mut max_x = i64::MIN;
+        let mut max_y = i64::MIN;
+
+        for point in self.pixels.keys() {
+            if point.x < min_x {
+                min_x = point.x;
+            }
+            if point.y < min_y {
+                min_y = point.y;
+            }
+            if point.x > max_x {
+                max_x = point.x;
+            }
+            if point.y > max_y {
+                max_y = point.y;
+            }
+        }
+
+        // Get values
+        let mut output = String::new();
+        for y in min_y..=max_y {
+            output.push('\n');
+            for x in min_x..=max_x {
+                let value = match self.pixels.get(&Point2d::new(x, y)) {
+                    Some(value) => *value,
+                    None => '.',
+                };
+                output.push(value);
+            }
+        }
+        write!(f, "{}", output)
+    }
+}
+
+impl IntCodeDisplay {
+    pub fn new() -> Self {
+        IntCodeDisplay { pixels: HashMap::new() }
     }
 }
 

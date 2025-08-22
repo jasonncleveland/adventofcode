@@ -1,4 +1,3 @@
-pub mod colour;
 pub mod direction;
 pub mod io;
 pub mod intcode;
