@@ -9,6 +9,10 @@
     }
 }
 
+pub fn least_common_multiple(first: i64, second: i64) -> i64 {
+    first.abs() * (second.abs() / greatest_common_divisor(first, second))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -30,6 +34,22 @@ mod tests {
 
         for i in 0..input.len() {
             assert_eq!(greatest_common_divisor(input[i].0, input[i].1), expected[i]);
+        }
+    }
+
+    #[test]
+    fn test_least_common_multiple() {
+        let input: [(i64, i64); 2] = [
+            (4, 6),
+            (21, 6),
+        ];
+        let expected: [i64; 2] = [
+            12,
+            42,
+        ];
+
+        for i in 0..input.len() {
+            assert_eq!(least_common_multiple(input[i].0, input[i].1), expected[i]);
         }
     }
 }

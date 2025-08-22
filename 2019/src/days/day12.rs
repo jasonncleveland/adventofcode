@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
-use std::collections::HashSet;
 use std::fmt;
 use std::time::Instant;
 
-use log::debug;
+use log::{debug, trace};
 
+use crate::shared::math::least_common_multiple;
 use crate::shared::point3d::Point3d;
 
 pub fn solve(file_contents: String) -> (String, String) {
@@ -30,34 +30,23 @@ fn parse_input(file_contents: String) -> Vec<Moon> {
             .split(", ")
             .map(|s| s.split_once('='))
             .collect::<Vec<_>>();
-        let mut x = 0;
-        let mut y = 0;
-        let mut z = 0;
-        if let Some(Some((_, value))) = positions.get(0) {
-            if let Ok(parsed) = value.parse::<i64>() {
-                x = parsed;
-            }
+        if let Some(Some((_, value))) = positions.first()
+            && let Ok(x) = value.parse::<i64>()
+            && let Some(Some((_, value))) = positions.get(1)
+            && let Ok(y) = value.parse::<i64>()
+            && let Some(Some((_, value))) = positions.get(2)
+            && let Ok(z) = value.parse::<i64>() {
+            points.push(Moon {
+                position: Point3d::new(x, y, z),
+                velocity: Point3d::new(0, 0, 0),
+            });
         }
-        if let Some(Some((_, value))) = positions.get(1) {
-            if let Ok(parsed) = value.parse::<i64>() {
-                y = parsed;
-            }
-        }
-        if let Some(Some((_, value))) = positions.get(2) {
-            if let Ok(parsed) = value.parse::<i64>() {
-                z = parsed;
-            }
-        }
-        points.push(Moon {
-            position: Point3d::new(x, y, z),
-            velocity: Point3d::new(0, 0, 0),
-        });
     }
     points
 }
 
-fn solve_part_1(input: &Vec<Moon>, steps: i64) -> i64 {
-    let mut moons = input.clone();
+fn solve_part_1(input: &[Moon], steps: i64) -> i64 {
+    let mut moons = input.to_owned();
 
     for _ in 0..steps {
         simulate_moons(&mut moons);
@@ -67,28 +56,73 @@ fn solve_part_1(input: &Vec<Moon>, steps: i64) -> i64 {
 }
 
 fn solve_part_2(input: &[Moon]) -> i64 {
-    -1
+    let mut x_moons = input.iter().flat_map(|moon| [moon.position.x, moon.velocity.x]).collect::<Vec<i64>>();
+    let x_step = get_repetition_step(&mut x_moons);
+    trace!("x repeats after {} steps", x_step);
+
+    let mut y_moons = input.iter().flat_map(|moon| [moon.position.y, moon.velocity.y]).collect::<Vec<i64>>();
+    let y_step = get_repetition_step(&mut y_moons);
+    trace!("y repeats after {} steps", y_step);
+
+    let mut z_moons = input.iter().flat_map(|moon| [moon.position.z, moon.velocity.z]).collect::<Vec<i64>>();
+    let z_step = get_repetition_step(&mut z_moons);
+    trace!("z repeats after {} steps", z_step);
+
+    least_common_multiple(least_common_multiple(x_step, y_step), z_step)
 }
 
-fn simulate_moons(moons: &mut Vec<Moon>) {
+fn get_repetition_step(moons: &mut Vec<i64>) -> i64 {
+    let initial_state = moons.clone();
+    let mut step = 1;
+    loop {
+        simulate_single_axis(moons);
+        if *moons == initial_state {
+            return step;
+        }
+        step += 1;
+    }
+}
+
+fn simulate_single_axis(moons: &mut [i64]) {
     // Apply gravity
-    let mut checked: HashSet<(usize, usize)> = HashSet::new();
-    for s in 0..moons.len() {
-        for e in 0..moons.len() {
-            if s == e || checked.contains(&(s, e)) {
+    for s in (0..moons.len()).step_by(2) {
+        for e in (0..moons.len()).step_by(2) {
+            if s == e {
                 continue;
             }
 
-            checked.insert((s, e));
-            checked.insert((e, s));
+            match moons[s].cmp(&moons[e]) {
+                Ordering::Less => {
+                    moons[s + 1] += 1;
+                },
+                Ordering::Greater => {
+                    moons[s + 1] -= 1;
+                },
+                Ordering::Equal=> {},
+            }
+
+        }
+    }
+
+    // Apply velocity
+    for m in (0..moons.len()).step_by(2) {
+        moons[m] += moons[m + 1];
+    }
+}
+
+fn simulate_moons(moons: &mut [Moon]) {
+    // Apply gravity
+    for s in 0..moons.len() {
+        for e in 0..moons.len() {
+            if s == e {
+                continue;
+            }
 
             match moons[s].position.x.cmp(&moons[e].position.x) {
                 Ordering::Less => {
                     moons[s].velocity.x += 1;
-                    moons[e].velocity.x -= 1;
                 },
                 Ordering::Greater => {
-                    moons[e].velocity.x += 1;
                     moons[s].velocity.x -= 1;
                 },
                 Ordering::Equal=> {},
@@ -97,10 +131,8 @@ fn simulate_moons(moons: &mut Vec<Moon>) {
             match moons[s].position.y.cmp(&moons[e].position.y) {
                 Ordering::Less => {
                     moons[s].velocity.y += 1;
-                    moons[e].velocity.y -= 1;
                 },
                 Ordering::Greater => {
-                    moons[e].velocity.y += 1;
                     moons[s].velocity.y -= 1;
                 },
                 Ordering::Equal=> {},
@@ -109,10 +141,8 @@ fn simulate_moons(moons: &mut Vec<Moon>) {
             match moons[s].position.z.cmp(&moons[e].position.z) {
                 Ordering::Less => {
                     moons[s].velocity.z += 1;
-                    moons[e].velocity.z -= 1;
                 },
                 Ordering::Greater => {
-                    moons[e].velocity.z += 1;
                     moons[s].velocity.z -= 1;
                 },
                 Ordering::Equal=> {},
@@ -122,10 +152,10 @@ fn simulate_moons(moons: &mut Vec<Moon>) {
     }
 
     // Apply velocity
-    for m in 0..moons.len() {
-        moons[m].position.x += moons[m].velocity.x;
-        moons[m].position.y += moons[m].velocity.y;
-        moons[m].position.z += moons[m].velocity.z;
+    for moon in moons.iter_mut() {
+        moon.position.x += moon.velocity.x;
+        moon.position.y += moon.velocity.y;
+        moon.position.z += moon.velocity.z;
     }
 }
 
@@ -182,11 +212,19 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "",
+        let input: [&str; 2] = [
+            "<x=-1, y=0, z=2>
+<x=2, y=-10, z=-7>
+<x=4, y=-8, z=8>
+<x=3, y=5, z=-1>",
+            "<x=-8, y=-10, z=0>
+<x=5, y=5, z=10>
+<x=2, y=-7, z=3>
+<x=9, y=-8, z=-3>",
         ];
-        let expected: [i64; 1] = [
-            0,
+        let expected: [i64; 2] = [
+            2772,
+            4686774924,
         ];
 
         for i in 0..input.len() {

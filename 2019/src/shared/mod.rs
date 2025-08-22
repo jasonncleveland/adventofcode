@@ -5,4 +5,5 @@ pub mod intcode;
 pub mod line;
 pub mod math;
 pub mod permutations;
-pub mod point;
+pub mod point2d;
+pub mod point3d;
