@@ -5,13 +5,12 @@ use std::time::Instant;
 use log::{debug, trace};
 
 use crate::shared::math::greatest_common_divisor;
-use crate::shared::point::Point2d;
+use crate::shared::point2d::Point2d;
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
-
 
     let part1_timer = Instant::now();
     let part1 = solve_part_1(&input);

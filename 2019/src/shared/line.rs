@@ -1,6 +1,6 @@
 ﻿use std::fmt;
 
-use super::point::Point2d;
+use super::point2d::Point2d;
 
 #[derive(Debug)]
 pub struct LineSegment2d {

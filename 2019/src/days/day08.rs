@@ -10,7 +10,6 @@ pub fn solve(file_contents: String) -> (String, String) {
     let input = parse_input(file_contents, width, height);
     debug!("File parse: ({:?})", parse_timer.elapsed());
 
-
     let part1_timer = Instant::now();
     let part1 = solve_part_1(&input);
     debug!("Part 1: {} ({:?})", part1, part1_timer.elapsed());
