@@ -22,10 +22,11 @@ use days::{
     day13,
     day14,
     day15,
+    day16,
 };
 use shared::io::read_file;
 
-const HIGHEST_DAY_IMPLEMENTED: u8 = 15;
+const HIGHEST_DAY_IMPLEMENTED: u8 = 16;
 
 fn main() {
     env_logger::init();
@@ -91,6 +92,7 @@ fn get_day_module(day: u8)  -> fn(String) -> (String, String) {
         13 => day13::solve,
         14 => day14::solve,
         15 => day15::solve,
+        16 => day16::solve,
         other => panic!("Invalid day provided: {}. Day must be less than {}", other, HIGHEST_DAY_IMPLEMENTED),
     }
 }
