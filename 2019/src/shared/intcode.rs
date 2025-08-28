@@ -14,7 +14,22 @@ pub struct IntCodeComputer {
     relative_base_pointer: i64,
 }
 
-#[derive(Debug)]
+pub enum IntCodeStatus {
+    ProgramHalted,
+    InputRequired,
+    OutputWaiting,
+}
+
+impl fmt::Display for IntCodeStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            IntCodeStatus::ProgramHalted => write!(f, "Computer has halted execution"),
+            IntCodeStatus::InputRequired => write!(f, "Computer waiting for input to be provided"),
+            IntCodeStatus::OutputWaiting => write!(f, "Computer has output waiting"),
+        }
+    }
+}
+
 pub enum IntCodeError {
     InvalidFileAccessMode,
     InvalidInstructionOpCode,
@@ -244,6 +259,25 @@ impl IntCodeComputer {
                 Ok(true) => continue,
                 Ok(false) => break,
                 Err(e) => panic!("{}", e),
+            }
+        }
+    }
+
+    pub fn run_interactive(&mut self, output_count: usize) -> Result<IntCodeStatus, IntCodeError> {
+        loop {
+            match self.process_instruction() {
+                Ok(true) => {
+                    if self.output.len() == output_count {
+                        return Ok(IntCodeStatus::OutputWaiting);
+                    }
+                },
+                Ok(false) => {
+                    return Ok(IntCodeStatus::ProgramHalted);
+                },
+                Err(IntCodeError::NoInputGiven) => {
+                    return Ok(IntCodeStatus::InputRequired);
+                },
+                Err(error) => panic!("Unexpected error: {}", error),
             }
         }
     }
