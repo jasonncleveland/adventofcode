@@ -3,7 +3,7 @@ use std::time::Instant;
 use log::{debug, trace};
 
 use crate::shared::direction::{get_next_direction, Direction};
-use crate::shared::intcode::{IntCodeComputer, IntCodeError, IntCodeDisplay};
+use crate::shared::intcode::{IntCodeComputer, IntCodeDisplay, IntCodeStatus};
 use crate::shared::io::parse_int_list;
 use crate::shared::point2d::Point2d;
 
@@ -50,17 +50,10 @@ fn paint_tiles(screen: &mut IntCodeDisplay, robot: &mut IntCodeComputer) {
     let mut current_position = Point2d::new(0, 0);
     let mut current_direction = Direction::Up;
 
-    loop {
-        match robot.process_instruction() {
-            Ok(result) => match result {
-                true => continue,
-                false => {
-                    // Stop when program halts
-                    trace!("program halted: {:?}", robot.output);
-                    break;
-                },
-            },
-            Err(IntCodeError::NoInputGiven) => {
+    while let Ok(status) = robot.run_interactive(1) {
+        match status {
+            IntCodeStatus::OutputWaiting => continue,
+            IntCodeStatus::InputRequired => {
                 // Get colour and direction
                 let next_colour = match robot.output.pop_front() {
                     Some(0) => '.',
@@ -94,7 +87,7 @@ fn paint_tiles(screen: &mut IntCodeDisplay, robot: &mut IntCodeComputer) {
                 };
                 robot.input.push_back(current_colour);
             },
-            Err(error) => panic!("Unexpected error: {}", error),
+            IntCodeStatus::ProgramHalted => break
         }
     }
 }

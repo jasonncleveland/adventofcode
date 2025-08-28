@@ -4,7 +4,7 @@ use std::time::Instant;
 
 use log::{debug, trace};
 
-use crate::shared::intcode::{IntCodeComputer, IntCodeError, IntCodeDisplay};
+use crate::shared::intcode::{IntCodeComputer, IntCodeDisplay, IntCodeStatus};
 use crate::shared::io::parse_int_list;
 use crate::shared::point2d::Point2d;
 
@@ -58,30 +58,22 @@ fn run(display: &mut DisplayWithScore, arcade: &mut IntCodeComputer) {
         manual_input = value;
     }
 
-    loop {
-        match arcade.process_instruction() {
-            Ok(result) => match result {
-                true => {
-                    if arcade.output.len() == 3
-                        && let Some(x) = arcade.output.pop_front()
-                        && let Some(y) = arcade.output.pop_front()
-                        && let Some(tile_id) = arcade.output.pop_front() {
-                        if x == -1 && y == 0 {
-                            trace!("Printing score: {}", tile_id);
-                            display.score = tile_id;
-                        } else {
-                            trace!("printing tile {} at {}", get_tile(tile_id), Point2d::new(x, y));
-                            display.screen.pixels.insert(Point2d::new(x, y), get_tile(tile_id));
-                        }
+    while let Ok(status) = arcade.run_interactive(3) {
+        match status {
+            IntCodeStatus::OutputWaiting => {
+                if let Some(x) = arcade.output.pop_front()
+                    && let Some(y) = arcade.output.pop_front()
+                    && let Some(tile_id) = arcade.output.pop_front() {
+                    if x == -1 && y == 0 {
+                        trace!("Printing score: {}", tile_id);
+                        display.score = tile_id;
+                    } else {
+                        trace!("printing tile {} at {}", get_tile(tile_id), Point2d::new(x, y));
+                        display.screen.pixels.insert(Point2d::new(x, y), get_tile(tile_id));
                     }
-                },
-                false => {
-                    // Stop when program halts
-                    trace!("program halted: {:?}", arcade.output);
-                    break;
-                },
+                }
             },
-            Err(IntCodeError::NoInputGiven) => {
+            IntCodeStatus::InputRequired => {
                 match manual_input {
                     false => {
                         // AI input
@@ -133,7 +125,7 @@ fn run(display: &mut DisplayWithScore, arcade: &mut IntCodeComputer) {
                     },
                 }
             },
-            Err(error) => panic!("Unexpected error: {}", error),
+            IntCodeStatus::ProgramHalted => break
         }
     }
 }

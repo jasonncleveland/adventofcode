@@ -91,7 +91,7 @@ impl IntCodeComputer {
         }
     }
 
-    pub fn process_instruction(&mut self) -> Result<bool, IntCodeError> {
+    fn process_instruction(&mut self) -> Result<bool, IntCodeError> {
         trace!("Processing instruction: [{}] ({})", self.instruction_pointer, self.memory[self.instruction_pointer as usize]);
 
         let instruction = self.memory[self.instruction_pointer as usize];

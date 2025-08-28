@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use log::{debug, trace};
 
-use crate::shared::intcode::{IntCodeComputer, IntCodeError};
+use crate::shared::intcode::{IntCodeComputer, IntCodeStatus};
 use crate::shared::io::parse_int_list;
 use crate::shared::permutations::generate_permutations;
 
@@ -71,20 +71,10 @@ fn solve_part_2(input: &[i64]) -> i64 {
         loop {
             if let Some(mut amplifier) = amplifiers.pop_front() {
                 amplifier.input.push_back(input_signal);
-                loop {
-                    match amplifier.process_instruction() {
-                        Ok(result) => match result {
-                            true => continue,
-                            false => {
-                                // Store output when program halts
-                                if let Some(output_signal) = amplifier.output.pop_back() {
-                                    trace!("received amplifier result: {}", output_signal);
-                                    input_signal = output_signal;
-                                }
-                                break;
-                            },
-                        },
-                        Err(IntCodeError::NoInputGiven) => {
+                while let Ok(status) = amplifier.run_interactive(1) {
+                    match status {
+                        IntCodeStatus::OutputWaiting => continue,
+                        IntCodeStatus::InputRequired => {
                             // Store output when input required
                             if let Some(output_signal) = amplifier.output.pop_back() {
                                 trace!("received amplifier result: {}", output_signal);
@@ -93,7 +83,14 @@ fn solve_part_2(input: &[i64]) -> i64 {
                             amplifiers.push_back(amplifier);
                             break;
                         },
-                        Err(error) => panic!("Unexpected error: {}", error),
+                        IntCodeStatus::ProgramHalted => {
+                            // Store output when program halts
+                            if let Some(output_signal) = amplifier.output.pop_back() {
+                                trace!("received amplifier result: {}", output_signal);
+                                input_signal = output_signal;
+                            }
+                            break
+                        }
                     }
                 }
             } else {
