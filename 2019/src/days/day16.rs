@@ -1,3 +1,4 @@
+use std::cmp::min;
 use std::mem::swap;
 use std::time::Instant;
 
@@ -30,16 +31,12 @@ fn parse_input(file_contents: String) -> Vec<i64> {
 }
 
 fn solve_part_1(input: &[i64]) -> i64 {
-    let mut input_signal = input.to_vec();
-    for _ in 0..100 {
-        let mut output_signal = simulate_phase(&input_signal);
-        swap(&mut input_signal, &mut output_signal);
-    }
+    let output_signal = simulate_phases(input, 100);
 
     let mut power = 1;
     let mut output = 0;
     for i in 0..8 {
-        output += input_signal[7 - i] * power;
+        output += output_signal[7 - i] * power;
         power *= 10;
     }
     output
@@ -49,22 +46,63 @@ fn solve_part_2(input: &[i64]) -> i64 {
     -1
 }
 
-fn simulate_phase(input_signal: &[i64]) -> Vec<i64> {
-    let base_pattern = [0, 1, 0, -1];
+fn simulate_phases(input: &[i64], phase_count: usize) -> Vec<i64> {
+    // Pre-compute indexes
+    // Base pattern [0, 1, 0, -1]
+    let mut indexes: Vec<(Vec<usize>, Vec<usize>)> = Vec::with_capacity(input.len());
+    for offset in 0..input.len() {
+        let repeat_count = 1 + offset;
 
-    let mut output_signal: Vec<i64> = Vec::with_capacity(input_signal.len());
-    for offset in 0..input_signal.len() {
-        let repeat = 1 + offset;
-        let mut sum = 0;
-        for (i, value) in input_signal.iter().enumerate() {
-            let pattern_value = base_pattern[((i + 1) / repeat) % base_pattern.len()];
-            let calculated_value = value * pattern_value;
-            sum += calculated_value;
+        // Add items that match pattern X * 1
+        let mut add_indexes: Vec<usize> = Vec::new();
+        let mut add_index = offset;
+        while add_index < input.len() {
+            for i in add_index..min(input.len(), add_index + repeat_count) {
+                add_indexes.push(i);
+            }
+            add_index += repeat_count * 4;
         }
-        let last_digit = sum.abs() % 10;
-        output_signal.push(last_digit);
+
+        // Subtract items that match patten X * -1
+        let mut subtract_indexes: Vec<usize> = Vec::new();
+        let mut subtract_index = offset + repeat_count * 2;
+        while subtract_index < input.len() {
+            for i in subtract_index..min(input.len(), subtract_index + repeat_count) {
+                subtract_indexes.push(i);
+            }
+            subtract_index += repeat_count * 4;
+        }
+
+        indexes.push((add_indexes, subtract_indexes));
     }
-    output_signal
+
+    // Memory allocation is expensive so allocate two arrays and swap between
+    let mut input_signal = input.to_vec();
+    let mut output_signal: Vec<i64> = vec![0; input_signal.len()];
+    for _ in 0..phase_count {
+        simulate_phase(&input_signal, &mut output_signal, &indexes);
+        swap(&mut input_signal, &mut output_signal);
+    }
+    input_signal
+}
+
+fn simulate_phase(input_signal: &[i64], output_signal: &mut [i64], indexes: &[(Vec<usize>, Vec<usize>)]) {
+    for offset in 0..input_signal.len() {
+        let mut sum = 0;
+
+        // Add items that match pattern X * 1
+        for i in &indexes[offset].0 {
+            sum += input_signal[*i];
+        }
+
+        // Subtract items that match patten X * -1
+        for i in &indexes[offset].1 {
+            sum -= input_signal[*i];
+        }
+
+        let last_digit = sum.abs() % 10;
+        output_signal[offset] = last_digit;
+    }
 }
 
 #[cfg(test)]
