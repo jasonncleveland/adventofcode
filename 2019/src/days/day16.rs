@@ -43,7 +43,35 @@ fn solve_part_1(input: &[i64]) -> i64 {
 }
 
 fn solve_part_2(input: &[i64]) -> i64 {
-    -1
+    let mut extended_input_signal: Vec<i64> = Vec::with_capacity(input.len() * 10_000);
+    for _ in 0..10_000 {
+        extended_input_signal.extend_from_slice(input);
+    }
+
+    let mut power = 1;
+    let mut output_offset: usize = 0;
+    for i in 0..7 {
+        output_offset += input[6 - i] as usize * power;
+        power *= 10;
+    }
+
+    let important_digits = extended_input_signal.len() - output_offset + 1;
+    let len = extended_input_signal.len();
+    for _ in 0..100 {
+        let mut total = 0;
+        for i in 0..important_digits {
+            total += extended_input_signal[len - 1 - i];
+            extended_input_signal[len - 1 - i] = total % 10;
+        }
+    }
+
+    let mut power = 1;
+    let mut output = 0;
+    for i in 0..8 {
+        output += extended_input_signal[output_offset + 7 - i] * power;
+        power *= 10;
+    }
+    output
 }
 
 fn simulate_phases(input: &[i64], phase_count: usize) -> Vec<i64> {
@@ -130,11 +158,15 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "",
+        let input: [&str; 3] = [
+            "03036732577212944063491565474664",
+            "02935109699940807407585447034323",
+            "03081770884921959731165446850517",
         ];
-        let expected: [i64; 1] = [
-            0,
+        let expected: [i64; 3] = [
+            84462026,
+            78725270,
+            53553731,
         ];
 
         for i in 0..input.len() {
