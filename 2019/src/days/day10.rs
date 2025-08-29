@@ -13,14 +13,14 @@ pub fn solve(file_contents: String) -> (String, String) {
     debug!("File parse: ({:?})", parse_timer.elapsed());
 
     let part1_timer = Instant::now();
-    let part1 = solve_part_1(&input);
-    debug!("Part 1: {} ({:?})", part1.0, part1_timer.elapsed());
+    let (part1, origin) = solve_part_1(&input);
+    debug!("Part 1: {} ({:?})", part1, part1_timer.elapsed());
 
     let part2_timer = Instant::now();
-    let part2 = solve_part_2(&input, &part1.1);
+    let part2 = solve_part_2(&input, &origin);
     debug!("Part 2: {} ({:?})", part2, part2_timer.elapsed());
 
-    (part1.0.to_string(), part2.to_string())
+    (part1.to_string(), part2.to_string())
 }
 
 fn parse_input(file_contents: String) -> Vec<Point2d> {
