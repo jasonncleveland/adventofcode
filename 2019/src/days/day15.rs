@@ -2,6 +2,7 @@ use std::collections::{HashSet, VecDeque};
 use std::time::Instant;
 
 use log::{debug, trace};
+
 use crate::shared::direction::Direction;
 use crate::shared::intcode::{IntCodeComputer, IntCodeStatus};
 use crate::shared::io::parse_int_list;

@@ -1,6 +1,7 @@
 use std::time::Instant;
 
 use log::{debug, trace};
+
 use crate::shared::intcode::{IntCodeComputer, IntCodeDisplay, IntCodeStatus};
 use crate::shared::io::parse_int_list;
 use crate::shared::point2d::Point2d;
@@ -72,5 +73,53 @@ fn solve_part_1(input: &[i64]) -> i64 {
 }
 
 fn solve_part_2(input: &[i64]) -> i64 {
-    -1
+    // Characters:
+    // L: 76
+    // R: 82
+    // A: 65
+    // B: 66
+    // C: 67
+    // ,: 44
+    // 0-9: 48-57
+
+    // L10, L8, R8, L8, R6
+    let function_a = [76, 44, 49, 48, 44, 76, 44, 56, 44, 82, 44, 56, 44, 76, 44, 56, 44, 82, 44, 54, 10];
+    // R6,R8,R8
+    let function_b = [82, 44, 54, 44, 82, 44, 56, 44, 82, 44, 56, 10];
+    // R6,R6,L8,L10
+    let function_c = [82, 44, 54, 44, 82, 44, 54, 44, 76, 44, 56, 44, 76, 44, 49, 48, 10];
+    // A,A,B,C,B,C,B,C,B,A
+    let main_routine = [65, 44, 65, 44, 66, 44, 67, 44, 66, 44, 67, 44, 66, 44, 67, 44, 66, 44, 65, 10];
+
+    let mut computer = IntCodeComputer::new(input);
+
+    // Wake up the vacuum robot
+    computer.memory[0] = 2;
+
+    // Input the main routine
+    for instruction in main_routine {
+        computer.input.push_back(instruction);
+    }
+
+    // Input the movement functions
+    for instruction in function_a {
+        computer.input.push_back(instruction);
+    }
+    for instruction in function_b {
+        computer.input.push_back(instruction);
+    }
+    for instruction in function_c {
+        computer.input.push_back(instruction);
+    }
+
+    // Set whether camera is active y/n (121/110)
+    computer.input.push_back(110);
+    computer.input.push_back(10);
+
+    computer.run();
+
+    if let Some(result) = computer.output.pop_back() {
+        return result;
+    }
+    unreachable!();
 }
