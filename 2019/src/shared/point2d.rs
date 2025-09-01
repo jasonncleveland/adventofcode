@@ -50,6 +50,19 @@ impl Point2d {
             Direction::Right => Point2d::new(self.x + 1, self.y),
         }
     }
+
+    pub fn neighbours(&self) -> Vec<Point2d> {
+        vec![
+            // left
+            Point2d::new(self.x - 1, self.y),
+            // right
+            Point2d::new(self.x + 1, self.y),
+            // up
+            Point2d::new(self.x, self.y - 1),
+            // down
+            Point2d::new(self.x, self.y + 1),
+        ]
+    }
 }
 
 #[cfg(test)]
