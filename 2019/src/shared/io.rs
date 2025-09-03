@@ -17,18 +17,12 @@ pub fn parse_int_list(file_contents: String) -> Vec<i64> {
     result
 }
 
-pub fn parse_char_grid(file_contents: String, start_character: char) -> (HashMap<Point2d, char>, Point2d) {
+pub fn parse_char_grid(file_contents: String) -> HashMap<Point2d, char> {
     let mut result: HashMap<Point2d, char> = HashMap::new();
-    let mut start: Point2d = Point2d::new(0, 0);
     for (y, line) in file_contents.lines().enumerate() {
         for (x, c) in line.trim_start_matches("\u{feff}").chars().enumerate() {
-            if c == start_character {
-                start = Point2d::new(x as i64, y as i64);
-                result.insert(Point2d::new(x as i64, y as i64), '.');
-            } else {
-                result.insert(Point2d::new(x as i64, y as i64), c);
-            }
+            result.insert(Point2d::new(x as i64, y as i64), c);
         }
     }
-    (result, start)
+    result
 }
