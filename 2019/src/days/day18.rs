@@ -27,8 +27,8 @@ pub fn solve(file_contents: String) -> (String, String) {
 fn convert_to_graph(grid: &HashMap<Point2d, char>) -> HashMap<char, Node> {
     let mut graph: HashMap<char, Node> = HashMap::new();
     let nodes: Vec<(&Point2d, &char)> = grid.iter().filter(|(_, v)| **v != '#' && **v != '.').collect();
-    for (origin, c) in nodes {
-        trace!("searching for nodes reachable from {}", origin);
+    for (origin, &name) in nodes {
+        trace!("searching for nodes reachable from {} {}", name, origin);
         let mut reachable_nodes: Vec<Edge> = Vec::new();
 
         let mut queue: VecDeque<(Point2d, i64)> = VecDeque::new();
@@ -45,13 +45,12 @@ fn convert_to_graph(grid: &HashMap<Point2d, char>) -> HashMap<char, Node> {
                     match grid.get(&neighbour) {
                         None => continue,
                         Some('#') => continue,
-                        // Ignore start position when generating node pairs
-                        // Some('.') | Some('@') | Some('1') | Some('2') | Some('3') | Some('4') => {
-                        Some('.') | Some('@') => {
+                        // Ignore start position(s) when generating node pairs
+                        Some('.') | Some('@') | Some('1') | Some('2') | Some('3') | Some('4') => {
                             queue.push_back((neighbour, steps + 1));
                         },
                         Some(target) => {
-                            trace!("Found node {} at {} with distance {} from {}", target, neighbour, steps + 1, origin);
+                            trace!("Found node {} at {} with distance {} from {}", target, neighbour, steps + 1, name);
                             reachable_nodes.push(Edge::new(*target, steps + 1));
                         }
                     }
@@ -59,7 +58,7 @@ fn convert_to_graph(grid: &HashMap<Point2d, char>) -> HashMap<char, Node> {
             }
         }
 
-        graph.insert(*c, Node::new(reachable_nodes));
+        graph.insert(name, Node::new(reachable_nodes));
     }
     graph
 }
@@ -113,7 +112,7 @@ fn find_reachable_nodes(graph: &HashMap<char, Node>, start: char, keys: &Vec<cha
             }
         }
     }
-    trace!("reachable nodes: {:?}", reachable);
+    trace!("reachable nodes from {}: {:?}", start, reachable);
     reachable
 }
 
@@ -167,11 +166,8 @@ fn solve_part_1(input: &HashMap<Point2d, char>) -> i64 {
                     trace!("moving from node {} to {} with weight of {}", name, edge.name, edge.weight);
                     queue.push(PriorityQueueItem::new(steps + edge.weight, Data { name: edge.name, keys: keys_copy }));
                 }
-            } else if edge.name == '@' {
-                trace!("moving from node {} to {} with weight of {}", name, edge.name, edge.weight);
-                queue.push(PriorityQueueItem::new(steps + edge.weight, Data { name: edge.name, keys: keys_copy }));
             } else {
-                panic!("invalid node");
+                panic!("invalid node {}", edge.name);
             }
         }
     }
@@ -179,7 +175,89 @@ fn solve_part_1(input: &HashMap<Point2d, char>) -> i64 {
 }
 
 fn solve_part_2(grid: &HashMap<Point2d, char>) -> i64 {
-    -1
+    let mut updated_grid = grid.clone();
+    let mut robot_starting_positions = Vec::with_capacity(4);
+
+    if let Some((start, _)) = grid.iter().find(|(_,v)| **v == '@') {
+        //         ...      1#2
+        // Replace .@. with ###
+        //         ...      3#4
+        updated_grid.insert(Point2d::new(start.x, start.y), '#');
+        updated_grid.insert(Point2d::new(start.x - 1, start.y), '#');
+        updated_grid.insert(Point2d::new(start.x + 1, start.y), '#');
+        updated_grid.insert(Point2d::new(start.x, start.y - 1), '#');
+        updated_grid.insert(Point2d::new(start.x, start.y + 1), '#');
+        updated_grid.insert(Point2d::new(start.x - 1, start.y - 1), '1');
+        updated_grid.insert(Point2d::new(start.x + 1, start.y - 1), '2');
+        updated_grid.insert(Point2d::new(start.x - 1, start.y + 1), '3');
+        updated_grid.insert(Point2d::new(start.x + 1, start.y + 1), '4');
+
+        robot_starting_positions = vec!['1', '2', '3', '4'];
+    }
+
+    let graph = convert_to_graph(&updated_grid);
+
+    let key_count = graph.keys().filter(|c| c.is_ascii_lowercase()).count();
+
+    #[derive(Eq, PartialEq)]
+    struct Data {
+        robot_positions: Vec<char>,
+        keys: Vec<char>,
+    }
+
+    let mut queue: PriorityQueue<PriorityQueueItem<Data>> = PriorityQueue::new();
+    let mut min_steps: HashMap<(Vec<char>, Vec<char>), i64> = HashMap::new();
+
+    queue.push(PriorityQueueItem::new(0, Data { robot_positions: robot_starting_positions.to_owned(), keys: Vec::with_capacity(key_count) }));
+
+    while let Some(PriorityQueueItem { weight: steps, data: Data { robot_positions, keys }}) = queue.pop() {
+        trace!("checking robot positions {:?} with keys {:?} ({}/{}) after {} steps", robot_positions, keys, keys.len(), key_count, steps);
+
+        if keys.len() == key_count {
+            trace!("collected all {} keys after {} steps", key_count, steps);
+            return steps;
+        }
+
+        // There can be multiple ways to get to a given node. We need to ensure we've found the shortest
+        let steps_key = (robot_positions.clone(), keys.clone());
+        if let Some(&distance) = min_steps.get(&steps_key) && distance <= steps {
+            trace!("we have seen this exact state {:?} so it can be skipped", steps_key);
+            continue;
+        }
+        min_steps.insert(steps_key, steps);
+
+        for (i, &robot_position) in robot_positions.iter().enumerate() {
+            trace!("attempting to move robot {} at node {}", i, robot_position);
+
+            for edge in find_reachable_nodes(&graph, robot_position, &keys) {
+                trace!("checking movement from {} to {} ({})", robot_position, edge.name, edge.weight);
+                let mut copied_robot_positions = robot_positions.clone();
+                copied_robot_positions[i] = edge.name;
+
+                let mut keys_copy = keys.clone();
+                if edge.name.is_ascii_lowercase() {
+                    trace!("found key {}", edge.name);
+                    if !keys_copy.contains(&edge.name) {
+                        trace!("collecting key {} after {} steps", edge.name, steps + edge.weight);
+                        keys_copy.push(edge.name);
+                        keys_copy.sort();
+                    }
+                    trace!("moving from node {} to {} with weight of {}", robot_position, edge.name, edge.weight);
+                    queue.push(PriorityQueueItem::new(steps + edge.weight, Data { robot_positions: copied_robot_positions.to_owned(), keys: keys_copy }));
+                } else if edge.name.is_ascii_uppercase() {
+                    trace!("found door {}", edge.name);
+                    if keys_copy.contains(&edge.name.to_ascii_lowercase()) {
+                        trace!("unlocking door {} after {} steps", edge.name, steps + edge.weight);
+                        trace!("moving from node {} to {} with weight of {}", robot_position, edge.name, edge.weight);
+                        queue.push(PriorityQueueItem::new(steps + edge.weight, Data { robot_positions: copied_robot_positions.to_owned(), keys: keys_copy }));
+                    }
+                } else {
+                    panic!("invalid node {}", edge.name);
+                }
+            }
+        }
+    }
+    unreachable!();
 }
 
 #[cfg(test)]
@@ -234,11 +312,43 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "",
+        let input: [&str; 4] = [
+            "#######
+#a.#Cd#
+##...##
+##.@.##
+##...##
+#cB#Ab#
+#######",
+            "###############
+#d.ABC.#.....a#
+######...######
+######.@.######
+######...######
+#b.....#.....c#
+###############",
+            "#############
+#DcBa.#.GhKl#
+#.###...#I###
+#e#d#.@.#j#k#
+###C#...###J#
+#fEbA.#.FgHi#
+#############",
+            "#############
+#g#f.D#..h#l#
+#F###e#E###.#
+#dCba...BcIJ#
+#####.@.#####
+#nK.L...G...#
+#M###N#H###.#
+#o#m..#i#jk.#
+#############"
         ];
-        let expected: [i64; 1] = [
-            0
+        let expected: [i64; 4] = [
+            8,
+            24,
+            32,
+            72,
         ];
 
         for i in 0..input.len() {
