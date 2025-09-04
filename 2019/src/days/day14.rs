@@ -21,7 +21,7 @@ pub fn solve(file_contents: String) -> (String, String) {
 
 fn parse_input(file_contents: String) -> Vec<Reaction> {
     let mut reactions: Vec<Reaction> = Vec::new();
-    for line in file_contents.trim_start_matches("\u{feff}").lines() {
+    for line in file_contents.lines() {
         if let Some((left, right)) = line.split_once(" => ")
             && let Some((output_quantity, output_name)) = right.split_once(' ') && let Ok(value) = output_quantity.parse::<i64>() {
             let mut reaction = Reaction::new(Chemical::new(output_name.to_string(), value));

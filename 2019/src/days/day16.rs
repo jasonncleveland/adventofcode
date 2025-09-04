@@ -22,7 +22,7 @@ pub fn solve(file_contents: String) -> (String, String) {
 
 fn parse_input(file_contents: String) -> Vec<i64> {
     let mut sequence: Vec<i64> = Vec::new();
-    for line in file_contents.trim_start_matches("\u{feff}").chars() {
+    for line in file_contents.chars() {
         if let Some(digit) = line.to_digit(10) {
             sequence.push(digit as i64)
         }
