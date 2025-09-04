@@ -1,22 +1,22 @@
 ﻿#[derive(Debug)]
-pub struct Node {
-    pub edges: Vec<Edge>,
+pub struct Node<T: Clone> {
+    pub edges: Vec<Edge<T>>,
 }
 
-impl Node {
-    pub fn new(edges: Vec<Edge>) -> Self {
+impl<T: Clone> Node<T> {
+    pub fn new(edges: Vec<Edge<T>>) -> Self {
         Self { edges }
     }
 }
 
 #[derive(Clone, Debug)]
-pub struct Edge {
-    pub name: char,
+pub struct Edge<T: Clone> {
+    pub value: T,
     pub weight: i64,
 }
 
-impl Edge {
-    pub fn new(name: char, weight: i64) -> Self {
-        Self { name, weight }
+impl<T: Clone> Edge<T> {
+    pub fn new(value: T, weight: i64) -> Self {
+        Self { value, weight }
     }
 }

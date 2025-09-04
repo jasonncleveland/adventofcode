@@ -24,12 +24,12 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn convert_to_graph(grid: &HashMap<Point2d, char>) -> HashMap<char, Node> {
-    let mut graph: HashMap<char, Node> = HashMap::new();
+fn convert_to_graph(grid: &HashMap<Point2d, char>) -> HashMap<char, Node<char>> {
+    let mut graph: HashMap<char, Node<char>> = HashMap::new();
     let nodes: Vec<(&Point2d, &char)> = grid.iter().filter(|(_, v)| **v != '#' && **v != '.').collect();
     for (origin, &name) in nodes {
         trace!("searching for nodes reachable from {} {}", name, origin);
-        let mut reachable_nodes: Vec<Edge> = Vec::new();
+        let mut reachable_nodes: Vec<Edge<char>> = Vec::new();
 
         let mut queue: VecDeque<(Point2d, i64)> = VecDeque::new();
         let mut visited: HashSet<Point2d> = HashSet::new();
@@ -63,7 +63,7 @@ fn convert_to_graph(grid: &HashMap<Point2d, char>) -> HashMap<char, Node> {
     graph
 }
 
-fn find_reachable_nodes(graph: &HashMap<char, Node>, start: char, keys: &Vec<char>) -> Vec<Edge> {
+fn find_reachable_nodes(graph: &HashMap<char, Node<char>>, start: char, keys: &Vec<char>) -> Vec<Edge<char>> {
     trace!("finding nodes reachable from {} with keys {:?}", start, keys);
 
     let mut queue: VecDeque<(char, i64)> = VecDeque::new();
@@ -72,41 +72,41 @@ fn find_reachable_nodes(graph: &HashMap<char, Node>, start: char, keys: &Vec<cha
     queue.push_back((start.to_owned(), 0));
     visited.insert(start.to_owned());
 
-    let mut reachable: Vec<Edge> = Vec::new();
+    let mut reachable: Vec<Edge<char>> = Vec::new();
     while let Some((name, steps)) = queue.pop_front() {
         trace!("current: {} ({})", name, steps);
 
         trace!("edges: {:?}", graph.get(&name));
         if let Some(node) = graph.get(&name) {
             for edge in &node.edges {
-                if visited.contains(&edge.name) {
+                if visited.contains(&edge.value) {
                     continue;
                 }
-                visited.insert(edge.name.to_owned());
+                visited.insert(edge.value.to_owned());
 
                 trace!("found edge: {:?}", edge);
-                if edge.name.is_ascii_lowercase() {
-                    trace!("found key {}", edge.name);
-                    if keys.contains(&edge.name) {
+                if edge.value.is_ascii_lowercase() {
+                    trace!("found key {}", edge.value);
+                    if keys.contains(&edge.value) {
                         trace!("we already collected this key");
                         // Continue to next nodes
-                        queue.push_back((edge.name.to_owned(), steps + edge.weight));
+                        queue.push_back((edge.value.to_owned(), steps + edge.weight));
                     } else {
                         trace!("we have not collected this key");
                         // Add to reachable
-                        reachable.push(Edge::new(edge.name, steps + edge.weight));
+                        reachable.push(Edge::new(edge.value, steps + edge.weight));
                     }
                 }
-                if edge.name.is_ascii_uppercase() {
-                    trace!("found door {}", edge.name);
-                    if keys.contains(&edge.name.to_ascii_lowercase()) {
+                if edge.value.is_ascii_uppercase() {
+                    trace!("found door {}", edge.value);
+                    if keys.contains(&edge.value.to_ascii_lowercase()) {
                         trace!("we already unlocked this door");
                         // Continue to next nodes
-                        queue.push_back((edge.name.to_owned(), steps + edge.weight));
+                        queue.push_back((edge.value.to_owned(), steps + edge.weight));
                     } else {
                         trace!("we cannot unlock this door");
                         // Add to reachable
-                        reachable.push(Edge::new(edge.name, steps + edge.weight));
+                        reachable.push(Edge::new(edge.value, steps + edge.weight));
                     }
                 }
             }
@@ -150,24 +150,24 @@ fn solve_part_1(input: &HashMap<Point2d, char>) -> i64 {
 
         for edge in find_reachable_nodes(&graph, name, &keys) {
             let mut keys_copy = keys.clone();
-            if edge.name.is_ascii_lowercase() {
-                trace!("found key {}", edge.name);
-                if !keys_copy.contains(&edge.name) {
-                    trace!("collecting key {} after {} steps", edge.name, steps + edge.weight);
-                    keys_copy.push(edge.name);
+            if edge.value.is_ascii_lowercase() {
+                trace!("found key {}", edge.value);
+                if !keys_copy.contains(&edge.value) {
+                    trace!("collecting key {} after {} steps", edge.value, steps + edge.weight);
+                    keys_copy.push(edge.value);
                     keys_copy.sort();
                 }
-                trace!("moving from node {} to {} with weight of {}", name, edge.name, edge.weight);
-                queue.push(PriorityQueueItem::new(steps + edge.weight, Data { name: edge.name, keys: keys_copy }));
-            } else if edge.name.is_ascii_uppercase() {
-                trace!("found door {}", edge.name);
-                if keys_copy.contains(&edge.name.to_ascii_lowercase()) {
-                    trace!("unlocking door {} after {} steps", edge.name, steps + edge.weight);
-                    trace!("moving from node {} to {} with weight of {}", name, edge.name, edge.weight);
-                    queue.push(PriorityQueueItem::new(steps + edge.weight, Data { name: edge.name, keys: keys_copy }));
+                trace!("moving from node {} to {} with weight of {}", name, edge.value, edge.weight);
+                queue.push(PriorityQueueItem::new(steps + edge.weight, Data { name: edge.value, keys: keys_copy }));
+            } else if edge.value.is_ascii_uppercase() {
+                trace!("found door {}", edge.value);
+                if keys_copy.contains(&edge.value.to_ascii_lowercase()) {
+                    trace!("unlocking door {} after {} steps", edge.value, steps + edge.weight);
+                    trace!("moving from node {} to {} with weight of {}", name, edge.value, edge.weight);
+                    queue.push(PriorityQueueItem::new(steps + edge.weight, Data { name: edge.value, keys: keys_copy }));
                 }
             } else {
-                panic!("invalid node {}", edge.name);
+                panic!("invalid node {}", edge.value);
             }
         }
     }
@@ -230,29 +230,29 @@ fn solve_part_2(grid: &HashMap<Point2d, char>) -> i64 {
             trace!("attempting to move robot {} at node {}", i, robot_position);
 
             for edge in find_reachable_nodes(&graph, robot_position, &keys) {
-                trace!("checking movement from {} to {} ({})", robot_position, edge.name, edge.weight);
+                trace!("checking movement from {} to {} ({})", robot_position, edge.value, edge.weight);
                 let mut copied_robot_positions = robot_positions.clone();
-                copied_robot_positions[i] = edge.name;
+                copied_robot_positions[i] = edge.value;
 
                 let mut keys_copy = keys.clone();
-                if edge.name.is_ascii_lowercase() {
-                    trace!("found key {}", edge.name);
-                    if !keys_copy.contains(&edge.name) {
-                        trace!("collecting key {} after {} steps", edge.name, steps + edge.weight);
-                        keys_copy.push(edge.name);
+                if edge.value.is_ascii_lowercase() {
+                    trace!("found key {}", edge.value);
+                    if !keys_copy.contains(&edge.value) {
+                        trace!("collecting key {} after {} steps", edge.value, steps + edge.weight);
+                        keys_copy.push(edge.value);
                         keys_copy.sort();
                     }
-                    trace!("moving from node {} to {} with weight of {}", robot_position, edge.name, edge.weight);
+                    trace!("moving from node {} to {} with weight of {}", robot_position, edge.value, edge.weight);
                     queue.push(PriorityQueueItem::new(steps + edge.weight, Data { robot_positions: copied_robot_positions.to_owned(), keys: keys_copy }));
-                } else if edge.name.is_ascii_uppercase() {
-                    trace!("found door {}", edge.name);
-                    if keys_copy.contains(&edge.name.to_ascii_lowercase()) {
-                        trace!("unlocking door {} after {} steps", edge.name, steps + edge.weight);
-                        trace!("moving from node {} to {} with weight of {}", robot_position, edge.name, edge.weight);
+                } else if edge.value.is_ascii_uppercase() {
+                    trace!("found door {}", edge.value);
+                    if keys_copy.contains(&edge.value.to_ascii_lowercase()) {
+                        trace!("unlocking door {} after {} steps", edge.value, steps + edge.weight);
+                        trace!("moving from node {} to {} with weight of {}", robot_position, edge.value, edge.weight);
                         queue.push(PriorityQueueItem::new(steps + edge.weight, Data { robot_positions: copied_robot_positions.to_owned(), keys: keys_copy }));
                     }
                 } else {
-                    panic!("invalid node {}", edge.name);
+                    panic!("invalid node {}", edge.value);
                 }
             }
         }

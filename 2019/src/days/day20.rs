@@ -4,8 +4,10 @@ use std::time::Instant;
 use log::{debug, trace};
 
 use crate::shared::direction::Direction;
+use crate::shared::graph::{Edge, Node};
 use crate::shared::io::parse_char_grid;
 use crate::shared::point2d::Point2d;
+use crate::shared::priority_queue::{PriorityQueue, PriorityQueueItem};
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
@@ -27,7 +29,10 @@ fn parse_input(file_contents: String) -> MazeInfo {
     let grid = parse_char_grid(file_contents);
 
     let mut portal_entrances: HashMap<String, Vec<Point2d>> = HashMap::new();
-    let possible_portal_locations = grid.iter().filter(|(_, v)| v.is_ascii_uppercase()).collect::<Vec<_>>();
+    let possible_portal_locations = grid
+        .iter()
+        .filter(|(_, v)| v.is_ascii_uppercase())
+        .collect::<Vec<_>>();
 
     let directions = [
         (Direction::Right, [Direction::Left, Direction::Right]),
@@ -51,7 +56,8 @@ fn parse_input(file_contents: String) -> MazeInfo {
                         if let Some(&e) = grid.get(&possible_entrance_location) && e == '.' {
                             let portal_key = format!("{}{}", value, c);
                             trace!("found entrance to portal {} at {}", portal_key, possible_entrance_location);
-                            portal_entrances.entry(portal_key)
+                            portal_entrances
+                                .entry(portal_key)
                                 .and_modify(|p| p.push(possible_entrance_location))
                                 .or_insert(vec![possible_entrance_location]);
                             break;
@@ -62,6 +68,8 @@ fn parse_input(file_contents: String) -> MazeInfo {
             }
         }
     }
+
+    let graph = convert_to_graph(&grid, &portal_entrances);
 
     let mut start = Point2d::new(0, 0);
     let mut end = Point2d::new(0, 0);
@@ -131,7 +139,7 @@ fn parse_input(file_contents: String) -> MazeInfo {
     trace!("found dimensions: {:?}", dimensions);
 
     MazeInfo {
-        grid,
+        graph,
         portals,
         dimensions,
         start,
@@ -139,16 +147,61 @@ fn parse_input(file_contents: String) -> MazeInfo {
     }
 }
 
+fn convert_to_graph(grid: &HashMap<Point2d, char>, portal_entrances: &HashMap<String, Vec<Point2d>>) -> HashMap<Point2d, Node<Point2d>> {
+    let mut graph: HashMap<Point2d, Node<Point2d>> = HashMap::new();
+
+    let entrances = portal_entrances
+        .iter()
+        .flat_map(|(_, entrances)| entrances.iter())
+        .collect::<Vec<&Point2d>>();
+
+    for &&entrance in &entrances {
+        trace!("searching for portals reachable from {}", entrance);
+        let mut reachable_nodes: Vec<Edge<Point2d>> = Vec::new();
+
+        let mut queue: VecDeque<(Point2d, i64)> = VecDeque::new();
+        let mut visited: HashSet<Point2d> = HashSet::new();
+
+        queue.push_back((entrance, 0));
+        visited.insert(entrance);
+
+        while let Some((coordinate, steps)) = queue.pop_front() {
+            if coordinate != entrance && entrances.contains(&&coordinate) {
+                trace!("Found portal at {} with distance {} from  {}", coordinate, steps, entrance);
+                reachable_nodes.push(Edge::new(coordinate, steps));
+            }
+
+            for neighbour in coordinate.neighbours() {
+                if !visited.contains(&neighbour) {
+                    // in bounds and not seen
+                    visited.insert(neighbour);
+                    match grid.get(&neighbour) {
+                        None => continue,
+                        Some('#') => continue,
+                        Some('.') => {
+                            queue.push_back((neighbour, steps + 1));
+                        }
+                        _ => continue,
+                    }
+                }
+            }
+        }
+
+        graph.insert(entrance, Node::new(reachable_nodes));
+    }
+    graph
+}
+
 fn solve_part_1(input: &MazeInfo) -> i64 {
     trace!("Searching for shortest path between {} and {}", input.start, input.end);
 
-    let mut queue: VecDeque<(Point2d, i64)> = VecDeque::new();
+    let mut queue: PriorityQueue<PriorityQueueItem<Point2d>> = PriorityQueue::new();
     let mut visited: HashSet<Point2d> = HashSet::new();
 
-    queue.push_back((input.start, 0));
-    visited.insert(input.start);
+    queue.push(PriorityQueueItem::new(0, input.start));
 
-    while let Some((point, steps)) = queue.pop_front() {
+    while let Some(PriorityQueueItem { weight: steps, data: point }) = queue.pop()
+    {
         trace!("Current point: {} ({})", point, steps);
 
         if point == input.end {
@@ -156,27 +209,23 @@ fn solve_part_1(input: &MazeInfo) -> i64 {
             return steps;
         }
 
-        for neighbour in point.neighbours() {
-            trace!("Checking neighbour: {}", neighbour);
-            if visited.contains(&neighbour) {
-                trace!("Already visited {}", neighbour);
-                continue;
-            }
-            visited.insert(neighbour);
+        if visited.contains(&point) {
+            trace!("Already visited {}", point);
+            continue;
+        }
+        visited.insert(point);
 
-            if let Some(&value) = input.grid.get(&neighbour) {
-                trace!("neighbour value: {}", value);
-                match value {
-                    '#' => trace!("found a wall"),
-                    '.' => {
-                        trace!("found an open path");
-                        if let Some(&portal) = input.portals.get(&neighbour) {
-                            trace!("found a portal at {} linking to {}", neighbour, portal);
-                            queue.push_back((portal, steps + 2));
-                        }
-                        queue.push_back((neighbour, steps + 1));
-                    },
-                    other => trace!("found an unexpected item: {}", other),
+        if let Some(reachable_portals) = input.graph.get(&point) {
+            for portal in &reachable_portals.edges {
+                trace!("found portal at {} with weight {}", portal.value, portal.weight);
+
+                // enter portal
+                if let Some(&portal_exit) = input.portals.get(&portal.value) {
+                    trace!("can teleport to {} from {}", portal_exit, portal.value);
+                    queue.push(PriorityQueueItem::new(steps + portal.weight + 1, portal_exit));
+                } else {
+                    trace!("there is no exit to this portal");
+                    queue.push(PriorityQueueItem::new(steps + portal.weight, portal.value));
                 }
             }
         }
@@ -187,58 +236,46 @@ fn solve_part_1(input: &MazeInfo) -> i64 {
 fn solve_part_2(input: &MazeInfo) -> i64 {
     trace!("Searching for shortest path between {} and {}", input.start, input.end);
 
-    // Calculate max x and y plus extra for boundary
-    let max_x = input.dimensions.outer_bottom_right.x + 2;
-    let max_y = input.dimensions.outer_bottom_right.y + 2;
+    let mut queue: PriorityQueue<PriorityQueueItem<(Point2d, u8)>> = PriorityQueue::new();
+    let mut visited: HashSet<(Point2d, u8)> = HashSet::new();
 
-    let mut queue: VecDeque<(Point2d, u8, i64)> = VecDeque::new();
-    let mut visited: Vec<Vec<Vec<u8>>> = Vec::with_capacity(max_x as usize);
+    queue.push(PriorityQueueItem::new(0, (input.start, 0)));
+    visited.insert((input.start, 0));
 
-    queue.push_back((input.start, 0, 0));
-
-    // Pre-initialize list of all possible coordinates
-    for _ in 0..max_x {
-        let mut vec_y: Vec<Vec<u8>> = Vec::with_capacity(max_y as usize);
-        for _ in 0..max_y {
-            vec_y.push(Vec::new())
-        }
-        visited.push(vec_y);
-    }
-    visited[input.start.x as usize][input.start.y as usize].push(0);
-
-    while let Some((point, level, steps)) = queue.pop_front() {
+    while let Some(PriorityQueueItem { weight: steps, data: (point, level) }) = queue.pop() {
+        trace!("Current point: {} ({})", point, steps);
         if level == 0 && point == input.end {
             trace!("found end after {} steps", steps);
             return steps;
         }
 
-        for neighbour in point.neighbours() {
-            if visited[neighbour.x as usize][neighbour.y as usize].contains(&level) {
-                continue;
-            }
-            visited[neighbour.x as usize][neighbour.y as usize].push(level);
+        if let Some(reachable_portals) = input.graph.get(&point) {
+            for portal in &reachable_portals.edges {
+                trace!("found portal at {} with weight {}", portal.value, portal.weight);
+                if visited.contains(&(portal.value, level)) {
+                    trace!("Already visited {}", portal.value);
+                    continue;
+                }
+                visited.insert((portal.value, level));
 
-            if let Some(&value) = input.grid.get(&neighbour) {
-                match value {
-                    '.' => {
-                        if let Some(&portal) = input.portals.get(&neighbour) {
-                            if level > 0 && (neighbour.x == input.dimensions.outer_top_left.x ||
-                                neighbour.x == input.dimensions.outer_bottom_right.x ||
-                                neighbour.y == input.dimensions.outer_top_left.y ||
-                                neighbour.y == input.dimensions.outer_bottom_right.y) {
-                                trace!("found outer portal at {} linking to {}. moving from level {} to {}", neighbour, portal, level, level - 1);
-                                queue.push_back((portal, level - 1, steps + 2));
-                            } else if neighbour.x == input.dimensions.inner_top_left.x ||
-                                neighbour.x == input.dimensions.inner_bottom_right.x ||
-                                neighbour.y == input.dimensions.inner_top_left.y ||
-                                neighbour.y == input.dimensions.inner_bottom_right.y {
-                                trace!("found inner portal at {} linking to {}. moving from level {} to {}", neighbour, portal, level, level + 1);
-                                queue.push_back((portal, level + 1, steps + 2));
-                            }
-                        }
-                        queue.push_back((neighbour, level, steps + 1));
-                    },
-                    _ => continue,
+                if let Some(&portal_exit) = input.portals.get(&portal.value) {
+                    trace!("can teleport to {} from {}", portal_exit, portal.value);
+                    if level > 0 && (portal.value.x == input.dimensions.outer_top_left.x ||
+                        portal.value.x == input.dimensions.outer_bottom_right.x ||
+                        portal.value.y == input.dimensions.outer_top_left.y ||
+                        portal.value.y == input.dimensions.outer_bottom_right.y) {
+                        trace!("found outer portal at {} linking to {}. moving from level {} to {}", portal.value, portal_exit, level, level - 1);
+                        queue.push(PriorityQueueItem::new(steps + portal.weight + 1, (portal_exit, level - 1)));
+                    } else if portal.value.x == input.dimensions.inner_top_left.x ||
+                        portal.value.x == input.dimensions.inner_bottom_right.x ||
+                        portal.value.y == input.dimensions.inner_top_left.y ||
+                        portal.value.y == input.dimensions.inner_bottom_right.y {
+                        trace!("found inner portal at {} linking to {}. moving from level {} to {}", portal.value, portal_exit, level, level + 1);
+                        queue.push(PriorityQueueItem::new(steps + portal.weight + 1, (portal_exit, level + 1)));
+                    }
+                } else {
+                    trace!("there is no exit to this portal");
+                    queue.push(PriorityQueueItem::new(steps + portal.weight, (portal.value, level)));
                 }
             }
         }
@@ -256,7 +293,7 @@ struct Dimensions {
 
 #[derive(Debug)]
 struct MazeInfo {
-    grid: HashMap<Point2d, char>,
+    graph: HashMap<Point2d, Node<Point2d>>,
     portals: HashMap<Point2d, Point2d>,
     dimensions: Dimensions,
     start: Point2d,
