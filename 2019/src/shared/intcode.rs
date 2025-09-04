@@ -285,6 +285,7 @@ impl IntCodeComputer {
 
 pub struct IntCodeDisplay {
     pub pixels: HashMap<Point2d, char>,
+    default_character: char,
 }
 
 impl fmt::Display for IntCodeDisplay {
@@ -317,7 +318,7 @@ impl fmt::Display for IntCodeDisplay {
             for x in min_x..=max_x {
                 let value = match self.pixels.get(&Point2d::new(x, y)) {
                     Some(value) => *value,
-                    None => '.',
+                    None => self.default_character,
                 };
                 output.push(value);
             }
@@ -328,7 +329,18 @@ impl fmt::Display for IntCodeDisplay {
 
 impl IntCodeDisplay {
     pub fn new() -> Self {
-        IntCodeDisplay { pixels: HashMap::new() }
+        IntCodeDisplay {
+            pixels: HashMap::new(),
+            default_character: '.',
+        }
+    }
+
+    pub fn set_default_character(&mut self, character: char) {
+        self.default_character = character;
+    }
+
+    pub fn clear(&mut self) {
+        self.pixels.clear();
     }
 }
 
