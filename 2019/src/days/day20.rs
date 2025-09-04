@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::time::Instant;
 
 use log::{debug, trace};
+
 use crate::shared::direction::Direction;
 use crate::shared::io::parse_char_grid;
 use crate::shared::point2d::Point2d;
@@ -186,11 +187,24 @@ fn solve_part_1(input: &MazeInfo) -> i64 {
 fn solve_part_2(input: &MazeInfo) -> i64 {
     trace!("Searching for shortest path between {} and {}", input.start, input.end);
 
+    // Calculate max x and y plus extra for boundary
+    let max_x = input.dimensions.outer_bottom_right.x + 2;
+    let max_y = input.dimensions.outer_bottom_right.y + 2;
+
     let mut queue: VecDeque<(Point2d, u8, i64)> = VecDeque::new();
-    let mut visited: HashMap<Point2d, Vec<u8>> = HashMap::new();
+    let mut visited: Vec<Vec<Vec<u8>>> = Vec::with_capacity(max_x as usize);
 
     queue.push_back((input.start, 0, 0));
-    visited.insert(input.start, vec![0]);
+
+    // Pre-initialize list of all possible coordinates
+    for _ in 0..max_x {
+        let mut vec_y: Vec<Vec<u8>> = Vec::with_capacity(max_y as usize);
+        for _ in 0..max_y {
+            vec_y.push(Vec::new())
+        }
+        visited.push(vec_y);
+    }
+    visited[input.start.x as usize][input.start.y as usize].push(0);
 
     while let Some((point, level, steps)) = queue.pop_front() {
         if level == 0 && point == input.end {
@@ -199,10 +213,10 @@ fn solve_part_2(input: &MazeInfo) -> i64 {
         }
 
         for neighbour in point.neighbours() {
-            if let Some(visited_levels) = visited.get(&neighbour) && visited_levels.contains(&level) {
+            if visited[neighbour.x as usize][neighbour.y as usize].contains(&level) {
                 continue;
             }
-            visited.entry(neighbour).and_modify(|v| v.push(level)).or_insert(vec![level]);
+            visited[neighbour.x as usize][neighbour.y as usize].push(level);
 
             if let Some(&value) = input.grid.get(&neighbour) {
                 match value {
