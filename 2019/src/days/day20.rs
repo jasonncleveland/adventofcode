@@ -187,10 +187,10 @@ fn solve_part_2(input: &MazeInfo) -> i64 {
     trace!("Searching for shortest path between {} and {}", input.start, input.end);
 
     let mut queue: VecDeque<(Point2d, u8, i64)> = VecDeque::new();
-    let mut visited: HashSet<(Point2d, u8)> = HashSet::new();
+    let mut visited: HashMap<Point2d, Vec<u8>> = HashMap::new();
 
     queue.push_back((input.start, 0, 0));
-    visited.insert((input.start, 0));
+    visited.insert(input.start, vec![0]);
 
     while let Some((point, level, steps)) = queue.pop_front() {
         if level == 0 && point == input.end {
@@ -199,10 +199,10 @@ fn solve_part_2(input: &MazeInfo) -> i64 {
         }
 
         for neighbour in point.neighbours() {
-            if visited.contains(&(neighbour, level)) {
+            if let Some(visited_levels) = visited.get(&neighbour) && visited_levels.contains(&level) {
                 continue;
             }
-            visited.insert((neighbour, level));
+            visited.entry(neighbour).and_modify(|v| v.push(level)).or_insert(vec![level]);
 
             if let Some(&value) = input.grid.get(&neighbour) {
                 match value {
