@@ -24,8 +24,6 @@ pub fn solve(file_contents: String) -> (String, String) {
 
 fn solve_part_1(input: &[i64]) -> i64 {
     let mut computer = IntCodeComputer::new(input);
-    let mut display = IntCodeDisplay::new();
-    display.set_default_character(' ');
 
     // Input commands
     let mut commands = String::new();
@@ -40,6 +38,36 @@ fn solve_part_1(input: &[i64]) -> i64 {
     commands.push_str("AND D J\n");
     // Walk (and pray)
     commands.push_str("WALK\n");
+
+    run_droid(&mut computer, commands)
+}
+
+fn solve_part_2(input: &[i64]) -> i64 {
+    let mut computer = IntCodeComputer::new(input);
+
+    // Input commands
+    let mut commands = String::new();
+
+    // Jump if B or C are unsafe
+    commands.push_str("NOT B T\n");
+    commands.push_str("OR T J\n");
+    commands.push_str("NOT C T\n");
+    commands.push_str("OR T J\n");
+    // Jump if D and H are safe
+    commands.push_str("AND D J\n");
+    commands.push_str("AND H J\n");
+    // Don't jump if A is safe and D or H is unsafe
+    commands.push_str("NOT A T\n");
+    commands.push_str("OR T J\n");
+    // Run
+    commands.push_str("RUN\n");
+
+    run_droid(&mut computer, commands)
+}
+
+fn run_droid(computer: &mut IntCodeComputer, commands: String) -> i64 {
+    let mut display = IntCodeDisplay::new();
+    display.set_default_character(' ');
 
     let mut position = Point2d::new(0, 0);
     while let Ok(status) = computer.run_interactive(1) {
@@ -83,8 +111,4 @@ fn solve_part_1(input: &[i64]) -> i64 {
         }
     }
     unreachable!();
-}
-
-fn solve_part_2(input: &[i64]) -> i64 {
-    unimplemented!();
 }
