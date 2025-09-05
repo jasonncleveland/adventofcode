@@ -45,27 +45,19 @@ fn solve_part_1(input: &[i64]) -> i64 {
             controller.computer.input.push_back(-1);
         }
 
-        while let Ok(status) = controller.computer.run_interactive(3) {
-            match status {
-                IntCodeStatus::OutputWaiting => {
-                    if let Some(target_address) = controller.computer.output.pop_front()
-                        && let Some(x) = controller.computer.output.pop_front()
-                        && let Some(y) = controller.computer.output.pop_front() {
-                        trace!("received packet {:?} addressed to {}", NetworkPacket::new(x, y), target_address);
-                        if target_address == 255 {
-                            // Stop if a value is output to address 255
-                            return y;
-                        }
-                        packet_queue
-                            .entry(target_address)
-                            .and_modify(|q| q.push(NetworkPacket::new(x, y)))
-                            .or_insert(vec![NetworkPacket::new(x, y)]);
-                    }
-                    break;
-                },
-                IntCodeStatus::InputRequired => break,
-                IntCodeStatus::ProgramHalted => break
+        if let Ok(IntCodeStatus::OutputWaiting) = controller.computer.run_interactive(3)
+            && let Some(target_address) = controller.computer.output.pop_front()
+            && let Some(x) = controller.computer.output.pop_front()
+            && let Some(y) = controller.computer.output.pop_front() {
+            trace!("received packet {:?} addressed to {}", NetworkPacket::new(x, y), target_address);
+            if target_address == 255 {
+                // Stop if a value is output to address 255
+                return y;
             }
+            packet_queue
+                .entry(target_address)
+                .and_modify(|q| q.push(NetworkPacket::new(x, y)))
+                .or_insert(vec![NetworkPacket::new(x, y)]);
         }
 
         // Return the controller to the queue when processing is finished
@@ -76,7 +68,59 @@ fn solve_part_1(input: &[i64]) -> i64 {
 }
 
 fn solve_part_2(input: &[i64]) -> i64 {
-    unimplemented!();
+    let mut controllers: HashMap<i64, IntCodeComputer> = HashMap::new();
+    for address in 0..50 {
+        let mut computer = IntCodeComputer::new(input);
+        computer.input.push_back(address);
+        controllers.insert(address, computer);
+    }
+
+    let mut nat_packet = NetworkPacket::new(0, 0);
+    let mut last_nat_packet = NetworkPacket::new(0, 0);
+    loop {
+        let mut is_idle = true;
+
+        for address in 0..50 {
+            if let Some(controller) = controllers.get_mut(&address) {
+                if controller.input.is_empty() {
+                    controller.input.push_back(-1);
+                } else {
+                    is_idle = false;
+                }
+
+                if let Ok(IntCodeStatus::OutputWaiting) = controller.run_interactive(3)
+                    && let Some(target_address) = controller.output.pop_front()
+                    && let Some(x) = controller.output.pop_front()
+                    && let Some(y) = controller.output.pop_front() {
+                    if target_address == 255 {
+                        trace!("sending packet {:?} to NAT", NetworkPacket::new(x, y));
+                        nat_packet = NetworkPacket::new(x, y);
+                    } else {
+                        trace!("sending packet {:?} to address {}", NetworkPacket::new(x, y), target_address);
+                        controllers
+                            .entry(target_address)
+                            .and_modify(|c| c.input.extend([x, y]));
+                    }
+                }
+
+            }
+        }
+
+        // If all controllers are idle for a cycle then we need to send the NAT packet to controller 0
+        if is_idle {
+            if last_nat_packet == nat_packet {
+                trace!("received packet {:?} twice in a row", nat_packet);
+                return nat_packet.y;
+            }
+
+            if let Some(controller) = controllers.get_mut(&0) {
+                trace!("sending NAT packet {:?} to address 0", nat_packet);
+                controller.input.push_back(nat_packet.x);
+                controller.input.push_back(nat_packet.y);
+            }
+            last_nat_packet = NetworkPacket::new(nat_packet.x, nat_packet.y);
+        }
+    }
 }
 
 struct NetworkInterfaceController {
@@ -84,7 +128,7 @@ struct NetworkInterfaceController {
     computer: IntCodeComputer,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 struct NetworkPacket {
     x: i64,
     y: i64,
