@@ -51,15 +51,27 @@ fn solve_part_1(input: &HashMap<Point2d, char>) -> i64 {
 }
 
 fn solve_part_2(input: &HashMap<Point2d, char>, cycles: i64) -> i64 {
-    let mut area: HashMap<Point3d, char> = HashMap::new();
-    for (&point, &value) in input {
-        area.insert(Point3d::new(point.x, point.y, 0), value);
-    }
-    trace!("{:?} {}", area, area.len());
+    let mut area: HashMap<i64, Vec<Vec<char>>> = HashMap::new();
 
+    let mut level = vec![vec!['.'; 5]; 5];
+    for (&point, &value) in input {
+        level[point.y as usize][point.x as usize] = value;
+    }
+    area.insert(0, level);
+
+    let mut min_level = 0;
+    let mut max_level = 0;
     let mut total = 0;
-    for _ in 0..cycles {
-        total = process_round_expanded(&mut area);
+    for cycle in 0..cycles {
+        // Add extra levels every two cycles
+        if cycle % 2 == 0 {
+            min_level -= 1;
+            area.insert(min_level, vec![vec!['.'; 5]; 5]);
+            max_level += 1;
+            area.insert(max_level, vec![vec!['.'; 5]; 5]);
+
+        }
+        total = process_round_expanded(&mut area, min_level, max_level);
     }
     total
 }
@@ -99,64 +111,68 @@ fn process_round(area: &mut HashMap<Point2d, char>) {
     }
 }
 
-fn process_round_expanded(area: &mut HashMap<Point3d, char>) -> i64 {
-    let mut future: HashMap<Point3d, char> = HashMap::new();
+fn process_round_expanded(area: &mut HashMap<i64, Vec<Vec<char>>>, min_level: i64, max_level: i64) -> i64 {
+    let mut future: HashMap<i64, Vec<Vec<char>>> = HashMap::new();
 
-    // Find all points that need to be checked for generation
-    let mut points_to_check: HashSet<Point3d> = HashSet::new();
-    for (point, _) in area.clone() {
-        // Ignore middle point
-        if point.x == 2 && point.y == 2 {
-            continue;
-        }
+    for z in min_level..=max_level {
+        trace!("checking level {}", z);
+        let mut next = vec![vec!['.'; 5]; 5];
+        if let Some(level) = area.get(&z) {
+            for y in 0..5 {
+                for x in 0..5 {
+                    // Ignore middle point
+                    if x == 2 && y == 2 {
+                        continue;
+                    }
 
-        points_to_check.extend(get_neighbours(&point));
-        points_to_check.insert(point);
-    }
+                    let point = Point3d::new(x as i64, y as i64, z);
+                    trace!("checking point: {}", point);
 
-    for point in points_to_check {
-        trace!("checking point: {}", point);
+                    // Get neighbours and count bugs
+                    let mut adjacent_bugs = 0;
+                    for neighbour in get_neighbours(&point) {
+                        trace!("checking neighbour {} of {}", point, neighbour);
+                        if let Some(level) = area.get(&neighbour.z)
+                            && level[neighbour.y as usize][neighbour.x as usize] == '#' {
+                            adjacent_bugs += 1;
+                        }
+                    }
+                    trace!("found bugs adjacent to {}: {}", point, adjacent_bugs);
 
-        // Get neighbours and count bugs
-        let mut adjacent_bugs = 0;
-        let neighbours = get_neighbours(&point);
-        trace!("neighbours of {}: {:?}", point, neighbours);
-        for neighbour in neighbours {
-            trace!("value at {}: {:?}", neighbour, area.get(&neighbour));
-            if let Some(&c) = area.get(&neighbour) && c == '#' {
-                adjacent_bugs += 1;
+                    let current_value = level[y][x];
+                    if current_value == '#' {
+                        // Bug dies unless there is exactly one other bug adjacent
+                        if adjacent_bugs == 1 {
+                            next[y][x] = '#';
+                        } else {
+                            next[y][x] = '.';
+                        }
+                    } else if current_value == '.' {
+                        // Area becomes infested if exactly 1 or 2 bugs are adjacent
+                        if adjacent_bugs == 1 || adjacent_bugs == 2 {
+                            next[y][x] = '#';
+                        } else {
+                            next[y][x] = '.';
+                        }
+                    } else {
+                        unreachable!("we should not reach here but panic if we do");
+                    }
+                }
             }
         }
-
-        let current_value = match area.get(&point) {
-            Some('#') => '#',
-            _ => '.'
-        };
-        if current_value == '#' {
-            // Bug dies unless there is exactly one other bug adjacent
-            if adjacent_bugs == 1 {
-                future.insert(point.clone(), '#');
-            } else {
-                future.insert(point.clone(), '.');
-            }
-        } else if current_value == '.' {
-            // Area becomes infested if exactly 1 or 2 bugs are adjacent
-            if adjacent_bugs == 1 || adjacent_bugs == 2 {
-                future.insert(point.clone(), '#');
-            } else {
-                future.insert(point.clone(), '.');
-            }
-        } else {
-            unreachable!("we should not reach here but panic if we do");
-        }
+        future.insert(z, next);
     }
 
     let mut total = 0;
-    for (point, c) in future {
-        if c == '#' {
-            total += 1;
+    for (z, level) in future {
+        for row in &level {
+            for &c in row {
+                if c == '#' {
+                    total += 1;
+                }
+            }
         }
-        area.insert(point, c);
+        area.insert(z, level);
     }
     total
 }
