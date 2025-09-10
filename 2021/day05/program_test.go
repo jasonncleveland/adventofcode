@@ -3,7 +3,7 @@ package day05
 import (
 	"testing"
 
-	"github.com/jasonncleveland/adventofcode/2021/utils"
+	"advent-of-code-2021/utils"
 )
 
 func TestPart1(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jasonncleveland/adventofcode/2021/utils"
+	"advent-of-code-2021/utils"
 )
 
 func Run(fileName string) {
