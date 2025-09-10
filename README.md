@@ -86,3 +86,13 @@ cargo clippy
 # Fix linter problems
 cargo clippy --fix
 ```
+
+Create flamegraph
+```bash
+# Install perf
+sudo apt install linux-tools-generic
+
+# Run program to create flamegraph
+# Need to specify path to perf utility on WSL
+time PERF=/usr/lib/linux-tools/<linux-version>-generic/perf cargo flamegraph --dev -- problemData.txt
+```
