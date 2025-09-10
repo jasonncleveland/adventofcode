@@ -286,6 +286,7 @@ impl IntCodeComputer {
 pub struct IntCodeDisplay {
     pub pixels: HashMap<Point2d, char>,
     default_character: char,
+    pixel_position: Point2d,
 }
 
 impl fmt::Display for IntCodeDisplay {
@@ -332,6 +333,7 @@ impl IntCodeDisplay {
         IntCodeDisplay {
             pixels: HashMap::new(),
             default_character: '.',
+            pixel_position: Point2d::new(0, 0),
         }
     }
 
@@ -339,8 +341,22 @@ impl IntCodeDisplay {
         self.default_character = character;
     }
 
+    pub fn write_character(&mut self, character: char) {
+        match character {
+            '\n' => {
+                self.pixel_position.x = 0;
+                self.pixel_position.y += 1;
+            },
+            _ => {
+                self.pixels.insert(self.pixel_position, character);
+                self.pixel_position.x += 1;
+            },
+        };
+    }
+
     pub fn clear(&mut self) {
         self.pixels.clear();
+        self.pixel_position = Point2d::new(0, 0);
     }
 }
 

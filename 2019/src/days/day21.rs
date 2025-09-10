@@ -4,7 +4,6 @@ use log::{debug, trace};
 
 use crate::shared::intcode::{IntCodeComputer, IntCodeDisplay, IntCodeStatus};
 use crate::shared::io::parse_int_list;
-use crate::shared::point2d::Point2d;
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
@@ -69,7 +68,6 @@ fn run_droid(computer: &mut IntCodeComputer, commands: String) -> i64 {
     let mut display = IntCodeDisplay::new();
     display.set_default_character(' ');
 
-    let mut position = Point2d::new(0, 0);
     while let Ok(status) = computer.run_interactive(1) {
         match status {
             IntCodeStatus::OutputWaiting => {
@@ -78,17 +76,7 @@ fn run_droid(computer: &mut IntCodeComputer, commands: String) -> i64 {
                         trace!("received hull damage: {}", status);
                         return status;
                     } else {
-                        let value = status as u8 as char;
-                        match value {
-                            '\n' => {
-                                position.x = 0;
-                                position.y += 1;
-                            },
-                            _ => {
-                                display.pixels.insert(position, value);
-                                position.x += 1;
-                            },
-                        };
+                        display.write_character(status as u8 as char);
                     }
                 }
             },
