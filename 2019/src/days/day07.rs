@@ -9,7 +9,7 @@ use crate::shared::intcode::{IntCodeComputer, IntCodeStatus};
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
-    let input = parse_int_list(file_contents);
+    let input = parse_int_list(file_contents, ',');
     debug!("File parse: ({:?})", parse_timer.elapsed());
 
     let part1_timer = Instant::now();
@@ -123,7 +123,7 @@ mod tests {
         ];
 
         for i in 0..input.len() {
-            let parsed = parse_int_list(input[i].to_string());
+            let parsed = parse_int_list(input[i].to_string(), ',');
             assert_eq!(solve_part_1(&parsed), expected[i]);
         }
     }
@@ -140,7 +140,7 @@ mod tests {
         ];
 
         for i in 0..input.len() {
-            let parsed = parse_int_list(input[i].to_string());
+            let parsed = parse_int_list(input[i].to_string(), ',');
             assert_eq!(solve_part_2(&parsed), expected[i]);
         }
     }

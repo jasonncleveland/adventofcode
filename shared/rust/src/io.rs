@@ -10,9 +10,13 @@ pub fn read_file(file_name: String) -> String {
     file_contents.trim_start_matches("\u{feff}").to_string()
 }
 
-pub fn parse_int_list(file_contents: String) -> Vec<i64> {
+pub fn parse_int(file_contents: String) -> i64 {
+    file_contents.parse::<i64>().expect("Input string is not a single number")
+}
+
+pub fn parse_int_list(file_contents: String, separator: char) -> Vec<i64> {
     let mut result: Vec<i64> = Vec::new();
-    for line in file_contents.split(',') {
+    for line in file_contents.split(separator) {
         if let Ok(value) = line.parse::<i64>() {
             result.push(value);
         }

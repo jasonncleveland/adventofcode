@@ -2,10 +2,11 @@
 
 use super::direction::Direction;
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Point2d {
-    pub x: i64,
+    // Ord trait sorts fields in order so y is first to sort by y then x
     pub y: i64,
+    pub x: i64,
 }
 
 impl fmt::Display for Point2d {

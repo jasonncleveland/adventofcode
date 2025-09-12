@@ -1,0 +1,11 @@
+[package]
+name = "AdventOfCode2018"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+aoc_helpers = {path = "../shared/rust", version = "0.1.0"}
+chrono = "0.4.42"
+env_logger = "0.11.8"
+log = "0.4.28"
+regex = "1.11.2"
