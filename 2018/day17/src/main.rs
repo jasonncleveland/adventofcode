@@ -28,9 +28,11 @@ fn read_file(file_name: &str) -> String {
         .expect("Something went wrong reading the file")
 }
 
-fn parse_input(file_contents: &str) -> HashMap<Coordinate, char> {
+fn parse_input(file_contents: &str) -> (HashMap<Coordinate, char>, i64, i64) {
     let mut ground: HashMap<Coordinate, char> = HashMap::new();
 
+    let mut min_y = i64::MAX;
+    let mut max_y = i64::MIN;
     for line in file_contents.lines() {
         let items = line.split(", ").map(|s| s.split_once("=")).collect::<Vec<_>>();
         if let Some(Some(left)) = items.first() {
@@ -42,6 +44,12 @@ fn parse_input(file_contents: &str) -> HashMap<Coordinate, char> {
                         if let Ok(x) = left.1.parse::<i64>()
                             && let Some((Ok(y1), Ok(y2))) = right.1.split_once("..").map(|s| (s.0.parse::<i64>(), s.1.parse::<i64>())) {
                             for y in y1..=y2 {
+                                if y < min_y {
+                                    min_y = y;
+                                }
+                                if y > max_y {
+                                    max_y = y;
+                                }
                                 ground.insert((x, y), '#');
                             }
                         }
@@ -60,25 +68,11 @@ fn parse_input(file_contents: &str) -> HashMap<Coordinate, char> {
         }
     }
 
-    ground
+    (ground, min_y, max_y)
 }
 
 fn part1(file_contents: &str) -> i64 {
-    let mut map = parse_input(file_contents);
-    let mut min_y = i64::MAX;
-    let mut max_y = i64::MIN;
-    for coordinate in map.keys() {
-        if let Some(c) = map.get(coordinate) && *c != '#' {
-            continue;
-        }
-
-        if coordinate.1 < min_y {
-            min_y = coordinate.1;
-        }
-        if coordinate.1 > max_y {
-            max_y = coordinate.1;
-        }
-    }
+    let (mut map, min_y, max_y) = parse_input(file_contents);
 
     let water_source: Coordinate = (500, 0);
 
@@ -89,7 +83,14 @@ fn part1(file_contents: &str) -> i64 {
 }
 
 fn part2(file_contents: &str) -> i64 {
-    -1
+    let (mut map, min_y, max_y) = parse_input(file_contents);
+
+    let water_source: Coordinate = (500, 0);
+
+    let mut visited: HashSet<Coordinate> = HashSet::new();
+    flood_vertical(&mut map, water_source, &Direction::Down, min_y, max_y, &mut visited);
+
+    map.values().filter(|c| **c == '~').count() as i64
 }
 
 fn flood_vertical(map: &mut HashMap<Coordinate, char>, coordinate: Coordinate, direction: &Direction, min_y: i64, max_y: i64, visited: &mut HashSet<Coordinate>) -> bool {
@@ -309,10 +310,17 @@ y=13, x=498..504",
     #[test]
     fn test_part2() {
         let input: [&str; 1] = [
-            "",
+            "x=495, y=2..7
+y=7, x=495..501
+x=501, y=3..7
+x=498, y=2..4
+x=506, y=1..2
+x=498, y=10..13
+x=504, y=10..13
+y=13, x=498..504",
         ];
         let expected: [i64; 1] = [
-            0,
+            29,
         ];
 
         for i in 0..input.len() {
