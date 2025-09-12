@@ -4,6 +4,7 @@ mod days;
 use std::env;
 use std::time::Instant;
 
+use aoc_helpers::io::read_file;
 use log::{debug, info, trace};
 
 use days::{
@@ -33,7 +34,6 @@ use days::{
     day24,
     day25,
 };
-use shared::io::read_file;
 
 const HIGHEST_DAY_IMPLEMENTED: u8 = 25;
 

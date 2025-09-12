@@ -1,10 +1,1 @@
-pub mod direction;
-pub mod graph;
-pub mod io;
 pub mod intcode;
-pub mod line;
-pub mod math;
-pub mod permutations;
-pub mod point2d;
-pub mod point3d;
-pub mod priority_queue;

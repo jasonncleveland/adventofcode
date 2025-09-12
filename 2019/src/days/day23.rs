@@ -1,10 +1,10 @@
 use std::collections::{HashMap, VecDeque};
 use std::time::Instant;
 
+use aoc_helpers::io::parse_int_list;
 use log::{debug, trace};
 
 use crate::shared::intcode::{IntCodeComputer, IntCodeStatus};
-use crate::shared::io::parse_int_list;
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();

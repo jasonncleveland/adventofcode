@@ -2,11 +2,11 @@ use std::{env, fmt};
 use std::io;
 use std::time::Instant;
 
+use aoc_helpers::io::parse_int_list;
+use aoc_helpers::point2d::Point2d;
 use log::{debug, trace};
 
 use crate::shared::intcode::{IntCodeComputer, IntCodeDisplay, IntCodeStatus};
-use crate::shared::io::parse_int_list;
-use crate::shared::point2d::Point2d;
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();

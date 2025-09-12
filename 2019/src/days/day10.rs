@@ -2,10 +2,9 @@ use std::collections::{HashSet, VecDeque};
 use std::f64::consts::PI;
 use std::time::Instant;
 
+use aoc_helpers::math::greatest_common_divisor;
+use aoc_helpers::point2d::Point2d;
 use log::{debug, trace};
-
-use crate::shared::math::greatest_common_divisor;
-use crate::shared::point2d::Point2d;
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();

@@ -2,10 +2,9 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::time::Instant;
 
+use aoc_helpers::math::least_common_multiple;
+use aoc_helpers::point3d::Point3d;
 use log::{debug, trace};
-
-use crate::shared::math::least_common_multiple;
-use crate::shared::point3d::Point3d;
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();

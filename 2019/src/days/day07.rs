@@ -1,11 +1,11 @@
 use std::collections::VecDeque;
 use std::time::Instant;
 
+use aoc_helpers::io::parse_int_list;
+use aoc_helpers::permutations::generate_permutations;
 use log::{debug, trace};
 
 use crate::shared::intcode::{IntCodeComputer, IntCodeStatus};
-use crate::shared::io::parse_int_list;
-use crate::shared::permutations::generate_permutations;
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();

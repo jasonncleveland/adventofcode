@@ -1,11 +1,10 @@
 use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 
+use aoc_helpers::io::parse_char_grid;
+use aoc_helpers::point2d::Point2d;
+use aoc_helpers::point3d::Point3d;
 use log::{debug, trace};
-
-use crate::shared::io::parse_char_grid;
-use crate::shared::point2d::Point2d;
-use crate::shared::point3d::Point3d;
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();

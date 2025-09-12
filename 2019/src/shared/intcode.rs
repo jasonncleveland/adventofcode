@@ -1,9 +1,8 @@
 use std::collections::{HashMap, VecDeque};
 use std::fmt;
 
+use aoc_helpers::point2d::Point2d;
 use log::{error, trace};
-
-use super::point2d::Point2d;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct IntCodeComputer {

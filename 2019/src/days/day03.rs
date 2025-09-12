@@ -1,10 +1,9 @@
 use std::cmp::{max, min};
 use std::time::Instant;
 
+use aoc_helpers::line::LineSegment2d;
+use aoc_helpers::point2d::Point2d;
 use log::debug;
-
-use crate::shared::line::LineSegment2d;
-use crate::shared::point2d::Point2d;
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
