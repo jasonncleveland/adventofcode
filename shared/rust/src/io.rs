@@ -33,3 +33,10 @@ pub fn parse_char_grid(file_contents: String) -> HashMap<Point2d, char> {
     }
     result
 }
+
+pub fn parse_char_vec(file_contents: String) -> Vec<Vec<char>> {
+    file_contents
+        .lines()
+        .map(|line| line.chars().collect())
+        .collect()
+}
