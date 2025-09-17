@@ -19,6 +19,10 @@ impl fmt::Display for Direction {
     }
 }
 
+pub fn get_directions() -> Vec<Direction> {
+    vec![Direction::Up, Direction::Right, Direction::Down, Direction::Left]
+}
+
 pub fn get_next_direction(current: &Direction, turn: &Direction) -> Direction {
     match turn {
         Direction::Left => match current {
