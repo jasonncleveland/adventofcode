@@ -85,6 +85,7 @@ fn solve_part_1(maze: &HashMap<Point2d, char>) -> i64 {
     let mut max_doors = i64::MIN;
     while let Some((coordinate, distance)) = queue.pop_front() {
         trace!("checking location: {} doors passed: {}", coordinate, distance);
+
         if distance > max_doors {
             max_doors = distance;
         }
@@ -114,8 +115,47 @@ fn solve_part_1(maze: &HashMap<Point2d, char>) -> i64 {
     max_doors
 }
 
-fn solve_part_2(input: &HashMap<Point2d, char>) -> i64 {
-    -1
+fn solve_part_2(maze: &HashMap<Point2d, char>) -> i64 {
+    let mut long_paths = 0;
+
+    let mut queue: VecDeque<(Point2d, i64)> = VecDeque::new();
+    let mut visited: HashSet<Point2d> = HashSet::new();
+
+    queue.push_back((Point2d::new(0, 0), 0));
+    visited.insert(Point2d::new(0, 0));
+
+    while let Some((coordinate, distance)) = queue.pop_front() {
+        trace!("checking location: {} doors passed: {}", coordinate, distance);
+
+        // If the number of doors passed through to get to this location is 1000 or more, increment
+        if distance >= 1000 {
+            long_paths += 1;
+        }
+
+        for direction in get_directions() {
+            trace!("checking direction: {}", direction);
+            let door = coordinate.next(&direction);
+
+            if maze.get(&door).is_none() {
+                continue;
+            }
+
+            let neighbour = door.next(&direction);
+
+            if visited.contains(&neighbour) {
+                trace!("already checked neighbour at {}", neighbour);
+                continue;
+            }
+            visited.insert(neighbour);
+
+            if let Some(d) = maze.get(&door) && let Some(n) = maze.get(&door) {
+                trace!("found door {} leading to neighbour {} at {}", d, n, neighbour);
+                queue.push_back((neighbour, distance + 1));
+            }
+        }
+    }
+
+    long_paths
 }
 
 #[cfg(test)]
@@ -142,21 +182,6 @@ mod tests {
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());
             assert_eq!(solve_part_1(&input), expected[i]);
-        }
-    }
-
-    #[test]
-    fn test_part_2() {
-        let input: [&str; 1] = [
-            "",
-        ];
-        let expected: [i64; 1] = [
-            0,
-        ];
-
-        for i in 0..input.len() {
-            let input = parse_input(input[i].to_string());
-            assert_eq!(solve_part_2(&input), expected[i]);
         }
     }
 }
