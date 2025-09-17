@@ -40,7 +40,7 @@ impl Device {
         }
     }
 
-    fn process_instruction(&mut self) -> bool {
+    pub fn process_instruction(&mut self) -> bool {
         if self.registers[self.instruction_pointer_register] >= self.instructions.len() {
             trace!("attempting to process instruction at index {} which is outside bounds [0..{}]", self.registers[self.instruction_pointer_register], self.instructions.len());
             return false;
