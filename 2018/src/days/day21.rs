@@ -1,6 +1,7 @@
+use std::collections::HashSet;
 use std::time::Instant;
 
-use log::debug;
+use log::{debug, trace};
 
 use crate::shared::elfcode::{parse_device_instructions, Device, Instruction};
 
@@ -14,7 +15,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     debug!("Part 1: {} ({:?})", part1, part1_timer.elapsed());
 
     let part2_timer = Instant::now();
-    let part2 = solve_part_2(&input);
+    let part2 = solve_part_2();
     debug!("Part 2: {} ({:?})", part2, part2_timer.elapsed());
 
     (part1.to_string(), part2.to_string())
@@ -23,12 +24,14 @@ pub fn solve(file_contents: String) -> (String, String) {
 fn solve_part_1(instructions: &[Instruction]) -> usize {
     // Notes breaking down program operations
     // #ip 2 - use register 2 as the instruction pointer
+    // Checksum function
     // 00 seti 123 0 5 - set register 5 to 123
     // 01 bani {5} 456 5 - set register 5 to the bitwise and of register 5 (123) and 456
     // 02 eqri {5} 72 5 - set register 5 to 1 if register 5 is equal to 72, otherwise 0
     // 03 addr {5} 2 (2) - add register 5 to register 2
     // 04 seti 0 0 (2) - set register 2 to 0 (jump to instruction 1)
     // 05 seti 0 4 5 - set register 5 to 0
+    // Main program starts
     // 06 bori {5} 65536 4 - set register 4 to the bitwise or of register 5 and 65536
     // 07 seti 15466939 9 5 - set register 5 to 15466939
     // 08 bani 4 255 3 - set register 3 to the bitwise and of register 4 and 255
@@ -61,12 +64,68 @@ fn solve_part_1(instructions: &[Instruction]) -> usize {
         // Instruction 28 is the only instruction that uses register 0
         // eqrr 5 0 3 - halt if register 0 is equal to register 5
         if device.registers[2] == 28 {
-            debug!("the value in register 5 is {}", device.registers[5]);
+            trace!("the value in register 5 is {}", device.registers[5]);
             return device.registers[5];
         }
     }
 }
 
-fn solve_part_2(instructions: &[Instruction]) -> usize {
-    0
+fn solve_part_2() -> usize {
+    let mut seen: HashSet<usize> = HashSet::new();
+    let mut previous = 0;
+
+    // The important logic has been extracted from the input to improve brute-force time
+    // We don't need registers 0 and 2 for the minimized logic
+    let mut r5 = 0;
+    'i06: loop {
+        // 06 bori 5 65536 4 - set register 4 to the bitwise or of register 5 and 65536
+        let mut r4 = r5 | 65536;
+        // 07 seti 15466939 9 5 - set register 5 to 15466939
+        r5 = 15466939;
+        'i08: loop {
+            // 08 bani 4 255 3 - set register 3 to the bitwise and of register 4 and 255
+            // 09 addr 5 3 5 - add register 3 to register 5
+            r5 += r4 & 255;
+            // 10 bani 5 16777215 5 - set register 5 to the bitwise and of register 5 and 16777215
+            r5 &= 16777215;
+            // 11 muli 5 65899 5 - multiply register 5 by 65899
+            r5 *= 65899;
+            // 12 bani 5 16777215 5 - set register 5 to the bitwise and of register 5 and 16777215
+            r5 &= 16777215;
+            // 13 gtir 256 4 3 - set register 3 to 1 if 256 is greater than register 4
+            if 256 > r4 {
+                // 14 addr 3 2 2 - add register 3 to register 2
+                // 16 seti 27 8 2 - set register 2 to 27 (jump to instruction 28)
+                if seen.contains(&r5) {
+                    trace!("we have seen the value {r5} before so return the last unique value {previous}");
+                    return previous;
+                }
+                seen.insert(r5);
+                previous = r5;
+                continue 'i06;
+            } else {
+                // 15 addi 2 1 2 - add 1 to register 2 (skip next instruction)
+                // 17 seti 0 7 3 - set register 3 to 0
+                let mut r3 = 0;
+                'i18: loop {
+                    // 18 addi 3 1 1 - set register 1 to the value of register 3 plus 1
+                    // 19 muli 1 256 1 - multiply register 1 by 256
+                    let r1 = (r3 + 1) * 256;
+                    // 20 gtrr 1 4 1 - set register 1 to 1 if register 1 is greater than register 4, otherwise 0
+                    if r1 > r4 {
+                        // 23 seti 25 2 2 - set register 2 to 25 (jump to instruction 26)
+                        // 26 setr 3 7 4 - set register 4 to the value of register 3
+                        r4 = r3;
+                        // 27 seti 7 3 2 - set register 2 to 7 (jump to instruction 8)
+                        continue 'i08;
+                    } else {
+                        // 24 addi 3 1 3 - add 1 to register 3
+                        r3 += 1;
+                        // 25 seti 17 7 2 - set register 2 to 17 (jump to instruction 18)
+                        continue 'i18;
+                    }
+                }
+            }
+        }
+    }
 }
