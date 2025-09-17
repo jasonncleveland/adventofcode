@@ -26,32 +26,28 @@ impl Instruction {
 #[derive(Debug)]
 pub struct Device {
     pub registers: Vec<usize>,
-    instruction_pointer: usize,
     instruction_pointer_register: usize,
     instructions: Vec<Instruction>,
 }
 
 impl Device {
     pub fn new(instructions: &[Instruction]) -> Device {
-
         Device {
             registers: vec![0; 6],
-            instruction_pointer: 0,
+            // The first instruction contains the register to use as the instruction pointer
             instruction_pointer_register: instructions[0].a,
             instructions: instructions[1..].to_vec(),
         }
     }
 
     fn process_instruction(&mut self) -> bool {
-        if self.instruction_pointer >= self.instructions.len() {
-            trace!("attempting to process instruction outside bounds");
+        if self.registers[self.instruction_pointer_register] >= self.instructions.len() {
+            trace!("attempting to process instruction at index {} which is outside bounds [0..{}]", self.registers[self.instruction_pointer_register], self.instructions.len());
             return false;
         }
 
-        let instruction = &self.instructions[self.instruction_pointer];
-        trace!("executing instruction {}", instruction);
-
-        self.registers[self.instruction_pointer_register] = self.instruction_pointer;
+        let instruction = &self.instructions[self.registers[self.instruction_pointer_register]];
+        trace!("executing instruction at {}: {}", self.registers[self.instruction_pointer_register], instruction);
 
         match instruction.opcode.as_str() {
             "#ip" => self.instruction_pointer_register = instruction.a,
@@ -92,12 +88,13 @@ impl Device {
             _ => panic!("Invalid instruction opcode")
         }
 
-        self.instruction_pointer = self.registers[self.instruction_pointer_register];
-        self.instruction_pointer += 1;
+        // Increment the instruction pointer by 1
+        self.registers[self.instruction_pointer_register] += 1;
         true
     }
 
     pub fn process_instructions(&mut self) {
+        // Run until the program halts
         while self.process_instruction() {}
     }
 }
