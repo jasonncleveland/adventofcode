@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::time::Instant;
 
 use aoc_helpers::point2d::Point2d;
+use aoc_helpers::priority_queue::{PriorityQueue, PriorityQueueItem};
 use log::{debug, trace};
 
 pub fn solve(file_contents: String) -> (String, String) {
@@ -38,7 +39,6 @@ fn parse_input(file_contents: String) -> ScanInfo {
 }
 
 fn solve_part_1(input: &ScanInfo) -> i64 {
-    let mut cave: HashMap<Point2d, char> = HashMap::new();
     let mut cache = Cache::new();
     let mut risk_level = 0;
     for x in 0..=input.target.x {
@@ -49,15 +49,12 @@ fn solve_part_1(input: &ScanInfo) -> i64 {
             trace!("region type: {:?}", region_type);
             match region_type {
                 Region::Rocky => {
-                    cave.insert(coordinate, '.');
                     risk_level += 0;
                 },
                 Region::Wet => {
-                    cave.insert(coordinate, '=');
                     risk_level += 1;
                 },
                 Region::Narrow => {
-                    cave.insert(coordinate, '|');
                     risk_level += 2;
                 },
             }
@@ -67,13 +64,71 @@ fn solve_part_1(input: &ScanInfo) -> i64 {
 }
 
 fn solve_part_2(input: &ScanInfo) -> i64 {
-    -1
+    let mut cache = Cache::new();
+
+    let mut shared_items_map: HashMap<(Region, Region), Vec<Equipment>> = HashMap::new();
+    shared_items_map.insert((Region::Rocky, Region::Rocky), vec![Equipment::ClimbingGear, Equipment::Torch]);
+    shared_items_map.insert((Region::Rocky, Region::Wet), vec![Equipment::ClimbingGear]);
+    shared_items_map.insert((Region::Rocky, Region::Narrow), vec![Equipment::Torch]);
+    shared_items_map.insert((Region::Wet, Region::Wet), vec![Equipment::ClimbingGear, Equipment::Neither]);
+    shared_items_map.insert((Region::Wet, Region::Rocky), vec![Equipment::ClimbingGear]);
+    shared_items_map.insert((Region::Wet, Region::Narrow), vec![Equipment::Neither]);
+    shared_items_map.insert((Region::Narrow, Region::Narrow), vec![Equipment::Torch, Equipment::Neither]);
+    shared_items_map.insert((Region::Narrow, Region::Rocky), vec![Equipment::Torch]);
+    shared_items_map.insert((Region::Narrow, Region::Wet), vec![Equipment::Neither]);
+
+    let mut queue: PriorityQueue<PriorityQueueItem<(Point2d, Equipment)>> = PriorityQueue::new();
+    let mut visited: HashMap<(Point2d, Equipment), i64> = HashMap::new();
+
+    queue.push(PriorityQueueItem::new(0, (Point2d::new(0, 0), Equipment::Torch)));
+
+    while let Some(PriorityQueueItem { weight: minutes, data: (coordinate, equipment) } ) = queue.pop() {
+        trace!("checking coordinate {} with {:?} equipped {} minutes elapsed", coordinate, equipment, minutes);
+
+        if coordinate == input.target && equipment == Equipment::Torch {
+            trace!("found target position with {:?} equipped after {} minutes", equipment, minutes);
+            return minutes;
+        }
+
+        let key = (coordinate, equipment);
+        if let Some(&distance) = visited.get(&key) && distance <= minutes {
+            trace!("we have seen this exact state {:?} so it can be skipped", coordinate);
+            continue;
+        }
+        visited.insert(key, minutes);
+
+        let source_region = calculate_region_type(&coordinate, &input.target, input.depth, &mut cache);
+        for neighbour in coordinate.neighbours() {
+            trace!("checking neighbour {} with {:?}", neighbour, equipment);
+            // Limit the search space to target x/y + 100
+            // This allows the shortest path to be found with detours but prevents runaway paths
+            if neighbour.x < 0 || neighbour.y < 0 || neighbour.x > input.target.x + 100 || neighbour.y > input.target.y + 100 {
+                trace!("neighbour {} is out of bounds.", neighbour);
+                continue;
+            }
+
+            let neighbour_region = calculate_region_type(&neighbour, &input.target, input.depth, &mut cache);
+            if let Some(shared_items) = shared_items_map.get(&(source_region, neighbour_region)) {
+                trace!("shared items: {:?}", shared_items);
+                for &item in shared_items {
+                    if item == equipment {
+                        trace!("moving to {} without switching items and keeping {:?}", neighbour, equipment);
+                        queue.push(PriorityQueueItem::new(minutes + 1, (neighbour, equipment)));
+                    } else {
+                        trace!("moving to {} after switching from {:?} to {:?}", neighbour, equipment, item);
+                        queue.push(PriorityQueueItem::new(minutes + 8, (neighbour, item)));
+                    }
+                }
+            }
+        }
+    }
+    unreachable!();
 }
 
 fn calculate_geologic_index(point: &Point2d, target: &Point2d, depth: i64, cache: &mut Cache) -> i64 {
     trace!("calculating geologic index of {} with target {}", point, target);
-    if cache.geologic_index.contains_key(point) {
-        return cache.geologic_index[point];
+    if let Some(&cached) = cache.geologic_index.get(point) {
+        return cached;
     }
 
     let geologic_index: i64;
@@ -95,8 +150,8 @@ fn calculate_geologic_index(point: &Point2d, target: &Point2d, depth: i64, cache
 
 fn calculate_erosion_level(point: &Point2d, target: &Point2d, depth: i64, cache: &mut Cache) -> i64 {
     trace!("calculating erosion level of {} with target {}", point, target);
-    if cache.erosion_level.contains_key(point) {
-        return cache.erosion_level[point];
+    if let Some(&cached) = cache.erosion_level.get(point) {
+        return cached;
     }
 
     let geologic_index = calculate_geologic_index(point, target, depth, cache);
@@ -123,11 +178,18 @@ struct ScanInfo {
     target: Point2d,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 enum Region {
     Rocky,
     Narrow,
     Wet,
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+enum Equipment {
+    ClimbingGear,
+    Torch,
+    Neither,
 }
 
 struct Cache {
@@ -192,10 +254,11 @@ target: 10,10",
     #[test]
     fn test_part_2() {
         let input: [&str; 1] = [
-            "",
+            "depth: 510
+target: 10,10",
         ];
         let expected: [i64; 1] = [
-            0,
+            45,
         ];
 
         for i in 0..input.len() {
