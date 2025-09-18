@@ -1,6 +1,8 @@
+use std::cmp::max;
 use std::time::Instant;
 
 use aoc_helpers::point3d::Point3d;
+use aoc_helpers::priority_queue::{PriorityQueue, PriorityQueueItem};
 use log::{debug, trace};
 
 pub fn solve(file_contents: String) -> (String, String) {
@@ -50,7 +52,27 @@ fn solve_part_1(input: &[NanoBot]) -> i64 {
 }
 
 fn solve_part_2(input: &[NanoBot]) -> i64 {
-    -1
+    // Logic take from solutions megathread https://www.reddit.com/r/adventofcode/comments/a8s17l/comment/ecdqzdg
+    let mut queue: PriorityQueue<PriorityQueueItem<i64>> = PriorityQueue::new();
+
+    let origin = Point3d::new(0, 0, 0);
+    for bot in input {
+        let manhattan_distance = origin.manhattan(&bot.position);
+        queue.push(PriorityQueueItem::new(max(0, manhattan_distance - bot.radius), 1));
+        queue.push(PriorityQueueItem::new(manhattan_distance + bot.radius + 1, -1));
+    }
+
+    let mut count = 0;
+    let mut max_count = 0;
+    let mut result = 0;
+    while let Some(PriorityQueueItem { weight, data }) = queue.pop() {
+        count += data;
+        if count > max_count {
+            result = weight;
+            max_count = count;
+        }
+    }
+    result
 }
 
 fn count_nano_bots_in_range(bots: &[NanoBot], origin: &NanoBot) -> i64 {
@@ -103,10 +125,15 @@ pos=<1,3,1>, r=1",
     #[test]
     fn test_part_2() {
         let input: [&str; 1] = [
-            "",
+            "pos=<10,12,12>, r=2
+pos=<12,14,12>, r=2
+pos=<16,12,12>, r=4
+pos=<14,14,14>, r=6
+pos=<50,50,50>, r=200
+pos=<10,10,10>, r=5",
         ];
         let expected: [i64; 1] = [
-            0,
+            36,
         ];
 
         for i in 0..input.len() {
