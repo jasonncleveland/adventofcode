@@ -36,7 +36,7 @@ impl fmt::Display for Group {
 }
 
 impl Group {
-    pub fn new(faction: Faction, id: usize, units: i64, hit_points: i64, attack_damage: i64, attack_type: Attack, weaknesses: Vec<Attack>, immunities: Vec<Attack>, initiative: i64) -> Self {
+    pub fn new(faction: Faction, id: usize, units: i64, hit_points: i64, attack_damage: i64, attack_type: Attack, initiative: i64) -> Self {
         Self {
             faction,
             id,
@@ -44,8 +44,8 @@ impl Group {
             hit_points,
             attack_damage,
             attack_type,
-            weaknesses,
-            immunities,
+            weaknesses: vec![],
+            immunities: vec![],
             initiative,
         }
     }

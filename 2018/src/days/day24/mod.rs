@@ -3,7 +3,7 @@ mod faction;
 mod group;
 
 use std::cmp::{min, Ordering};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 
 use log::{debug, trace};
@@ -53,15 +53,14 @@ fn parse_group(matcher: &Regex, line: &str, faction: Faction, id: usize) -> Grou
         && let Some(at) = capture.name("type") && let Ok(attack_type) = Attack::new(at.as_str())
         && let Some(i) = capture.name("initiative") && let Ok(initiative) = i.as_str().parse::<i64>()
     {
-        let mut weaknesses: Vec<Attack> = Vec::new();
-        let mut immunities: Vec<Attack> = Vec::new();
+        let mut group = Group::new(faction, id, units, hit_points, attack_damage, attack_type, initiative);
 
         if let Some(m) = capture.name("modifiers") {
             for modifier in m.as_str().split("; ") {
                 if let Some((t, ats)) = modifier.split_once(" to ") {
                     let to_add = match t {
-                        "weak" => &mut weaknesses,
-                        "immune" => &mut immunities,
+                        "weak" => &mut group.weaknesses,
+                        "immune" => &mut group.immunities,
                         _ => unreachable!(),
                     };
                     for t in ats.split(", ") {
@@ -72,7 +71,8 @@ fn parse_group(matcher: &Regex, line: &str, faction: Faction, id: usize) -> Grou
                 }
             }
         }
-        return Group::new(faction, id, units, hit_points, attack_damage, attack_type, weaknesses, immunities, initiative);
+
+        return group;
     }
     panic!("unable to parse group");
 }
@@ -94,7 +94,47 @@ fn solve_part_1(input: &[Group]) -> i64 {
 }
 
 fn solve_part_2(input: &[Group]) -> i64 {
-    -1
+    let mut boost = 1;
+    let mut highest_boost_with_death = 1;
+    let mut lowest_boost_without_death = 1_000_000;
+    let mut results: HashMap<i64, i64> = HashMap::new();
+    loop {
+        let mut groups = input.to_owned();
+        for unit in groups.iter_mut().filter(|g| g.faction == Faction::ImmuneSystem) {
+            unit.attack_damage += boost;
+        }
+
+        trace!("Simulating fight with a boost of {boost}");
+
+        loop {
+            match simulate_fight(&mut groups) {
+                None => continue,
+                Some(faction) => {
+                    trace!("Faction {} was victorious", faction);
+
+                    let result = groups.iter().map(|g| g.units).sum();
+                    results.insert(boost, result);
+
+                    // Use binary search to minimize the number of simulations performed
+                    if faction == Faction::ImmuneSystem {
+                        lowest_boost_without_death = boost;
+                    } else {
+                        highest_boost_with_death = boost;
+                    }
+                    let difference = lowest_boost_without_death - highest_boost_with_death;
+                    if difference == 0 || difference == 1 {
+                        // If the difference is 0 or 1 then we have found the correct value
+                        if let Some(result) = results.get(&lowest_boost_without_death) {
+                            return *result;
+                        }
+                    }
+                    boost = highest_boost_with_death + difference / 2;
+
+                    break;
+                },
+            }
+        }
+    }
 }
 
 fn simulate_fight(groups: &mut Vec<Group>) -> Option<Faction> {
@@ -114,6 +154,9 @@ fn simulate_fight(groups: &mut Vec<Group>) -> Option<Faction> {
         return Some(Faction::ImmuneSystem);
     }
 
+    let starting_units = groups.iter().map(|g| g.units).sum::<i64>();
+    trace!("Found {starting_units} units at the start of the fight");
+
     // Sort the groups by effective power and then initiative in descending order
     groups.sort_by(|a, b| match b.effective_power().cmp(&a.effective_power()) {
         Ordering::Equal => b.initiative.cmp(&a.initiative),
@@ -127,6 +170,15 @@ fn simulate_fight(groups: &mut Vec<Group>) -> Option<Faction> {
     // Perform attacking phase
     attack_targets(groups, &mut targets);
     trace!("");
+
+    let ending_units = groups.iter().map(|g| g.units).sum::<i64>();
+    trace!("Found {ending_units} units at the end of the fight ({starting_units} vs {ending_units})");
+
+    if starting_units == ending_units {
+        // If no units we killed then we are soft-locked so the infection has won
+        trace!("No units were killed during this turn so the fight is soft-locked and must halt");
+        return Some(Faction::Infection);
+    }
 
     None
 }
@@ -190,10 +242,16 @@ Infection:
     #[test]
     fn test_part_2() {
         let input: [&str; 1] = [
-            "",
+            "Immune System:
+17 units each with 5390 hit points (weak to radiation, bludgeoning) with an attack that does 4507 fire damage at initiative 2
+989 units each with 1274 hit points (immune to fire; weak to bludgeoning, slashing) with an attack that does 25 slashing damage at initiative 3
+
+Infection:
+801 units each with 4706 hit points (weak to radiation) with an attack that does 116 bludgeoning damage at initiative 1
+4485 units each with 2961 hit points (immune to radiation; weak to fire, cold) with an attack that does 12 slashing damage at initiative 4",
         ];
         let expected: [i64; 1] = [
-            0,
+            51,
         ];
 
         for i in 0..input.len() {
