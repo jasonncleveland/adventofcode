@@ -32,9 +32,10 @@ use days::{
     day22,
     day23,
     day24,
+    day25,
 };
 
-const HIGHEST_DAY_IMPLEMENTED: u8 = 24;
+const HIGHEST_DAY_IMPLEMENTED: u8 = 25;
 
 fn main() {
     env_logger::init();
@@ -109,6 +110,7 @@ fn get_day_module(day: u8)  -> fn(String) -> (String, String) {
         22 => day22::solve,
         23 => day23::solve,
         24 => day24::solve,
+        25 => day25::solve,
         other => panic!("Invalid day provided: {}. Day must be less than {}", other, HIGHEST_DAY_IMPLEMENTED),
     }
 }
