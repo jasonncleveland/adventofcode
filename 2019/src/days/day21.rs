@@ -79,7 +79,7 @@ fn run_droid(computer: &mut IntCodeComputer, commands: String) -> i64 {
                         display.write_character(status as u8 as char);
                     }
                 }
-            },
+            }
             IntCodeStatus::InputRequired => {
                 display.to_string().lines().for_each(|l| trace!("{}", l));
                 display.clear();
@@ -90,12 +90,12 @@ fn run_droid(computer: &mut IntCodeComputer, commands: String) -> i64 {
                     }
                     computer.input.push_back('\n' as i64);
                 }
-            },
+            }
             IntCodeStatus::ProgramHalted => {
                 display.to_string().lines().for_each(|l| trace!("{}", l));
                 display.clear();
                 break;
-            },
+            }
         }
     }
     unreachable!();

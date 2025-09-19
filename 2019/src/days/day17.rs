@@ -36,7 +36,7 @@ fn solve_part_1(input: &[i64]) -> i64 {
                         '\n' => {
                             position.x = 0;
                             position.y += 1;
-                        },
+                        }
                         '<' | '^' | 'v' | '>' => {
                             display.pixels.insert(position, '#');
                             position.x += 1;
@@ -44,13 +44,13 @@ fn solve_part_1(input: &[i64]) -> i64 {
                         '#' | '.' => {
                             display.pixels.insert(position, value);
                             position.x += 1;
-                        },
+                        }
                         _ => unreachable!("invalid character"),
                     };
                 }
-            },
+            }
             IntCodeStatus::InputRequired => unreachable!(),
-            IntCodeStatus::ProgramHalted => break
+            IntCodeStatus::ProgramHalted => break,
         }
     }
 
@@ -59,12 +59,20 @@ fn solve_part_1(input: &[i64]) -> i64 {
         if *value == '#' {
             let mut neighbour_count = 0;
             for neighbour in position.neighbours() {
-                if let Some(neighbour_value) = display.pixels.get(&neighbour) && *neighbour_value == '#' {
+                if let Some(neighbour_value) = display.pixels.get(&neighbour)
+                    && *neighbour_value == '#'
+                {
                     neighbour_count += 1;
                 }
             }
             if neighbour_count > 2 {
-                trace!("found intersection at {} -> {} x {} = {}", position, position.x, position.y, position.x * position.y);
+                trace!(
+                    "found intersection at {} -> {} x {} = {}",
+                    position,
+                    position.x,
+                    position.y,
+                    position.x * position.y
+                );
                 total += position.x * position.y;
             }
         }
@@ -83,13 +91,19 @@ fn solve_part_2(input: &[i64]) -> i64 {
     // 0-9: 48-57
 
     // L10, L8, R8, L8, R6
-    let function_a = [76, 44, 49, 48, 44, 76, 44, 56, 44, 82, 44, 56, 44, 76, 44, 56, 44, 82, 44, 54, 10];
+    let function_a = [
+        76, 44, 49, 48, 44, 76, 44, 56, 44, 82, 44, 56, 44, 76, 44, 56, 44, 82, 44, 54, 10,
+    ];
     // R6,R8,R8
     let function_b = [82, 44, 54, 44, 82, 44, 56, 44, 82, 44, 56, 10];
     // R6,R6,L8,L10
-    let function_c = [82, 44, 54, 44, 82, 44, 54, 44, 76, 44, 56, 44, 76, 44, 49, 48, 10];
+    let function_c = [
+        82, 44, 54, 44, 82, 44, 54, 44, 76, 44, 56, 44, 76, 44, 49, 48, 10,
+    ];
     // A,A,B,C,B,C,B,C,B,A
-    let main_routine = [65, 44, 65, 44, 66, 44, 67, 44, 66, 44, 67, 44, 66, 44, 67, 44, 66, 44, 65, 10];
+    let main_routine = [
+        65, 44, 65, 44, 66, 44, 67, 44, 66, 44, 67, 44, 66, 44, 67, 44, 66, 44, 65, 10,
+    ];
 
     let mut computer = IntCodeComputer::new(input);
 

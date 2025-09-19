@@ -23,10 +23,14 @@ fn parse_input(file_contents: String) -> Vec<Reaction> {
     let mut reactions: Vec<Reaction> = Vec::new();
     for line in file_contents.lines() {
         if let Some((left, right)) = line.split_once(" => ")
-            && let Some((output_quantity, output_name)) = right.split_once(' ') && let Ok(value) = output_quantity.parse::<i64>() {
+            && let Some((output_quantity, output_name)) = right.split_once(' ')
+            && let Ok(value) = output_quantity.parse::<i64>()
+        {
             let mut reaction = Reaction::new(Chemical::new(output_name.to_string(), value));
             for input in left.split(", ") {
-                if let Some((input_quantity, input_name)) = input.split_once(' ') && let Ok(value) = input_quantity.parse::<i64>() {
+                if let Some((input_quantity, input_name)) = input.split_once(' ')
+                    && let Ok(value) = input_quantity.parse::<i64>()
+                {
                     reaction.add_input(Chemical::new(input_name.to_string(), value));
                 }
             }
@@ -87,7 +91,8 @@ fn calculate_required_ore(reactions: &Vec<Reaction>, fuel_quantity: i64) -> i64 
 
     for chemical_name in sorted {
         if let Some(reaction) = reactions.iter().find(|c| c.output.name == chemical_name)
-            && let Some((_, required_quantity)) = chemicals_required.remove_entry(&chemical_name) {
+            && let Some((_, required_quantity)) = chemicals_required.remove_entry(&chemical_name)
+        {
             let mut reaction_count = 1;
             if required_quantity > reaction.output.quantity {
                 let quotient = required_quantity / reaction.output.quantity;
@@ -100,11 +105,13 @@ fn calculate_required_ore(reactions: &Vec<Reaction>, fuel_quantity: i64) -> i64 
             for input in &reaction.inputs {
                 match chemicals_required.get(&input.name) {
                     Some(amount) => {
-                        chemicals_required.insert(input.name.clone(), amount + input.quantity * reaction_count);
-                    },
+                        chemicals_required
+                            .insert(input.name.clone(), amount + input.quantity * reaction_count);
+                    }
                     None => {
-                        chemicals_required.insert(input.name.clone(), input.quantity * reaction_count);
-                    },
+                        chemicals_required
+                            .insert(input.name.clone(), input.quantity * reaction_count);
+                    }
                 };
             }
         }
@@ -155,7 +162,10 @@ struct Reaction {
 
 impl Reaction {
     fn new(output: Chemical) -> Reaction {
-        Reaction { inputs: vec![], output }
+        Reaction {
+            inputs: vec![],
+            output,
+        }
     }
 
     fn add_input(&mut self, input: Chemical) {
@@ -222,13 +232,7 @@ mod tests {
 7 XCVML => 6 RJRHP
 5 BHXH, 4 VRPVC => 5 LTCX",
         ];
-        let expected: [i64; 5] = [
-            31,
-            165,
-            13312,
-            180697,
-            2210736,
-        ];
+        let expected: [i64; 5] = [31, 165, 13312, 180697, 2210736];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());
@@ -278,11 +282,7 @@ mod tests {
 7 XCVML => 6 RJRHP
 5 BHXH, 4 VRPVC => 5 LTCX",
         ];
-        let expected: [i64; 3] = [
-            82892753,
-            5586022,
-            460664,
-        ];
+        let expected: [i64; 3] = [82892753, 5586022, 460664];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());

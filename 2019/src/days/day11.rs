@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use aoc_helpers::direction::{get_next_direction, Direction};
+use aoc_helpers::direction::{Direction, get_next_direction};
 use aoc_helpers::io::parse_int_list;
 use aoc_helpers::point2d::Point2d;
 use log::{debug, trace};
@@ -72,11 +72,17 @@ fn paint_tiles(screen: &mut IntCodeDisplay, robot: &mut IntCodeComputer) {
 
                 // Move to next tile
                 let next_direction = get_next_direction(&current_direction, &turn_direction);
-                trace!("Changing direction from {} to {}", current_direction, next_direction);
+                trace!(
+                    "Changing direction from {} to {}",
+                    current_direction, next_direction
+                );
                 current_direction = next_direction;
 
                 let next_position = current_position.next(&current_direction);
-                trace!("Moving robot from {} to {}", current_position, next_position);
+                trace!(
+                    "Moving robot from {} to {}",
+                    current_position, next_position
+                );
                 current_position = next_position;
 
                 // Get colour of current position
@@ -86,8 +92,8 @@ fn paint_tiles(screen: &mut IntCodeDisplay, robot: &mut IntCodeComputer) {
                     _ => 0,
                 };
                 robot.input.push_back(current_colour);
-            },
-            IntCodeStatus::ProgramHalted => break
+            }
+            IntCodeStatus::ProgramHalted => break,
         }
     }
 }

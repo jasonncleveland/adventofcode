@@ -91,7 +91,9 @@ fn solve_part_2(input: &[Vec<char>]) -> i64 {
                 let remaining = MAX - minute;
                 let cycles = remaining / delta;
                 let offset = remaining % delta;
-                trace!("{remaining} steps remaining resulting in {cycles} cycles and {offset} extra iterations");
+                trace!(
+                    "{remaining} steps remaining resulting in {cycles} cycles and {offset} extra iterations"
+                );
 
                 // Process the remaining minutes needed to reach 1,000,000,000
                 for _ in 0..offset {
@@ -120,7 +122,6 @@ fn solve_part_2(input: &[Vec<char>]) -> i64 {
 }
 
 fn simulate_landscape(current: &[Vec<char>], future: &mut [Vec<char>], size: usize) {
-
     for y in 0..size {
         for x in 0..size {
             let mut trees = 0;
@@ -198,21 +199,21 @@ fn simulate_landscape(current: &[Vec<char>], future: &mut [Vec<char>], size: usi
                     } else {
                         future[y][x] = '.';
                     }
-                },
+                }
                 '|' => {
                     if lumberyards >= 3 {
                         future[y][x] = '#';
                     } else {
                         future[y][x] = '|';
                     }
-                },
+                }
                 '#' => {
                     if lumberyards >= 1 && trees >= 1 {
                         future[y][x] = '#';
                     } else {
                         future[y][x] = '.';
                     }
-                },
+                }
                 _ => unreachable!("invalid character found"),
             }
         }
@@ -225,8 +226,7 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            ".#.#...|#.
+        let input: [&str; 1] = [".#.#...|#.
 .....#|##|
 .|..|...#.
 ..|#.....#
@@ -235,11 +235,8 @@ mod tests {
 .|....|...
 ||...#|.#|
 |.||||..|.
-...#.|..|.",
-        ];
-        let expected: [i64; 1] = [
-            1147,
-        ];
+...#.|..|."];
+        let expected: [i64; 1] = [1147];
 
         for i in 0..input.len() {
             let input = parse_char_vec(input[i].to_string());

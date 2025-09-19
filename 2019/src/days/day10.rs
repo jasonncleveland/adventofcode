@@ -122,7 +122,8 @@ fn solve_part_1(input: &Vec<Point2d>) -> (usize, Point2d) {
                 });
             } else {
                 // Reduce the intercept fraction
-                let intercept_gcd = greatest_common_divisor(intercept_numerator.abs(), intercept_denominator.abs());
+                let intercept_gcd =
+                    greatest_common_divisor(intercept_numerator.abs(), intercept_denominator.abs());
                 intercept_numerator /= intercept_gcd;
                 intercept_denominator /= intercept_gcd;
                 found_slopes.insert(SlopeIntercept {
@@ -142,7 +143,10 @@ fn solve_part_1(input: &Vec<Point2d>) -> (usize, Point2d) {
         }
     }
 
-    trace!("Best point is {} with {} visible points", best_point, max_visible_count);
+    trace!(
+        "Best point is {} with {} visible points",
+        best_point, max_visible_count
+    );
     (max_visible_count, best_point)
 }
 
@@ -275,13 +279,7 @@ mod tests {
 #.#.#.#####.####.###
 ###.##.####.##.#..##",
         ];
-        let expected: [usize; 5] = [
-            8,
-            33,
-            35,
-            41,
-            210,
-        ];
+        let expected: [usize; 5] = [8, 33, 35, 41, 210];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());
@@ -291,8 +289,9 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [(Point2d, &str); 1] = [
-            (Point2d::new(11, 13), ".#..##.###...#######
+        let input: [(Point2d, &str); 1] = [(
+            Point2d::new(11, 13),
+            ".#..##.###...#######
 ##.############..##.
 .#.######.########.#
 .###.#######.####.#.
@@ -311,11 +310,9 @@ mod tests {
 ....##.##.###..#####
 .#.#.###########.###
 #.#.#.#####.####.###
-###.##.####.##.#..##"),
-        ];
-        let expected: [i64; 1] = [
-            802,
-        ];
+###.##.####.##.#..##",
+        )];
+        let expected: [i64; 1] = [802];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].1.to_string());

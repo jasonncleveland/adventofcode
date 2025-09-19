@@ -42,7 +42,10 @@ fn solve_part_1(input: &[Point4d]) -> i64 {
             }
 
             let manhattan_distance = coordinate.manhattan(other);
-            trace!("Checking distance from {} to: {} {}", coordinate, other, manhattan_distance);
+            trace!(
+                "Checking distance from {} to: {} {}",
+                coordinate, other, manhattan_distance
+            );
             if manhattan_distance <= 3 {
                 trace!("{} is connected to {}", coordinate, other);
                 edges.push(Edge::new(*other, manhattan_distance));
@@ -128,12 +131,7 @@ mod tests {
 1,2,2,0
 -1,-2,0,-2",
         ];
-        let expected: [i64; 4] = [
-            2,
-            4,
-            3,
-            8,
-        ];
+        let expected: [i64; 4] = [2, 4, 3, 8];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());

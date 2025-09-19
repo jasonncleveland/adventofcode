@@ -35,7 +35,11 @@ fn solve_part_1(input: &HashMap<Point2d, char>) -> i64 {
             for x in 0..5 {
                 if let Some(c) = area.get(&Point2d::new(x, y)) {
                     let shift = y * 5 + x;
-                    let value = match c { '#' => 1, '.' => 0, _ => unreachable!() };
+                    let value = match c {
+                        '#' => 1,
+                        '.' => 0,
+                        _ => unreachable!(),
+                    };
                     bit_mask += value << shift;
                 }
             }
@@ -68,7 +72,6 @@ fn solve_part_2(input: &HashMap<Point2d, char>, cycles: i64) -> i64 {
             area.insert(min_level, vec![vec!['.'; 5]; 5]);
             max_level += 1;
             area.insert(max_level, vec![vec!['.'; 5]; 5]);
-
         }
         total = process_round_expanded(&mut area, min_level, max_level);
     }
@@ -110,7 +113,11 @@ fn process_round(area: &mut HashMap<Point2d, char>) {
     }
 }
 
-fn process_round_expanded(area: &mut HashMap<i64, Vec<Vec<char>>>, min_level: i64, max_level: i64) -> i64 {
+fn process_round_expanded(
+    area: &mut HashMap<i64, Vec<Vec<char>>>,
+    min_level: i64,
+    max_level: i64,
+) -> i64 {
     let mut future: HashMap<i64, Vec<Vec<char>>> = HashMap::new();
 
     for z in min_level..=max_level {
@@ -132,7 +139,8 @@ fn process_round_expanded(area: &mut HashMap<i64, Vec<Vec<char>>>, min_level: i6
                     for neighbour in get_neighbours(&point) {
                         trace!("checking neighbour {} of {}", point, neighbour);
                         if let Some(level) = area.get(&neighbour.z)
-                            && level[neighbour.y as usize][neighbour.x as usize] == '#' {
+                            && level[neighbour.y as usize][neighbour.x as usize] == '#'
+                        {
                             adjacent_bugs += 1;
                         }
                     }
@@ -195,7 +203,7 @@ fn get_neighbours(point: &Point3d) -> Vec<Point3d> {
             // Up
             Point3d::new(point.x, point.y - 1, point.z),
         ]
-    } else if point.x == 2 &&  point.y == 3 {
+    } else if point.x == 2 && point.y == 3 {
         // (2, 3)
         trace!("found bottom inner edge z: {} -> {}", point.z, point.z - 1);
         vec![
@@ -247,7 +255,7 @@ fn get_neighbours(point: &Point3d) -> Vec<Point3d> {
             Point3d::new(point.x, point.y + 1, point.z),
         ]
     // Outer corners
-    } else if point.x == 0 && point. y == 0 {
+    } else if point.x == 0 && point.y == 0 {
         // (0, 0)
         trace!("found top left corner z: {} -> {}", point.z, point.z + 1);
         vec![
@@ -288,7 +296,11 @@ fn get_neighbours(point: &Point3d) -> Vec<Point3d> {
         ]
     } else if point.x == 4 && point.y == 4 {
         // (4, 4)
-        trace!("found bottom right corner z: {} -> {}", point.z, point.z + 1);
+        trace!(
+            "found bottom right corner z: {} -> {}",
+            point.z,
+            point.z + 1
+        );
         vec![
             // Right on upper level
             Point3d::new(3, 2, point.z - 1),
@@ -370,16 +382,12 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "....#
+        let input: [&str; 1] = ["....#
 #..#.
 #..##
 ..#..
-#....",
-        ];
-        let expected: [i64; 1] = [
-            2129920,
-        ];
+#...."];
+        let expected: [i64; 1] = [2129920];
 
         for i in 0..input.len() {
             let input = parse_char_grid(input[i].to_string());
@@ -389,16 +397,12 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "....#
+        let input: [&str; 1] = ["....#
 #..#.
 #..##
 ..#..
-#....",
-        ];
-        let expected: [i64; 1] = [
-            99,
-        ];
+#...."];
+        let expected: [i64; 1] = [99];
 
         for i in 0..input.len() {
             let input = parse_char_grid(input[i].to_string());

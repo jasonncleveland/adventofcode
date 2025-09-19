@@ -11,7 +11,9 @@ pub fn read_file(file_name: String) -> String {
 }
 
 pub fn parse_int(file_contents: String) -> i64 {
-    file_contents.parse::<i64>().expect("Input string is not a single number")
+    file_contents
+        .parse::<i64>()
+        .expect("Input string is not a single number")
 }
 
 pub fn parse_int_list(file_contents: String, separator: char) -> Vec<i64> {

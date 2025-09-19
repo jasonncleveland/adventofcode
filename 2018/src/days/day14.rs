@@ -59,7 +59,10 @@ fn solve_part_1(input: i64) -> String {
 }
 
 fn solve_part_2(input: String) -> usize {
-    let expected = input.chars().map(|c| c.to_digit(10).unwrap() as usize).collect::<Vec<usize>>();
+    let expected = input
+        .chars()
+        .map(|c| c.to_digit(10).unwrap() as usize)
+        .collect::<Vec<usize>>();
 
     let mut recipes: Vec<usize> = vec![3, 7];
     let mut stack: VecDeque<usize> = VecDeque::from(expected.clone());
@@ -112,18 +115,8 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 4] = [
-            "9",
-            "5",
-            "18",
-            "2018",
-        ];
-        let expected: [&str; 4] = [
-            "5158916779",
-            "0124515891",
-            "9251071085",
-            "5941429882",
-        ];
+        let input: [&str; 4] = ["9", "5", "18", "2018"];
+        let expected: [&str; 4] = ["5158916779", "0124515891", "9251071085", "5941429882"];
 
         for i in 0..input.len() {
             let input = parse_int(input[i].to_string());
@@ -133,18 +126,8 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 4] = [
-            "51589",
-            "01245",
-            "92510",
-            "59414",
-        ];
-        let expected: [usize; 4] = [
-            9,
-            5,
-            18,
-            2018,
-        ];
+        let input: [&str; 4] = ["51589", "01245", "92510", "59414"];
+        let expected: [usize; 4] = [9, 5, 18, 2018];
 
         for i in 0..input.len() {
             assert_eq!(solve_part_2(input[i].to_string()), expected[i]);

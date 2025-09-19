@@ -69,7 +69,7 @@ impl IntCodeComputer {
             other => {
                 error!("Unknown file access mode: {}", other);
                 Err(IntCodeError::InvalidFileAccessMode)
-            },
+            }
         }
     }
 
@@ -86,12 +86,15 @@ impl IntCodeComputer {
             other => {
                 error!("Unknown file access mode: {}", other);
                 Err(IntCodeError::InvalidFileAccessMode)
-            },
+            }
         }
     }
 
     fn process_instruction(&mut self) -> Result<bool, IntCodeError> {
-        trace!("Processing instruction: [{}] ({})", self.instruction_pointer, self.memory[self.instruction_pointer as usize]);
+        trace!(
+            "Processing instruction: [{}] ({})",
+            self.instruction_pointer, self.memory[self.instruction_pointer as usize]
+        );
 
         let instruction = self.memory[self.instruction_pointer as usize];
         let opcode = instruction % 100;
@@ -99,7 +102,10 @@ impl IntCodeComputer {
         let second_parameter_mode = (instruction % 10000) / 1000;
         let third_parameter_mode = (instruction % 100000) / 10000;
 
-        trace!("Processing opcode {} in modes {}/{}/{}", opcode, first_parameter_mode, second_parameter_mode, third_parameter_mode);
+        trace!(
+            "Processing opcode {} in modes {}/{}/{}",
+            opcode, first_parameter_mode, second_parameter_mode, third_parameter_mode
+        );
         match opcode {
             1 => {
                 let first_value = self.get_parameter_value(1, first_parameter_mode)?;
@@ -115,7 +121,7 @@ impl IntCodeComputer {
                 self.memory[third_address] = first_value + second_value;
                 self.instruction_pointer += 4;
                 Ok(true)
-            },
+            }
             2 => {
                 let first_value = self.get_parameter_value(1, first_parameter_mode)?;
                 let second_value = self.get_parameter_value(2, second_parameter_mode)?;
@@ -130,31 +136,24 @@ impl IntCodeComputer {
                 self.memory[third_address] = first_value * second_value;
                 self.instruction_pointer += 4;
                 Ok(true)
-            },
+            }
             3 => {
                 if let Some(input) = self.input.pop_front() {
                     let first_address = self.get_parameter_address(1, first_parameter_mode)?;
-                    trace!(
-                        "Storing ({}) -> [{}]",
-                        input,
-                        first_address,
-                    );
+                    trace!("Storing ({}) -> [{}]", input, first_address,);
                     self.memory[first_address] = input;
                     self.instruction_pointer += 2;
                     return Ok(true);
                 }
                 Err(IntCodeError::NoInputGiven)
-            },
+            }
             4 => {
                 let first_value = self.get_parameter_value(1, first_parameter_mode)?;
-                trace!(
-                    "Outputting ({})",
-                    first_value,
-                );
+                trace!("Outputting ({})", first_value,);
                 self.output.push_back(first_value);
                 self.instruction_pointer += 2;
                 Ok(true)
-            },
+            }
             5 => {
                 let first_value = self.get_parameter_value(1, first_parameter_mode)?;
                 trace!(
@@ -164,16 +163,13 @@ impl IntCodeComputer {
                 );
                 if first_value != 0 {
                     let second_value = self.get_parameter_value(2, second_parameter_mode)?;
-                    trace!(
-                        "Jumping to [{}]",
-                        second_value,
-                    );
+                    trace!("Jumping to [{}]", second_value,);
                     self.instruction_pointer = second_value;
                 } else {
                     self.instruction_pointer += 3;
                 }
                 Ok(true)
-            },
+            }
             6 => {
                 let first_value = self.get_parameter_value(1, first_parameter_mode)?;
                 trace!(
@@ -183,16 +179,13 @@ impl IntCodeComputer {
                 );
                 if first_value == 0 {
                     let second_value = self.get_parameter_value(2, second_parameter_mode)?;
-                    trace!(
-                        "Jumping to [{}]",
-                        second_value,
-                    );
+                    trace!("Jumping to [{}]", second_value,);
                     self.instruction_pointer = second_value;
                 } else {
                     self.instruction_pointer += 3;
                 }
                 Ok(true)
-            },
+            }
             7 => {
                 let first_value = self.get_parameter_value(1, first_parameter_mode)?;
                 let second_value = self.get_parameter_value(2, second_parameter_mode)?;
@@ -211,7 +204,7 @@ impl IntCodeComputer {
                 }
                 self.instruction_pointer += 4;
                 Ok(true)
-            },
+            }
             8 => {
                 let first_value = self.get_parameter_value(1, first_parameter_mode)?;
                 let second_value = self.get_parameter_value(2, second_parameter_mode)?;
@@ -230,7 +223,7 @@ impl IntCodeComputer {
                 }
                 self.instruction_pointer += 4;
                 Ok(true)
-            },
+            }
             9 => {
                 let first_value = self.get_parameter_value(1, first_parameter_mode)?;
                 trace!(
@@ -242,12 +235,12 @@ impl IntCodeComputer {
                 self.relative_base_pointer += first_value;
                 self.instruction_pointer += 2;
                 Ok(true)
-            },
+            }
             99 => Ok(false),
             other => {
                 error!("Unknown opcode: {}", other);
                 Err(IntCodeError::InvalidInstructionOpCode)
-            },
+            }
         }
     }
 
@@ -269,13 +262,13 @@ impl IntCodeComputer {
                     if self.output.len() == output_count {
                         return Ok(IntCodeStatus::OutputWaiting);
                     }
-                },
+                }
                 Ok(false) => {
                     return Ok(IntCodeStatus::ProgramHalted);
-                },
+                }
                 Err(IntCodeError::NoInputGiven) => {
                     return Ok(IntCodeStatus::InputRequired);
-                },
+                }
                 Err(error) => panic!("Unexpected error: {}", error),
             }
         }
@@ -345,11 +338,11 @@ impl IntCodeDisplay {
             '\n' => {
                 self.pixel_position.x = 0;
                 self.pixel_position.y += 1;
-            },
+            }
             _ => {
                 self.pixels.insert(self.pixel_position, character);
                 self.pixel_position.x += 1;
-            },
+            }
         };
     }
 
@@ -398,14 +391,20 @@ mod tests {
         // Process instruction using position mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[1, 9, 10, 11, 1101, 27, 12, 12, 99, 7, 9, 16, 0])
-            .with_instruction_pointer(4));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[1, 9, 10, 11, 1101, 27, 12, 12, 99, 7, 9, 16, 0])
+                .with_instruction_pointer(4)
+        );
 
         // Process instruction using immediate mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[1, 9, 10, 11, 1101, 27, 12, 12, 99, 7, 9, 16, 39])
-            .with_instruction_pointer(8));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[1, 9, 10, 11, 1101, 27, 12, 12, 99, 7, 9, 16, 39])
+                .with_instruction_pointer(8)
+        );
     }
 
     #[test]
@@ -415,25 +414,32 @@ mod tests {
         // Process instruction using position mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[2, 9, 10, 11, 1102, 18, 3, 12, 99, 7, 9, 63, 0])
-            .with_instruction_pointer(4));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[2, 9, 10, 11, 1102, 18, 3, 12, 99, 7, 9, 63, 0])
+                .with_instruction_pointer(4)
+        );
 
         // Process instruction using immediate mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[2, 9, 10, 11, 1102, 18, 3, 12, 99, 7, 9, 63, 54])
-            .with_instruction_pointer(8));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[2, 9, 10, 11, 1102, 18, 3, 12, 99, 7, 9, 63, 54])
+                .with_instruction_pointer(8)
+        );
     }
 
     #[test]
     fn test_store() {
-        let mut computer = IntCodeComputer::new(&[3, 4, 99, 0, 0])
-            .with_input(7);
+        let mut computer = IntCodeComputer::new(&[3, 4, 99, 0, 0]).with_input(7);
 
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[3, 4, 99, 0, 7])
-            .with_instruction_pointer(2));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[3, 4, 99, 0, 7]).with_instruction_pointer(2)
+        );
     }
 
     #[test]
@@ -443,16 +449,22 @@ mod tests {
         // Process instruction using position mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[4, 6, 104, 5, 99, 0, 7])
-            .with_instruction_pointer(2)
-            .with_outputs(vec![7]));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[4, 6, 104, 5, 99, 0, 7])
+                .with_instruction_pointer(2)
+                .with_outputs(vec![7])
+        );
 
         // Process instruction using immediate mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[4, 6, 104, 5, 99, 0, 7])
-            .with_instruction_pointer(4)
-            .with_outputs(vec![7, 5]));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[4, 6, 104, 5, 99, 0, 7])
+                .with_instruction_pointer(4)
+                .with_outputs(vec![7, 5])
+        );
     }
 
     #[test]
@@ -462,14 +474,18 @@ mod tests {
         // Process instruction using position mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[5, 4, 5, 99, 1, 6, 1105, 1, 9, 99])
-            .with_instruction_pointer(6));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[5, 4, 5, 99, 1, 6, 1105, 1, 9, 99]).with_instruction_pointer(6)
+        );
 
         // Process instruction using immediate mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[5, 4, 5, 99, 1, 6, 1105, 1, 9, 99])
-            .with_instruction_pointer(9));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[5, 4, 5, 99, 1, 6, 1105, 1, 9, 99]).with_instruction_pointer(9)
+        );
     }
 
     #[test]
@@ -479,14 +495,18 @@ mod tests {
         // Process instruction using position mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[6, 4, 5, 99, 0, 6, 1106, 0, 9, 99])
-            .with_instruction_pointer(6));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[6, 4, 5, 99, 0, 6, 1106, 0, 9, 99]).with_instruction_pointer(6)
+        );
 
         // Process instruction using immediate mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[6, 4, 5, 99, 0, 6, 1106, 0, 9, 99])
-            .with_instruction_pointer(9));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[6, 4, 5, 99, 0, 6, 1106, 0, 9, 99]).with_instruction_pointer(9)
+        );
     }
 
     #[test]
@@ -496,14 +516,20 @@ mod tests {
         // Process instruction using position mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[7, 9, 10, 11, 1107, 37, 42, 12, 99, 6, 3, 0, 0])
-            .with_instruction_pointer(4));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[7, 9, 10, 11, 1107, 37, 42, 12, 99, 6, 3, 0, 0])
+                .with_instruction_pointer(4)
+        );
 
         // Process instruction using immediate mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[7, 9, 10, 11, 1107, 37, 42, 12, 99, 6, 3, 0, 1])
-            .with_instruction_pointer(8));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[7, 9, 10, 11, 1107, 37, 42, 12, 99, 6, 3, 0, 1])
+                .with_instruction_pointer(8)
+        );
     }
 
     #[test]
@@ -513,34 +539,46 @@ mod tests {
         // Process instruction using position mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[8, 9, 10, 11, 1108, 37, 42, 12, 99, 3, 3, 1, 0])
-            .with_instruction_pointer(4));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[8, 9, 10, 11, 1108, 37, 42, 12, 99, 3, 3, 1, 0])
+                .with_instruction_pointer(4)
+        );
 
         // Process instruction using immediate mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[8, 9, 10, 11, 1108, 37, 42, 12, 99, 3, 3, 1, 0])
-            .with_instruction_pointer(8));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[8, 9, 10, 11, 1108, 37, 42, 12, 99, 3, 3, 1, 0])
+                .with_instruction_pointer(8)
+        );
     }
 
     #[test]
     fn test_relative_base() {
-        let mut computer = IntCodeComputer::new(&[9, 4, 109, 5, -5, 5])
-            .with_relative_base_pointer(42);
+        let mut computer =
+            IntCodeComputer::new(&[9, 4, 109, 5, -5, 5]).with_relative_base_pointer(42);
 
         // Process instruction using position mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[9, 4, 109, 5, -5, 5])
-            .with_instruction_pointer(2)
-            .with_relative_base_pointer(37));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[9, 4, 109, 5, -5, 5])
+                .with_instruction_pointer(2)
+                .with_relative_base_pointer(37)
+        );
 
         // Process instruction using immediate mode
         let result = computer.process_instruction();
         assert!(result.is_ok());
-        assert_eq!(computer, IntCodeComputer::new(&[9, 4, 109, 5, -5, 5])
-            .with_instruction_pointer(4)
-            .with_relative_base_pointer(42));
+        assert_eq!(
+            computer,
+            IntCodeComputer::new(&[9, 4, 109, 5, -5, 5])
+                .with_instruction_pointer(4)
+                .with_relative_base_pointer(42)
+        );
     }
 
     #[test]
@@ -559,65 +597,75 @@ mod tests {
             IntCodeComputer::new(&[2, 3, 0, 3, 99]),
             IntCodeComputer::new(&[2, 4, 4, 5, 99, 0]),
             IntCodeComputer::new(&[1, 1, 1, 4, 99, 5, 6, 0, 99]),
-            IntCodeComputer::new(&[3, 0, 4, 0, 99])
-                .with_input(42),
+            IntCodeComputer::new(&[3, 0, 4, 0, 99]).with_input(42),
             IntCodeComputer::new(&[1002, 4, 3, 4, 33]),
             IntCodeComputer::new(&[1101, 100, -1, 4, 0]),
-            IntCodeComputer::new(&[3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106,
-                                       0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
-                                       1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99])
-                .with_input(7),
-            IntCodeComputer::new(&[3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106,
-                                       0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
-                                       1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99])
-                .with_input(8),
-            IntCodeComputer::new(&[3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106,
-                                       0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
-                                       1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99])
-                .with_input(9),
-            IntCodeComputer::new(&[109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99]),
+            IntCodeComputer::new(&[
+                3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36,
+                98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000,
+                1, 20, 4, 20, 1105, 1, 46, 98, 99,
+            ])
+            .with_input(7),
+            IntCodeComputer::new(&[
+                3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36,
+                98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000,
+                1, 20, 4, 20, 1105, 1, 46, 98, 99,
+            ])
+            .with_input(8),
+            IntCodeComputer::new(&[
+                3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36,
+                98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000,
+                1, 20, 4, 20, 1105, 1, 46, 98, 99,
+            ])
+            .with_input(9),
+            IntCodeComputer::new(&[
+                109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99,
+            ]),
             IntCodeComputer::new(&[1102, 34915192, 34915192, 7, 4, 7, 99, 0]),
             IntCodeComputer::new(&[104, 1125899906842624, 99]),
         ];
         let expected: [IntCodeComputer; 13] = [
-            IntCodeComputer::new(&[2, 0, 0, 0, 99])
-                .with_instruction_pointer(4),
-            IntCodeComputer::new(&[2, 3, 0, 6, 99])
-                .with_instruction_pointer(4),
-            IntCodeComputer::new(&[2, 4, 4, 5, 99, 9801])
-                .with_instruction_pointer(4),
-            IntCodeComputer::new(&[30, 1, 1, 4, 2, 5, 6, 0, 99])
-                .with_instruction_pointer(8),
+            IntCodeComputer::new(&[2, 0, 0, 0, 99]).with_instruction_pointer(4),
+            IntCodeComputer::new(&[2, 3, 0, 6, 99]).with_instruction_pointer(4),
+            IntCodeComputer::new(&[2, 4, 4, 5, 99, 9801]).with_instruction_pointer(4),
+            IntCodeComputer::new(&[30, 1, 1, 4, 2, 5, 6, 0, 99]).with_instruction_pointer(8),
             IntCodeComputer::new(&[42, 0, 4, 0, 99])
                 .with_instruction_pointer(4)
                 .with_output(42),
-            IntCodeComputer::new(&[1002, 4, 3, 4, 99])
-                .with_instruction_pointer(4),
-            IntCodeComputer::new(&[1101, 100, -1, 4, 99])
-                .with_instruction_pointer(4),
-            IntCodeComputer::new(&[3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106,
-                                       0, 36, 98, 0, 7, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
-                                       1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99])
-                .with_instruction_pointer(46)
-                .with_output(999),
-            IntCodeComputer::new(&[3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106,
-                                       0, 36, 98, 1000, 8, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
-                                       1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99])
-                .with_instruction_pointer(46)
-                .with_output(1000),
-            IntCodeComputer::new(&[3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106,
-                                       0, 36, 98, 1001, 9, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
-                                       1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99])
-                .with_instruction_pointer(46)
-                .with_output(1001),
+            IntCodeComputer::new(&[1002, 4, 3, 4, 99]).with_instruction_pointer(4),
+            IntCodeComputer::new(&[1101, 100, -1, 4, 99]).with_instruction_pointer(4),
             IntCodeComputer::new(&[
-                109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 16, 1])
-                .with_instruction_pointer(15)
-                .with_relative_base_pointer(16)
-                .with_outputs(vec![109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99]),
+                3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36,
+                98, 0, 7, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000,
+                1, 20, 4, 20, 1105, 1, 46, 98, 99,
+            ])
+            .with_instruction_pointer(46)
+            .with_output(999),
+            IntCodeComputer::new(&[
+                3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36,
+                98, 1000, 8, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101,
+                1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99,
+            ])
+            .with_instruction_pointer(46)
+            .with_output(1000),
+            IntCodeComputer::new(&[
+                3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36,
+                98, 1001, 9, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101,
+                1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99,
+            ])
+            .with_instruction_pointer(46)
+            .with_output(1001),
+            IntCodeComputer::new(&[
+                109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 1,
+            ])
+            .with_instruction_pointer(15)
+            .with_relative_base_pointer(16)
+            .with_outputs(vec![
+                109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99,
+            ]),
             IntCodeComputer::new(&[1102, 34915192, 34915192, 7, 4, 7, 99, 1219070632396864])
                 .with_instruction_pointer(6)
                 .with_output(1219070632396864),

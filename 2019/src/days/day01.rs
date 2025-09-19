@@ -68,18 +68,8 @@ mod tests {
 
     #[test]
     fn test_calculate_fuel() {
-        let input: [i64; 4] = [
-            12,
-            14,
-            1969,
-            100756,
-        ];
-        let expected: [i64; 4] = [
-            2,
-            2,
-            654,
-            33583,
-        ];
+        let input: [i64; 4] = [12, 14, 1969, 100756];
+        let expected: [i64; 4] = [2, 2, 654, 33583];
 
         for i in 0..input.len() {
             assert_eq!(calculate_fuel(input[i]), expected[i]);
@@ -88,18 +78,8 @@ mod tests {
 
     #[test]
     fn test_calculate_fuel_rec() {
-        let input: [i64; 4] = [
-            12,
-            14,
-            1969,
-            100756,
-        ];
-        let expected: [i64; 4] = [
-            2,
-            2,
-            966,
-            50346,
-        ];
+        let input: [i64; 4] = [12, 14, 1969, 100756];
+        let expected: [i64; 4] = [2, 2, 966, 50346];
 
         for i in 0..input.len() {
             assert_eq!(calculate_fuel_residual(input[i]), expected[i]);

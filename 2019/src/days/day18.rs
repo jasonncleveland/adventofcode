@@ -25,7 +25,10 @@ pub fn solve(file_contents: String) -> (String, String) {
 
 fn convert_to_graph(grid: &HashMap<Point2d, char>) -> HashMap<char, Node<char>> {
     let mut graph: HashMap<char, Node<char>> = HashMap::new();
-    let nodes: Vec<(&Point2d, &char)> = grid.iter().filter(|(_, v)| **v != '#' && **v != '.').collect();
+    let nodes: Vec<(&Point2d, &char)> = grid
+        .iter()
+        .filter(|(_, v)| **v != '#' && **v != '.')
+        .collect();
     for (origin, &name) in nodes {
         trace!("searching for nodes reachable from {} {}", name, origin);
         let mut reachable_nodes: Vec<Edge<char>> = Vec::new();
@@ -47,9 +50,15 @@ fn convert_to_graph(grid: &HashMap<Point2d, char>) -> HashMap<char, Node<char>> 
                         // Ignore start position(s) when generating node pairs
                         Some('.') | Some('@') | Some('1') | Some('2') | Some('3') | Some('4') => {
                             queue.push_back((neighbour, steps + 1));
-                        },
+                        }
                         Some(target) => {
-                            trace!("Found node {} at {} with distance {} from {}", target, neighbour, steps + 1, name);
+                            trace!(
+                                "Found node {} at {} with distance {} from {}",
+                                target,
+                                neighbour,
+                                steps + 1,
+                                name
+                            );
                             reachable_nodes.push(Edge::new(*target, steps + 1));
                         }
                     }
@@ -62,8 +71,15 @@ fn convert_to_graph(grid: &HashMap<Point2d, char>) -> HashMap<char, Node<char>> 
     graph
 }
 
-fn find_reachable_nodes(graph: &HashMap<char, Node<char>>, start: char, keys: &Vec<char>) -> Vec<Edge<char>> {
-    trace!("finding nodes reachable from {} with keys {:?}", start, keys);
+fn find_reachable_nodes(
+    graph: &HashMap<char, Node<char>>,
+    start: char,
+    keys: &Vec<char>,
+) -> Vec<Edge<char>> {
+    trace!(
+        "finding nodes reachable from {} with keys {:?}",
+        start, keys
+    );
 
     let mut queue: VecDeque<(char, i64)> = VecDeque::new();
     let mut visited: HashSet<char> = HashSet::new();
@@ -129,10 +145,27 @@ fn solve_part_1(input: &HashMap<Point2d, char>) -> i64 {
     let mut queue: PriorityQueue<PriorityQueueItem<Data>> = PriorityQueue::new();
     let mut min_steps: HashMap<(char, Vec<char>), i64> = HashMap::new();
 
-    queue.push(PriorityQueueItem::new(0, Data { name: '@', keys: Vec::with_capacity(key_count) }));
+    queue.push(PriorityQueueItem::new(
+        0,
+        Data {
+            name: '@',
+            keys: Vec::with_capacity(key_count),
+        },
+    ));
 
-    while let Some(PriorityQueueItem { weight: steps, data: Data { name, keys }}) = queue.pop() {
-        trace!("checking node {} with keys {:?} ({}/{}) after {} steps", name, keys, keys.len(), key_count, steps);
+    while let Some(PriorityQueueItem {
+        weight: steps,
+        data: Data { name, keys },
+    }) = queue.pop()
+    {
+        trace!(
+            "checking node {} with keys {:?} ({}/{}) after {} steps",
+            name,
+            keys,
+            keys.len(),
+            key_count,
+            steps
+        );
 
         if keys.len() == key_count {
             trace!("collected all {} keys after {} steps", key_count, steps);
@@ -141,8 +174,13 @@ fn solve_part_1(input: &HashMap<Point2d, char>) -> i64 {
 
         // There can be multiple ways to get to a given node. We need to ensure we've found the shortest
         let steps_key = (name, keys.clone());
-        if let Some(&distance) = min_steps.get(&steps_key) && distance <= steps {
-            trace!("we have seen this exact state {:?} so it can be skipped", steps_key);
+        if let Some(&distance) = min_steps.get(&steps_key)
+            && distance <= steps
+        {
+            trace!(
+                "we have seen this exact state {:?} so it can be skipped",
+                steps_key
+            );
             continue;
         }
         min_steps.insert(steps_key, steps);
@@ -152,18 +190,44 @@ fn solve_part_1(input: &HashMap<Point2d, char>) -> i64 {
             if edge.value.is_ascii_lowercase() {
                 trace!("found key {}", edge.value);
                 if !keys_copy.contains(&edge.value) {
-                    trace!("collecting key {} after {} steps", edge.value, steps + edge.weight);
+                    trace!(
+                        "collecting key {} after {} steps",
+                        edge.value,
+                        steps + edge.weight
+                    );
                     keys_copy.push(edge.value);
                     keys_copy.sort();
                 }
-                trace!("moving from node {} to {} with weight of {}", name, edge.value, edge.weight);
-                queue.push(PriorityQueueItem::new(steps + edge.weight, Data { name: edge.value, keys: keys_copy }));
+                trace!(
+                    "moving from node {} to {} with weight of {}",
+                    name, edge.value, edge.weight
+                );
+                queue.push(PriorityQueueItem::new(
+                    steps + edge.weight,
+                    Data {
+                        name: edge.value,
+                        keys: keys_copy,
+                    },
+                ));
             } else if edge.value.is_ascii_uppercase() {
                 trace!("found door {}", edge.value);
                 if keys_copy.contains(&edge.value.to_ascii_lowercase()) {
-                    trace!("unlocking door {} after {} steps", edge.value, steps + edge.weight);
-                    trace!("moving from node {} to {} with weight of {}", name, edge.value, edge.weight);
-                    queue.push(PriorityQueueItem::new(steps + edge.weight, Data { name: edge.value, keys: keys_copy }));
+                    trace!(
+                        "unlocking door {} after {} steps",
+                        edge.value,
+                        steps + edge.weight
+                    );
+                    trace!(
+                        "moving from node {} to {} with weight of {}",
+                        name, edge.value, edge.weight
+                    );
+                    queue.push(PriorityQueueItem::new(
+                        steps + edge.weight,
+                        Data {
+                            name: edge.value,
+                            keys: keys_copy,
+                        },
+                    ));
                 }
             } else {
                 panic!("invalid node {}", edge.value);
@@ -177,7 +241,7 @@ fn solve_part_2(grid: &HashMap<Point2d, char>) -> i64 {
     let mut updated_grid = grid.clone();
     let mut robot_starting_positions = Vec::with_capacity(4);
 
-    if let Some((start, _)) = grid.iter().find(|(_,v)| **v == '@') {
+    if let Some((start, _)) = grid.iter().find(|(_, v)| **v == '@') {
         //         ...      1#2
         // Replace .@. with ###
         //         ...      3#4
@@ -207,10 +271,30 @@ fn solve_part_2(grid: &HashMap<Point2d, char>) -> i64 {
     let mut queue: PriorityQueue<PriorityQueueItem<Data>> = PriorityQueue::new();
     let mut min_steps: HashMap<(Vec<char>, Vec<char>), i64> = HashMap::new();
 
-    queue.push(PriorityQueueItem::new(0, Data { robot_positions: robot_starting_positions.to_owned(), keys: Vec::with_capacity(key_count) }));
+    queue.push(PriorityQueueItem::new(
+        0,
+        Data {
+            robot_positions: robot_starting_positions.to_owned(),
+            keys: Vec::with_capacity(key_count),
+        },
+    ));
 
-    while let Some(PriorityQueueItem { weight: steps, data: Data { robot_positions, keys }}) = queue.pop() {
-        trace!("checking robot positions {:?} with keys {:?} ({}/{}) after {} steps", robot_positions, keys, keys.len(), key_count, steps);
+    while let Some(PriorityQueueItem {
+        weight: steps,
+        data: Data {
+            robot_positions,
+            keys,
+        },
+    }) = queue.pop()
+    {
+        trace!(
+            "checking robot positions {:?} with keys {:?} ({}/{}) after {} steps",
+            robot_positions,
+            keys,
+            keys.len(),
+            key_count,
+            steps
+        );
 
         if keys.len() == key_count {
             trace!("collected all {} keys after {} steps", key_count, steps);
@@ -219,8 +303,13 @@ fn solve_part_2(grid: &HashMap<Point2d, char>) -> i64 {
 
         // There can be multiple ways to get to a given node. We need to ensure we've found the shortest
         let steps_key = (robot_positions.clone(), keys.clone());
-        if let Some(&distance) = min_steps.get(&steps_key) && distance <= steps {
-            trace!("we have seen this exact state {:?} so it can be skipped", steps_key);
+        if let Some(&distance) = min_steps.get(&steps_key)
+            && distance <= steps
+        {
+            trace!(
+                "we have seen this exact state {:?} so it can be skipped",
+                steps_key
+            );
             continue;
         }
         min_steps.insert(steps_key, steps);
@@ -229,7 +318,10 @@ fn solve_part_2(grid: &HashMap<Point2d, char>) -> i64 {
             trace!("attempting to move robot {} at node {}", i, robot_position);
 
             for edge in find_reachable_nodes(&graph, robot_position, &keys) {
-                trace!("checking movement from {} to {} ({})", robot_position, edge.value, edge.weight);
+                trace!(
+                    "checking movement from {} to {} ({})",
+                    robot_position, edge.value, edge.weight
+                );
                 let mut copied_robot_positions = robot_positions.clone();
                 copied_robot_positions[i] = edge.value;
 
@@ -237,18 +329,44 @@ fn solve_part_2(grid: &HashMap<Point2d, char>) -> i64 {
                 if edge.value.is_ascii_lowercase() {
                     trace!("found key {}", edge.value);
                     if !keys_copy.contains(&edge.value) {
-                        trace!("collecting key {} after {} steps", edge.value, steps + edge.weight);
+                        trace!(
+                            "collecting key {} after {} steps",
+                            edge.value,
+                            steps + edge.weight
+                        );
                         keys_copy.push(edge.value);
                         keys_copy.sort();
                     }
-                    trace!("moving from node {} to {} with weight of {}", robot_position, edge.value, edge.weight);
-                    queue.push(PriorityQueueItem::new(steps + edge.weight, Data { robot_positions: copied_robot_positions.to_owned(), keys: keys_copy }));
+                    trace!(
+                        "moving from node {} to {} with weight of {}",
+                        robot_position, edge.value, edge.weight
+                    );
+                    queue.push(PriorityQueueItem::new(
+                        steps + edge.weight,
+                        Data {
+                            robot_positions: copied_robot_positions.to_owned(),
+                            keys: keys_copy,
+                        },
+                    ));
                 } else if edge.value.is_ascii_uppercase() {
                     trace!("found door {}", edge.value);
                     if keys_copy.contains(&edge.value.to_ascii_lowercase()) {
-                        trace!("unlocking door {} after {} steps", edge.value, steps + edge.weight);
-                        trace!("moving from node {} to {} with weight of {}", robot_position, edge.value, edge.weight);
-                        queue.push(PriorityQueueItem::new(steps + edge.weight, Data { robot_positions: copied_robot_positions.to_owned(), keys: keys_copy }));
+                        trace!(
+                            "unlocking door {} after {} steps",
+                            edge.value,
+                            steps + edge.weight
+                        );
+                        trace!(
+                            "moving from node {} to {} with weight of {}",
+                            robot_position, edge.value, edge.weight
+                        );
+                        queue.push(PriorityQueueItem::new(
+                            steps + edge.weight,
+                            Data {
+                                robot_positions: copied_robot_positions.to_owned(),
+                                keys: keys_copy,
+                            },
+                        ));
                     }
                 } else {
                     panic!("invalid node {}", edge.value);
@@ -295,13 +413,7 @@ mod tests {
 ###g#h#i################
 ########################",
         ];
-        let expected: [i64; 5] = [
-            8,
-            86,
-            132,
-            136,
-            81,
-        ];
+        let expected: [i64; 5] = [8, 86, 132, 136, 81];
 
         for i in 0..input.len() {
             let input = parse_char_grid(input[i].to_string());
@@ -341,14 +453,9 @@ mod tests {
 #nK.L...G...#
 #M###N#H###.#
 #o#m..#i#jk.#
-#############"
+#############",
         ];
-        let expected: [i64; 4] = [
-            8,
-            24,
-            32,
-            72,
-        ];
+        let expected: [i64; 4] = [8, 24, 32, 72];
 
         for i in 0..input.len() {
             let input = parse_char_grid(input[i].to_string());

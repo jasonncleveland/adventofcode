@@ -70,20 +70,8 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 5] = [
-            "aA",
-            "abBA",
-            "abAB",
-            "aabAAB",
-            "dabAcCaCBAcCcaDA",
-        ];
-        let expected: [i64; 5] = [
-            0,
-            0,
-            4,
-            6,
-            10,
-        ];
+        let input: [&str; 5] = ["aA", "abBA", "abAB", "aabAAB", "dabAcCaCBAcCcaDA"];
+        let expected: [i64; 5] = [0, 0, 4, 6, 10];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());
@@ -93,12 +81,8 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "dabAcCaCBAcCcaDA",
-        ];
-        let expected: [i64; 1] = [
-            4,
-        ];
+        let input: [&str; 1] = ["dabAcCaCBAcCcaDA"];
+        let expected: [i64; 1] = [4];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());

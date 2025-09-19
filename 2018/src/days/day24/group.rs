@@ -1,8 +1,8 @@
-﻿use std::collections::HashSet;
+use std::collections::HashSet;
 use std::fmt;
 
-use super::faction::Faction;
 use super::attack::Attack;
+use super::faction::Faction;
 
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd)]
 pub struct Group {
@@ -26,8 +26,16 @@ impl fmt::Display for Group {
             self.id,
             self.units,
             self.hit_points,
-            self.weaknesses.iter().map(|t| t.to_string()).collect::<Vec<String>>().join(", "),
-            self.immunities.iter().map(|t| t.to_string()).collect::<Vec<String>>().join(", "),
+            self.weaknesses
+                .iter()
+                .map(|t| t.to_string())
+                .collect::<Vec<String>>()
+                .join(", "),
+            self.immunities
+                .iter()
+                .map(|t| t.to_string())
+                .collect::<Vec<String>>()
+                .join(", "),
             self.attack_damage,
             self.attack_type,
             self.initiative,
@@ -36,7 +44,15 @@ impl fmt::Display for Group {
 }
 
 impl Group {
-    pub fn new(faction: Faction, id: usize, units: i64, hit_points: i64, attack_damage: i64, attack_type: Attack, initiative: i64) -> Self {
+    pub fn new(
+        faction: Faction,
+        id: usize,
+        units: i64,
+        hit_points: i64,
+        attack_damage: i64,
+        attack_type: Attack,
+        initiative: i64,
+    ) -> Self {
         Self {
             faction,
             id,
@@ -54,7 +70,11 @@ impl Group {
         self.units * self.attack_damage
     }
 
-    pub fn find_target<'a>(&self, enemies: &'a[&Group], selected_targets: &HashSet<(Faction, usize)>) -> Option<&'a Group> {
+    pub fn find_target<'a>(
+        &self,
+        enemies: &'a [&Group],
+        selected_targets: &HashSet<(Faction, usize)>,
+    ) -> Option<&'a Group> {
         let mut options: Vec<(i64, i64, i64, usize)> = Vec::new();
         for defender in enemies {
             if selected_targets.contains(&(defender.faction, defender.id)) {
@@ -62,12 +82,19 @@ impl Group {
             }
             let potential_damage = self.calculate_damage(defender);
             if potential_damage > 0 {
-                options.push((potential_damage, defender.effective_power(), defender.initiative, defender.id));
+                options.push((
+                    potential_damage,
+                    defender.effective_power(),
+                    defender.initiative,
+                    defender.id,
+                ));
             }
         }
 
         options.sort_by(|a, b| b.cmp(a));
-        if let Some((_, _, _, id)) = options.first() && let Some(target) = enemies.iter().find(|g| g.id == *id) {
+        if let Some((_, _, _, id)) = options.first()
+            && let Some(target) = enemies.iter().find(|g| g.id == *id)
+        {
             return Some(target);
         }
         None

@@ -32,17 +32,20 @@ fn parse_input(file_contents: String) -> (HashMap<Point2d, char>, HashMap<Point2
             let coordinate = Point2d::new(x as i64, y as i64);
             match column {
                 'G' | 'E' => {
-                    units.insert(coordinate, Unit {
-                        position: coordinate,
-                        faction: column,
-                        hp: 200,
-                        power: 3,
-                    });
+                    units.insert(
+                        coordinate,
+                        Unit {
+                            position: coordinate,
+                            faction: column,
+                            hp: 200,
+                            power: 3,
+                        },
+                    );
                     battlefield.insert(coordinate, column);
-                },
+                }
                 other => {
                     battlefield.insert(coordinate, other);
-                },
+                }
             };
         }
     }
@@ -88,13 +91,22 @@ fn solve_part_2(battlefield: &HashMap<Point2d, char>, units: &HashMap<Point2d, U
     }
 }
 
-fn simulate_battle(battlefield: &mut HashMap<Point2d, char>, units: &mut HashMap<Point2d, Unit>, elf_power: i64) -> i64 {
+fn simulate_battle(
+    battlefield: &mut HashMap<Point2d, char>,
+    units: &mut HashMap<Point2d, Unit>,
+    elf_power: i64,
+) -> i64 {
     // Set the attack power for all elf units
-    units.iter_mut().filter(|(_, u)| u.faction == 'E').for_each(|(_, u)| u.power = elf_power);
+    units
+        .iter_mut()
+        .filter(|(_, u)| u.faction == 'E')
+        .for_each(|(_, u)| u.power = elf_power);
 
     let mut round = 1;
     loop {
-        if let Some(result) = process_round(battlefield, units) && result {
+        if let Some(result) = process_round(battlefield, units)
+            && result
+        {
             // If a unit is unable to find a move then the last completed round is the previous round
             if let Some(hp_remaining) = units.values().map(|u| u.hp).reduce(|a, b| a + b) {
                 return (round - 1) * hp_remaining;
@@ -104,7 +116,10 @@ fn simulate_battle(battlefield: &mut HashMap<Point2d, char>, units: &mut HashMap
     }
 }
 
-fn process_round(battlefield: &mut HashMap<Point2d, char>, units: &mut HashMap<Point2d, Unit>) -> Option<bool> {
+fn process_round(
+    battlefield: &mut HashMap<Point2d, char>,
+    units: &mut HashMap<Point2d, Unit>,
+) -> Option<bool> {
     let units_copy = units.clone();
     let mut coordinates = units_copy.keys().collect::<Vec<&Point2d>>();
     // Sort the units by position so that the top-left-most unit is first
@@ -149,16 +164,18 @@ fn process_round(battlefield: &mut HashMap<Point2d, char>, units: &mut HashMap<P
 
 fn get_neighbouring_coordinates(coordinate: Point2d) -> Vec<Point2d> {
     vec![
-        coordinate.next(&Direction::Up), // up
-        coordinate.next(&Direction::Left), // left
+        coordinate.next(&Direction::Up),    // up
+        coordinate.next(&Direction::Left),  // left
         coordinate.next(&Direction::Right), // right
-        coordinate.next(&Direction::Down), // down
+        coordinate.next(&Direction::Down),  // down
     ]
 }
 
 fn in_range_of_target(battlefield: &HashMap<Point2d, char>, unit: &Unit) -> bool {
     for coordinate in get_neighbouring_coordinates(unit.position) {
-        if let Some(next_tile) = battlefield.get(&coordinate) && *next_tile == get_opposite_faction(unit.faction) {
+        if let Some(next_tile) = battlefield.get(&coordinate)
+            && *next_tile == get_opposite_faction(unit.faction)
+        {
             return true;
         }
     }
@@ -182,13 +199,15 @@ fn find_target(battlefield: &HashMap<Point2d, char>, unit: &Unit) -> Option<Poin
         }
 
         for coordinate in get_neighbouring_coordinates(position) {
-            if !visited.contains(&coordinate) && let Some(next_tile) = battlefield.get(&coordinate) {
+            if !visited.contains(&coordinate)
+                && let Some(next_tile) = battlefield.get(&coordinate)
+            {
                 if *next_tile == get_opposite_faction(unit.faction) {
                     // If the current tile is an opponent, add the previous tile to the list of possible targets
                     match targets.contains_key(&position) {
                         true => {
                             targets.get_mut(&position)?.push(origin);
-                        },
+                        }
                         false => {
                             targets.insert(position, vec![origin]);
                         }
@@ -214,7 +233,9 @@ fn find_target(battlefield: &HashMap<Point2d, char>, unit: &Unit) -> Option<Poin
     // possible_targets.sort_by(|a, b| a.cmp(b));
     possible_targets.sort();
 
-    if let Some(first_target) = possible_targets.first() && let Some(possible_moves) = targets.get_mut(first_target) {
+    if let Some(first_target) = possible_targets.first()
+        && let Some(possible_moves) = targets.get_mut(first_target)
+    {
         // If there are multiple paths to the target then take the first one in reading order
         // possible_moves.sort_by(|a, b| a.cmp(b));
         possible_moves.sort();
@@ -225,11 +246,17 @@ fn find_target(battlefield: &HashMap<Point2d, char>, unit: &Unit) -> Option<Poin
     None
 }
 
-fn get_prioritized_target(battlefield: &HashMap<Point2d, char>, units: &HashMap<Point2d, Unit>, unit: &Unit) -> Option<Point2d> {
+fn get_prioritized_target(
+    battlefield: &HashMap<Point2d, char>,
+    units: &HashMap<Point2d, Unit>,
+    unit: &Unit,
+) -> Option<Point2d> {
     let mut targets: Vec<&Unit> = Vec::new();
 
     for coordinate in get_neighbouring_coordinates(unit.position) {
-        if let Some(next_tile) = battlefield.get(&coordinate) && *next_tile == get_opposite_faction(unit.faction) {
+        if let Some(next_tile) = battlefield.get(&coordinate)
+            && *next_tile == get_opposite_faction(unit.faction)
+        {
             targets.push(units.get(&coordinate)?);
         }
     }
@@ -311,14 +338,7 @@ mod tests {
 #.....G.#
 #########",
         ];
-        let expected: [i64; 6] = [
-            27730,
-            36334,
-            39514,
-            27755,
-            28944,
-            18740,
-        ];
+        let expected: [i64; 6] = [27730, 36334, 39514, 27755, 28944, 18740];
 
         for i in 0..input.len() {
             let (battlefield, units) = parse_input(input[i].to_string());
@@ -374,14 +394,7 @@ mod tests {
 #.....G.#
 #########",
         ];
-        let expected: [i64; 6] = [
-            4988,
-            29064,
-            31284,
-            3478,
-            6474,
-            1140,
-        ];
+        let expected: [i64; 6] = [4988, 29064, 31284, 3478, 6474, 1140];
 
         for i in 0..input.len() {
             let (battlefield, units) = parse_input(input[i].to_string());

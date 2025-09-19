@@ -41,7 +41,7 @@ fn parse_input(file_contents: String) -> (HashMap<Point2d, char>, Vec<Cart>) {
                     });
                     tracks.insert(position, '|');
                     cart_id += 1;
-                },
+                }
                 '<' | '>' => {
                     carts.push(Cart {
                         id: cart_id,
@@ -51,10 +51,10 @@ fn parse_input(file_contents: String) -> (HashMap<Point2d, char>, Vec<Cart>) {
                     });
                     tracks.insert(position, '-');
                     cart_id += 1;
-                },
+                }
                 other => {
                     tracks.insert(position, other);
-                },
+                }
             };
         }
     }
@@ -85,7 +85,9 @@ fn solve_part_2(tracks: &HashMap<Point2d, char>, carts: &Vec<Cart>) -> Point2d {
         move_carts_with_removal(tracks, &mut carts_copy);
 
         // Stop when there is a single cart remaining
-        if carts_copy.len() == 1 && let Some(cart) = carts_copy.first() {
+        if carts_copy.len() == 1
+            && let Some(cart) = carts_copy.first()
+        {
             return cart.position;
         }
     }
@@ -134,21 +136,21 @@ fn move_cart(tracks: &HashMap<Point2d, char>, cart: &mut Cart) -> Option<bool> {
         '-' | '|' => {
             // Move forward to the next track segment (no special processing)
             cart.position = next_position;
-        },
+        }
         '/' | '\\' => {
             // Need to turn 90 degrees based on incoming direction
             let next_direction = get_direction_after_corner(cart, next_track);
             cart.direction = next_direction;
             cart.position = next_position;
-        },
+        }
         '+' => {
             // Handle intersection based on rules
             let next_direction = get_direction_after_intersection(cart, cart.next_turn.front()?);
             cart.direction = next_direction;
             cart.position = next_position;
             cart.next_turn.rotate_left(1);
-        },
-        _ => unreachable!("Unexpected track segment")
+        }
+        _ => unreachable!("Unexpected track segment"),
     }
     None
 }
@@ -239,17 +241,13 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "/->-\\
+        let input: [&str; 1] = ["/->-\\
 |   |  /----\\
 | /-+--+-\\  |
 | | |  | v  |
 \\-+-/  \\-+--/
-  \\------/",
-        ];
-        let expected: [Point2d; 1] = [
-            Point2d::new(7, 3),
-        ];
+  \\------/"];
+        let expected: [Point2d; 1] = [Point2d::new(7, 3)];
 
         for i in 0..input.len() {
             let (tracks, carts) = parse_input(input[i].to_string());
@@ -259,18 +257,14 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "/>-<\\
+        let input: [&str; 1] = ["/>-<\\
 |   |
 | /<+-\\
 | | | v
 \\>+</ |
   |   ^
-  \\<->/",
-        ];
-        let expected: [Point2d; 1] = [
-            Point2d::new(6, 4),
-        ];
+  \\<->/"];
+        let expected: [Point2d; 1] = [Point2d::new(6, 4)];
 
         for i in 0..input.len() {
             let (tracks, carts) = parse_input(input[i].to_string());

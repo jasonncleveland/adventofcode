@@ -27,7 +27,10 @@ fn parse_input(file_contents: String) -> (HashMap<Point2d, char>, i64, i64) {
     let mut min_y = i64::MAX;
     let mut max_y = i64::MIN;
     for line in file_contents.lines() {
-        let items = line.split(", ").map(|s| s.split_once("=")).collect::<Vec<_>>();
+        let items = line
+            .split(", ")
+            .map(|s| s.split_once("="))
+            .collect::<Vec<_>>();
         if let Some(Some(left)) = items.first() {
             // This has a single value
             if let Some(Some(right)) = items.last() {
@@ -35,7 +38,11 @@ fn parse_input(file_contents: String) -> (HashMap<Point2d, char>, i64, i64) {
                 match left.0 {
                     "x" => {
                         if let Ok(x) = left.1.parse::<i64>()
-                            && let Some((Ok(y1), Ok(y2))) = right.1.split_once("..").map(|s| (s.0.parse::<i64>(), s.1.parse::<i64>())) {
+                            && let Some((Ok(y1), Ok(y2))) = right
+                                .1
+                                .split_once("..")
+                                .map(|s| (s.0.parse::<i64>(), s.1.parse::<i64>()))
+                        {
                             for y in y1..=y2 {
                                 if y < min_y {
                                     min_y = y;
@@ -46,16 +53,20 @@ fn parse_input(file_contents: String) -> (HashMap<Point2d, char>, i64, i64) {
                                 ground.insert(Point2d::new(x, y), '#');
                             }
                         }
-                    },
+                    }
                     "y" => {
                         if let Ok(y) = left.1.parse::<i64>()
-                            && let Some((Ok(x1), Ok(x2))) = right.1.split_once("..").map(|s| (s.0.parse::<i64>(), s.1.parse::<i64>())) {
+                            && let Some((Ok(x1), Ok(x2))) = right
+                                .1
+                                .split_once("..")
+                                .map(|s| (s.0.parse::<i64>(), s.1.parse::<i64>()))
+                        {
                             for x in x1..=x2 {
                                 ground.insert(Point2d::new(x, y), '#');
                             }
                         }
-                    },
-                    _ => panic!("invalid coordinate type")
+                    }
+                    _ => panic!("invalid coordinate type"),
                 }
             }
         }
@@ -69,9 +80,19 @@ fn solve_part_1(map: &HashMap<Point2d, char>, min_y: i64, max_y: i64) -> usize {
     let water_source = Point2d::new(500, 0);
 
     let mut visited: HashSet<Point2d> = HashSet::new();
-    flood_vertical(&mut map_copy, water_source, &Direction::Down, min_y, max_y, &mut visited);
+    flood_vertical(
+        &mut map_copy,
+        water_source,
+        &Direction::Down,
+        min_y,
+        max_y,
+        &mut visited,
+    );
 
-    map_copy.values().filter(|c| **c == '~' || **c == '|').count()
+    map_copy
+        .values()
+        .filter(|c| **c == '~' || **c == '|')
+        .count()
 }
 
 fn solve_part_2(map: &HashMap<Point2d, char>, min_y: i64, max_y: i64) -> usize {
@@ -79,12 +100,26 @@ fn solve_part_2(map: &HashMap<Point2d, char>, min_y: i64, max_y: i64) -> usize {
     let water_source = Point2d::new(500, 0);
 
     let mut visited: HashSet<Point2d> = HashSet::new();
-    flood_vertical(&mut map_copy, water_source, &Direction::Down, min_y, max_y, &mut visited);
+    flood_vertical(
+        &mut map_copy,
+        water_source,
+        &Direction::Down,
+        min_y,
+        max_y,
+        &mut visited,
+    );
 
     map_copy.values().filter(|c| **c == '~').count()
 }
 
-fn flood_vertical(map: &mut HashMap<Point2d, char>, coordinate: Point2d, direction: &Direction, min_y: i64, max_y: i64, visited: &mut HashSet<Point2d>) -> bool {
+fn flood_vertical(
+    map: &mut HashMap<Point2d, char>,
+    coordinate: Point2d,
+    direction: &Direction,
+    min_y: i64,
+    max_y: i64,
+    visited: &mut HashSet<Point2d>,
+) -> bool {
     if visited.contains(&coordinate) {
         return false;
     }
@@ -126,7 +161,7 @@ fn flood_vertical(map: &mut HashMap<Point2d, char>, coordinate: Point2d, directi
                         }
                     }
                     false
-                },
+                }
                 // Attempt to settle if we hit a solid base
                 Some('#') | Some('~') => {
                     if can_settle(map, coordinate) {
@@ -147,12 +182,12 @@ fn flood_vertical(map: &mut HashMap<Point2d, char>, coordinate: Point2d, directi
                         }
                     }
                     false
-                },
+                }
                 // Stop if we run into flowing water
                 Some('|') => false,
                 Some(other) => unreachable!("invalid character found {}", other),
             }
-        },
+        }
         Some(other) => unreachable!("invalid character found {}", other),
     }
 }
@@ -168,7 +203,7 @@ fn settle_water(map: &mut HashMap<Point2d, char>, origin: Point2d) {
                 None | Some('|') => {
                     map.insert(coordinate, '~');
                     coordinate = coordinate.next(direction);
-                },
+                }
                 // Stop if a wall is found
                 Some('#') => break,
                 Some(other) => unreachable!("invalid character found {}", other),
@@ -196,7 +231,7 @@ fn can_settle(map: &mut HashMap<Point2d, char>, origin: Point2d) -> bool {
                         Some('#') | Some('~') => coordinate = coordinate.next(direction),
                         Some(other) => unreachable!("invalid character found {}", other),
                     }
-                },
+                }
                 // Stop if a wall is found
                 Some('#') => break,
                 Some(other) => unreachable!("invalid character found {}", other),
@@ -212,12 +247,18 @@ fn can_settle(map: &mut HashMap<Point2d, char>, origin: Point2d) -> bool {
     can_settle_direction(left, &Direction::Left) && can_settle_direction(right, &Direction::Right)
 }
 
-fn flood_horizontal(map: &mut HashMap<Point2d, char>, coordinate: Point2d, direction: &Direction, min_y: i64, max_y: i64, visited: &mut HashSet<Point2d>) {
+fn flood_horizontal(
+    map: &mut HashMap<Point2d, char>,
+    coordinate: Point2d,
+    direction: &Direction,
+    min_y: i64,
+    max_y: i64,
+    visited: &mut HashSet<Point2d>,
+) {
     if visited.contains(&coordinate) {
         return;
     }
     visited.insert(coordinate);
-
 
     match map.get(&coordinate) {
         // Attempt to flood if there is nothing
@@ -231,12 +272,13 @@ fn flood_horizontal(map: &mut HashMap<Point2d, char>, coordinate: Point2d, direc
                         map.insert(coordinate, '|');
                     }
 
-                    let is_settled = flood_vertical(map, down, &Direction::Down, min_y, max_y, visited);
+                    let is_settled =
+                        flood_vertical(map, down, &Direction::Down, min_y, max_y, visited);
                     if is_settled {
                         let next = coordinate.next(direction);
                         flood_horizontal(map, next, direction, min_y, max_y, visited);
                     }
-                },
+                }
                 // Flood as long as there is a solid base below
                 Some('#') | Some('~') => {
                     // Insert flowing water
@@ -246,12 +288,12 @@ fn flood_horizontal(map: &mut HashMap<Point2d, char>, coordinate: Point2d, direc
 
                     let next = coordinate.next(direction);
                     flood_horizontal(map, next, direction, min_y, max_y, visited);
-                },
+                }
                 Some(other) => unreachable!("invalid character found {}", other),
             }
-        },
+        }
         // Stop if we hit a wall
-        Some('#') => {},
+        Some('#') => {}
         Some(other) => unreachable!("invalid character found {}", other),
     }
 }
@@ -262,19 +304,15 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "x=495, y=2..7
+        let input: [&str; 1] = ["x=495, y=2..7
 y=7, x=495..501
 x=501, y=3..7
 x=498, y=2..4
 x=506, y=1..2
 x=498, y=10..13
 x=504, y=10..13
-y=13, x=498..504",
-        ];
-        let expected: [usize; 1] = [
-            57,
-        ];
+y=13, x=498..504"];
+        let expected: [usize; 1] = [57];
 
         for i in 0..input.len() {
             let (map, min_y, max_y) = parse_input(input[i].to_string());
@@ -284,19 +322,15 @@ y=13, x=498..504",
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "x=495, y=2..7
+        let input: [&str; 1] = ["x=495, y=2..7
 y=7, x=495..501
 x=501, y=3..7
 x=498, y=2..4
 x=506, y=1..2
 x=498, y=10..13
 x=504, y=10..13
-y=13, x=498..504",
-        ];
-        let expected: [usize; 1] = [
-            29,
-        ];
+y=13, x=498..504"];
+        let expected: [usize; 1] = [29];
 
         for i in 0..input.len() {
             let (map, min_y, max_y) = parse_input(input[i].to_string());

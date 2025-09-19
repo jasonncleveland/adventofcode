@@ -27,8 +27,11 @@ fn parse_input(file_contents: String) -> Vec<Star> {
         for (_, [position, velocity]) in re.captures_iter(&file_contents).map(|c| c.extract()) {
             if let Some((px, py)) = position.split_once(",")
                 && let Some((vdx, vdy)) = velocity.split_once(",")
-                && let Ok(x) = px.trim().parse() && let Ok(y) = py.trim().parse()
-                && let Ok(dx) = vdx.trim().parse() && let Ok(dy) = vdy.trim().parse() {
+                && let Ok(x) = px.trim().parse()
+                && let Ok(y) = py.trim().parse()
+                && let Ok(dx) = vdx.trim().parse()
+                && let Ok(dy) = vdy.trim().parse()
+            {
                 stars.push(Star {
                     position: Point2d::new(x, y),
                     velocity: Point2d::new(dx, dy),
@@ -165,8 +168,7 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "position=< 9,  1> velocity=< 0,  2>
+        let input: [&str; 1] = ["position=< 9,  1> velocity=< 0,  2>
 position=< 7,  0> velocity=<-1,  0>
 position=< 3, -2> velocity=<-1,  1>
 position=< 6, 10> velocity=<-2, -1>
@@ -196,10 +198,8 @@ position=< 5,  0> velocity=< 1,  0>
 position=<-6,  0> velocity=< 2,  0>
 position=< 5,  9> velocity=< 1, -2>
 position=<14,  7> velocity=<-2,  0>
-position=<-3,  6> velocity=< 2, -1>",
-        ];
-        let expected: [&str; 1] = [
-            "
+position=<-3,  6> velocity=< 2, -1>"];
+        let expected: [&str; 1] = ["
 #...#..###
 #...#...#.
 #...#...#.
@@ -208,8 +208,7 @@ position=<-3,  6> velocity=< 2, -1>",
 #...#...#.
 #...#...#.
 #...#..###
-",
-        ];
+"];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());
@@ -219,8 +218,7 @@ position=<-3,  6> velocity=< 2, -1>",
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "position=< 9,  1> velocity=< 0,  2>
+        let input: [&str; 1] = ["position=< 9,  1> velocity=< 0,  2>
 position=< 7,  0> velocity=<-1,  0>
 position=< 3, -2> velocity=<-1,  1>
 position=< 6, 10> velocity=<-2, -1>
@@ -250,11 +248,8 @@ position=< 5,  0> velocity=< 1,  0>
 position=<-6,  0> velocity=< 2,  0>
 position=< 5,  9> velocity=< 1, -2>
 position=<14,  7> velocity=<-2,  0>
-position=<-3,  6> velocity=< 2, -1>",
-        ];
-        let expected: [i64; 1] = [
-            3,
-        ];
+position=<-3,  6> velocity=< 2, -1>"];
+        let expected: [i64; 1] = [3];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());

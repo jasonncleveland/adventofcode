@@ -39,11 +39,19 @@ fn parse_input(file_contents: String) -> MazeInfo {
     ];
 
     for (coordinate, &value) in possible_portal_locations {
-        trace!("checking if value {} at {} is start of a portal", value, coordinate);
+        trace!(
+            "checking if value {} at {} is start of a portal",
+            value, coordinate
+        );
         for (portal_direction, entrance_directions) in &directions {
             let next = coordinate.next(portal_direction);
-            trace!("checking if value {} of {} at {} is the end of the portal", portal_direction, coordinate, next);
-            if let Some(&c) = grid.get(&next) && c.is_ascii_uppercase() {
+            trace!(
+                "checking if value {} of {} at {} is the end of the portal",
+                portal_direction, coordinate, next
+            );
+            if let Some(&c) = grid.get(&next)
+                && c.is_ascii_uppercase()
+            {
                 trace!("Found rest of portal {}{} at {}", value, c, next);
                 for entrance_direction in entrance_directions {
                     let possible_entrance_locations = [
@@ -51,10 +59,18 @@ fn parse_input(file_contents: String) -> MazeInfo {
                         next.next(entrance_direction),
                     ];
                     for possible_entrance_location in possible_entrance_locations {
-                        trace!("checking if value {} at {} is the entrance to the portal", entrance_direction, possible_entrance_location);
-                        if let Some(&e) = grid.get(&possible_entrance_location) && e == '.' {
+                        trace!(
+                            "checking if value {} at {} is the entrance to the portal",
+                            entrance_direction, possible_entrance_location
+                        );
+                        if let Some(&e) = grid.get(&possible_entrance_location)
+                            && e == '.'
+                        {
                             let portal_key = format!("{}{}", value, c);
-                            trace!("found entrance to portal {} at {}", portal_key, possible_entrance_location);
+                            trace!(
+                                "found entrance to portal {} at {}",
+                                portal_key, possible_entrance_location
+                            );
                             portal_entrances
                                 .entry(portal_key)
                                 .and_modify(|p| p.push(possible_entrance_location))
@@ -75,7 +91,10 @@ fn parse_input(file_contents: String) -> MazeInfo {
     let mut portals: HashMap<Point2d, Point2d> = HashMap::new();
     for (name, entrances) in portal_entrances {
         if entrances.len() == 2 {
-            trace!("found portal {} between {} <-> {}", name, entrances[0], entrances[1]);
+            trace!(
+                "found portal {} between {} <-> {}",
+                name, entrances[0], entrances[1]
+            );
             portals.insert(entrances[0], entrances[1]);
             portals.insert(entrances[1], entrances[0]);
         } else if name == "AA" {
@@ -127,7 +146,10 @@ fn parse_input(file_contents: String) -> MazeInfo {
     let maze_width = inner_top_left.x - outer_top_left.x;
     let maze_height = inner_top_left.y - outer_top_left.y;
 
-    let inner_bottom_right = Point2d::new(outer_bottom_right.x - maze_width, outer_bottom_right.y - maze_height);
+    let inner_bottom_right = Point2d::new(
+        outer_bottom_right.x - maze_width,
+        outer_bottom_right.y - maze_height,
+    );
 
     let dimensions = Dimensions {
         outer_top_left,
@@ -146,7 +168,10 @@ fn parse_input(file_contents: String) -> MazeInfo {
     }
 }
 
-fn convert_to_graph(grid: &HashMap<Point2d, char>, portal_entrances: &HashMap<String, Vec<Point2d>>) -> HashMap<Point2d, Node<Point2d>> {
+fn convert_to_graph(
+    grid: &HashMap<Point2d, char>,
+    portal_entrances: &HashMap<String, Vec<Point2d>>,
+) -> HashMap<Point2d, Node<Point2d>> {
     let mut graph: HashMap<Point2d, Node<Point2d>> = HashMap::new();
 
     let entrances = portal_entrances
@@ -166,7 +191,10 @@ fn convert_to_graph(grid: &HashMap<Point2d, char>, portal_entrances: &HashMap<St
 
         while let Some((coordinate, steps)) = queue.pop_front() {
             if coordinate != entrance && entrances.contains(&&coordinate) {
-                trace!("Found portal at {} with distance {} from  {}", coordinate, steps, entrance);
+                trace!(
+                    "Found portal at {} with distance {} from  {}",
+                    coordinate, steps, entrance
+                );
                 reachable_nodes.push(Edge::new(coordinate, steps));
             }
 
@@ -192,14 +220,20 @@ fn convert_to_graph(grid: &HashMap<Point2d, char>, portal_entrances: &HashMap<St
 }
 
 fn solve_part_1(input: &MazeInfo) -> i64 {
-    trace!("Searching for shortest path between {} and {}", input.start, input.end);
+    trace!(
+        "Searching for shortest path between {} and {}",
+        input.start, input.end
+    );
 
     let mut queue: PriorityQueue<PriorityQueueItem<Point2d>> = PriorityQueue::new();
     let mut visited: HashSet<Point2d> = HashSet::new();
 
     queue.push(PriorityQueueItem::new(0, input.start));
 
-    while let Some(PriorityQueueItem { weight: steps, data: point }) = queue.pop()
+    while let Some(PriorityQueueItem {
+        weight: steps,
+        data: point,
+    }) = queue.pop()
     {
         trace!("Current point: {} ({})", point, steps);
 
@@ -216,12 +250,18 @@ fn solve_part_1(input: &MazeInfo) -> i64 {
 
         if let Some(reachable_portals) = input.graph.get(&point) {
             for portal in &reachable_portals.edges {
-                trace!("found portal at {} with weight {}", portal.value, portal.weight);
+                trace!(
+                    "found portal at {} with weight {}",
+                    portal.value, portal.weight
+                );
 
                 // enter portal
                 if let Some(&portal_exit) = input.portals.get(&portal.value) {
                     trace!("can teleport to {} from {}", portal_exit, portal.value);
-                    queue.push(PriorityQueueItem::new(steps + portal.weight + 1, portal_exit));
+                    queue.push(PriorityQueueItem::new(
+                        steps + portal.weight + 1,
+                        portal_exit,
+                    ));
                 } else {
                     trace!("there is no exit to this portal");
                     queue.push(PriorityQueueItem::new(steps + portal.weight, portal.value));
@@ -233,7 +273,10 @@ fn solve_part_1(input: &MazeInfo) -> i64 {
 }
 
 fn solve_part_2(input: &MazeInfo) -> i64 {
-    trace!("Searching for shortest path between {} and {}", input.start, input.end);
+    trace!(
+        "Searching for shortest path between {} and {}",
+        input.start, input.end
+    );
 
     let mut queue: PriorityQueue<PriorityQueueItem<(Point2d, u8)>> = PriorityQueue::new();
     let mut visited: HashSet<(Point2d, u8)> = HashSet::new();
@@ -241,7 +284,11 @@ fn solve_part_2(input: &MazeInfo) -> i64 {
     queue.push(PriorityQueueItem::new(0, (input.start, 0)));
     visited.insert((input.start, 0));
 
-    while let Some(PriorityQueueItem { weight: steps, data: (point, level) }) = queue.pop() {
+    while let Some(PriorityQueueItem {
+        weight: steps,
+        data: (point, level),
+    }) = queue.pop()
+    {
         trace!("Current point: {} ({})", point, steps);
         if level == 0 && point == input.end {
             trace!("found end after {} steps", steps);
@@ -250,7 +297,10 @@ fn solve_part_2(input: &MazeInfo) -> i64 {
 
         if let Some(reachable_portals) = input.graph.get(&point) {
             for portal in &reachable_portals.edges {
-                trace!("found portal at {} with weight {}", portal.value, portal.weight);
+                trace!(
+                    "found portal at {} with weight {}",
+                    portal.value, portal.weight
+                );
                 if visited.contains(&(portal.value, level)) {
                     trace!("Already visited {}", portal.value);
                     continue;
@@ -259,22 +309,46 @@ fn solve_part_2(input: &MazeInfo) -> i64 {
 
                 if let Some(&portal_exit) = input.portals.get(&portal.value) {
                     trace!("can teleport to {} from {}", portal_exit, portal.value);
-                    if level > 0 && (portal.value.x == input.dimensions.outer_top_left.x ||
-                        portal.value.x == input.dimensions.outer_bottom_right.x ||
-                        portal.value.y == input.dimensions.outer_top_left.y ||
-                        portal.value.y == input.dimensions.outer_bottom_right.y) {
-                        trace!("found outer portal at {} linking to {}. moving from level {} to {}", portal.value, portal_exit, level, level - 1);
-                        queue.push(PriorityQueueItem::new(steps + portal.weight + 1, (portal_exit, level - 1)));
-                    } else if portal.value.x == input.dimensions.inner_top_left.x ||
-                        portal.value.x == input.dimensions.inner_bottom_right.x ||
-                        portal.value.y == input.dimensions.inner_top_left.y ||
-                        portal.value.y == input.dimensions.inner_bottom_right.y {
-                        trace!("found inner portal at {} linking to {}. moving from level {} to {}", portal.value, portal_exit, level, level + 1);
-                        queue.push(PriorityQueueItem::new(steps + portal.weight + 1, (portal_exit, level + 1)));
+                    if level > 0
+                        && (portal.value.x == input.dimensions.outer_top_left.x
+                            || portal.value.x == input.dimensions.outer_bottom_right.x
+                            || portal.value.y == input.dimensions.outer_top_left.y
+                            || portal.value.y == input.dimensions.outer_bottom_right.y)
+                    {
+                        trace!(
+                            "found outer portal at {} linking to {}. moving from level {} to {}",
+                            portal.value,
+                            portal_exit,
+                            level,
+                            level - 1
+                        );
+                        queue.push(PriorityQueueItem::new(
+                            steps + portal.weight + 1,
+                            (portal_exit, level - 1),
+                        ));
+                    } else if portal.value.x == input.dimensions.inner_top_left.x
+                        || portal.value.x == input.dimensions.inner_bottom_right.x
+                        || portal.value.y == input.dimensions.inner_top_left.y
+                        || portal.value.y == input.dimensions.inner_bottom_right.y
+                    {
+                        trace!(
+                            "found inner portal at {} linking to {}. moving from level {} to {}",
+                            portal.value,
+                            portal_exit,
+                            level,
+                            level + 1
+                        );
+                        queue.push(PriorityQueueItem::new(
+                            steps + portal.weight + 1,
+                            (portal_exit, level + 1),
+                        ));
                     }
                 } else {
                     trace!("there is no exit to this portal");
-                    queue.push(PriorityQueueItem::new(steps + portal.weight, (portal.value, level)));
+                    queue.push(PriorityQueueItem::new(
+                        steps + portal.weight,
+                        (portal.value, level),
+                    ));
                 }
             }
         }
@@ -363,10 +437,7 @@ YN......#               VT..#....QG
            B   J   C
            U   P   P               ",
         ];
-        let expected: [i64; 2] = [
-            23,
-            58,
-        ];
+        let expected: [i64; 2] = [23, 58];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());
@@ -434,10 +505,7 @@ RE....#.#                           #......RF
                A O F   N
                A A D   M                     ",
         ];
-        let expected: [i64; 2] = [
-            26,
-            396,
-        ];
+        let expected: [i64; 2] = [26, 396];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());

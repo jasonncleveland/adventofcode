@@ -1,5 +1,5 @@
-mod shared;
 mod days;
+mod shared;
 
 use std::env;
 use std::time::Instant;
@@ -8,31 +8,8 @@ use aoc_helpers::io::read_file;
 use log::{debug, info, trace};
 
 use days::{
-    day01,
-    day02,
-    day03,
-    day04,
-    day05,
-    day06,
-    day07,
-    day08,
-    day09,
-    day10,
-    day11,
-    day12,
-    day13,
-    day14,
-    day15,
-    day16,
-    day17,
-    day18,
-    day19,
-    day20,
-    day21,
-    day22,
-    day23,
-    day24,
-    day25,
+    day01, day02, day03, day04, day05, day06, day07, day08, day09, day10, day11, day12, day13,
+    day14, day15, day16, day17, day18, day19, day20, day21, day22, day23, day24, day25,
 };
 
 const HIGHEST_DAY_IMPLEMENTED: u8 = 25;
@@ -81,10 +58,16 @@ fn run_single_day(day: u8, file_name: &str) {
     let day_timer = Instant::now();
     let solve = get_day_module(day);
     let (part1, part2) = solve(file_contents);
-    info!("Day {:02}: ({}, {}) ({:?})", day, part1, part2, day_timer.elapsed());
+    info!(
+        "Day {:02}: ({}, {}) ({:?})",
+        day,
+        part1,
+        part2,
+        day_timer.elapsed()
+    );
 }
 
-fn get_day_module(day: u8)  -> fn(String) -> (String, String) {
+fn get_day_module(day: u8) -> fn(String) -> (String, String) {
     match day {
         1 => day01::solve,
         2 => day02::solve,
@@ -111,6 +94,9 @@ fn get_day_module(day: u8)  -> fn(String) -> (String, String) {
         23 => day23::solve,
         24 => day24::solve,
         25 => day25::solve,
-        other => panic!("Invalid day provided: {}. Day must be less than {}", other, HIGHEST_DAY_IMPLEMENTED),
+        other => panic!(
+            "Invalid day provided: {}. Day must be less than {}",
+            other, HIGHEST_DAY_IMPLEMENTED
+        ),
     }
 }

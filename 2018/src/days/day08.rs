@@ -88,12 +88,8 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2",
-        ];
-        let expected: [i64; 1] = [
-            138,
-        ];
+        let input: [&str; 1] = ["2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2"];
+        let expected: [i64; 1] = [138];
 
         for i in 0..input.len() {
             let input = parse_int_list(input[i].to_string(), ' ');
@@ -103,12 +99,8 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2",
-        ];
-        let expected: [usize; 1] = [
-            66,
-        ];
+        let input: [&str; 1] = ["2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2"];
+        let expected: [usize; 1] = [66];
 
         for i in 0..input.len() {
             let input = parse_int_list(input[i].to_string(), ' ');

@@ -1,4 +1,4 @@
-﻿use std::cmp::Ordering;
+use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
 pub type PriorityQueue<T> = BinaryHeap<T>;
@@ -23,6 +23,9 @@ impl<T: Eq> PartialOrd for PriorityQueueItem<T> {
 
 impl<T: Eq> PriorityQueueItem<T> {
     pub fn new(steps: i64, data: T) -> Self {
-        Self { weight: steps, data }
+        Self {
+            weight: steps,
+            data,
+        }
     }
 }

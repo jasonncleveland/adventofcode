@@ -64,7 +64,7 @@ fn sort_steps_multi(incoming: &mut HashMap<char, Vec<char>>, workers: usize, del
     for _ in 0..workers {
         pool.push(Process {
             ticks_remaining: 0,
-            process: 'x'
+            process: 'x',
         });
     }
 
@@ -143,7 +143,9 @@ fn remove_contains_node(graph: &mut HashMap<char, Vec<char>>, node: &char) {
     graph
         .iter_mut()
         .filter(|(_, v)| v.contains(node))
-        .for_each(|(_, v)| { v.swap_remove(v.iter().position(|c| c == node).unwrap()); });
+        .for_each(|(_, v)| {
+            v.swap_remove(v.iter().position(|c| c == node).unwrap());
+        });
 }
 
 #[derive(Debug)]
@@ -158,18 +160,14 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "Step C must be finished before step A can begin.
+        let input: [&str; 1] = ["Step C must be finished before step A can begin.
 Step C must be finished before step F can begin.
 Step A must be finished before step B can begin.
 Step A must be finished before step D can begin.
 Step B must be finished before step E can begin.
 Step D must be finished before step E can begin.
-Step F must be finished before step E can begin.",
-        ];
-        let expected: [&str; 1] = [
-            "CABDFE",
-        ];
+Step F must be finished before step E can begin."];
+        let expected: [&str; 1] = ["CABDFE"];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());
@@ -179,18 +177,14 @@ Step F must be finished before step E can begin.",
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "Step C must be finished before step A can begin.
+        let input: [&str; 1] = ["Step C must be finished before step A can begin.
 Step C must be finished before step F can begin.
 Step A must be finished before step B can begin.
 Step A must be finished before step D can begin.
 Step B must be finished before step E can begin.
 Step D must be finished before step E can begin.
-Step F must be finished before step E can begin.",
-        ];
-        let expected: [i64; 1] = [
-            15,
-        ];
+Step F must be finished before step E can begin."];
+        let expected: [i64; 1] = [15];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());

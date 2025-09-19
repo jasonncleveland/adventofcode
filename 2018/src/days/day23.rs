@@ -26,7 +26,10 @@ fn parse_input(file_contents: String) -> Vec<NanoBot> {
     for line in file_contents.lines() {
         let mut numbers: Vec<i64> = Vec::with_capacity(4);
         for item in line.split(',') {
-            let cleaned = item.chars().filter(|&c| c == '-' || c.is_ascii_digit()).collect::<String>();
+            let cleaned = item
+                .chars()
+                .filter(|&c| c == '-' || c.is_ascii_digit())
+                .collect::<String>();
             if let Ok(number) = cleaned.parse::<i64>() {
                 numbers.push(number);
             }
@@ -58,8 +61,14 @@ fn solve_part_2(input: &[NanoBot]) -> i64 {
     let origin = Point3d::new(0, 0, 0);
     for bot in input {
         let manhattan_distance = origin.manhattan(&bot.position);
-        queue.push(PriorityQueueItem::new(max(0, manhattan_distance - bot.radius), 1));
-        queue.push(PriorityQueueItem::new(manhattan_distance + bot.radius + 1, -1));
+        queue.push(PriorityQueueItem::new(
+            max(0, manhattan_distance - bot.radius),
+            1,
+        ));
+        queue.push(PriorityQueueItem::new(
+            manhattan_distance + bot.radius + 1,
+            -1,
+        ));
     }
 
     let mut count = 0;
@@ -76,14 +85,25 @@ fn solve_part_2(input: &[NanoBot]) -> i64 {
 }
 
 fn count_nano_bots_in_range(bots: &[NanoBot], origin: &NanoBot) -> i64 {
-    trace!("counting nanobots in range of {} ({})", origin.position, origin.radius);
+    trace!(
+        "counting nanobots in range of {} ({})",
+        origin.position, origin.radius
+    );
     let mut total = 0;
     for target in bots {
         let manhattan_distance = origin.position.manhattan(&target.position);
         if manhattan_distance <= origin.radius {
             total += 1;
         }
-        trace!("The nanobot at {} is distance {} away, and so is {}in range", target.position, manhattan_distance, match manhattan_distance <= origin.radius { true => "", false => "not "});
+        trace!(
+            "The nanobot at {} is distance {} away, and so is {}in range",
+            target.position,
+            manhattan_distance,
+            match manhattan_distance <= origin.radius {
+                true => "",
+                false => "not ",
+            }
+        );
     }
     trace!("{} in range", total);
     total
@@ -101,8 +121,7 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "pos=<0,0,0>, r=4
+        let input: [&str; 1] = ["pos=<0,0,0>, r=4
 pos=<1,0,0>, r=1
 pos=<4,0,0>, r=3
 pos=<0,2,0>, r=1
@@ -110,11 +129,8 @@ pos=<0,5,0>, r=3
 pos=<0,0,3>, r=1
 pos=<1,1,1>, r=1
 pos=<1,1,2>, r=1
-pos=<1,3,1>, r=1",
-        ];
-        let expected: [i64; 1] = [
-            7,
-        ];
+pos=<1,3,1>, r=1"];
+        let expected: [i64; 1] = [7];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());
@@ -124,17 +140,13 @@ pos=<1,3,1>, r=1",
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "pos=<10,12,12>, r=2
+        let input: [&str; 1] = ["pos=<10,12,12>, r=2
 pos=<12,14,12>, r=2
 pos=<16,12,12>, r=4
 pos=<14,14,14>, r=6
 pos=<50,50,50>, r=200
-pos=<10,10,10>, r=5",
-        ];
-        let expected: [i64; 1] = [
-            36,
-        ];
+pos=<10,10,10>, r=5"];
+        let expected: [i64; 1] = [36];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());

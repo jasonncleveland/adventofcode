@@ -34,7 +34,8 @@ fn parse_input(file_contents: String) -> HashMap<Point2d, Vec<i64>> {
             && let Ok(y) = ys.parse::<i64>()
             && let Some((w, h)) = parts[3].split_once('x')
             && let Ok(width) = w.parse::<i64>()
-            && let Ok(height) = h.parse::<i64>() {
+            && let Ok(height) = h.parse::<i64>()
+        {
             for x in x..x + width {
                 for y in y..y + height {
                     tiles
@@ -60,12 +61,13 @@ fn solve_part_1(tiles: &HashMap<Point2d, Vec<i64>>) -> i64 {
 }
 
 fn solve_part_2(tiles: &HashMap<Point2d, Vec<i64>>) -> i64 {
-
     let mut invalid: HashSet<i64> = HashSet::new();
     let mut valid: HashSet<i64> = HashSet::new();
 
     for count in tiles.values() {
-        if count.len() == 1 && let Some(&claim_id) = count.first() {
+        if count.len() == 1
+            && let Some(&claim_id) = count.first()
+        {
             if !invalid.contains(&claim_id) {
                 valid.insert(claim_id);
             }
@@ -77,7 +79,9 @@ fn solve_part_2(tiles: &HashMap<Point2d, Vec<i64>>) -> i64 {
         }
     }
 
-    if valid.len() == 1 && let Some(&claim_id) = valid.iter().next() {
+    if valid.len() == 1
+        && let Some(&claim_id) = valid.iter().next()
+    {
         return claim_id;
     }
 
@@ -94,10 +98,7 @@ mod tests {
             "#123 @ 3,2: 5x4",
             "#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2",
         ];
-        let expected: [i64; 2] = [
-            0,
-            4,
-        ];
+        let expected: [i64; 2] = [0, 4];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());
@@ -107,12 +108,8 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2",
-        ];
-        let expected: [i64; 1] = [
-            3,
-        ];
+        let input: [&str; 1] = ["#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2"];
+        let expected: [i64; 1] = [3];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());

@@ -62,23 +62,21 @@ fn solve_part_1(records: &[GuardRecord]) -> i64 {
     for record in records {
         match record.record_type {
             GuardRecordType::Start => {
-                guard = guards
-                    .entry(record.guard_id)
-                    .or_insert(Guard {
-                        id: record.guard_id,
-                        minutes: HashMap::new(),
-                        minutes_asleep: 0,
-                    });
-            },
+                guard = guards.entry(record.guard_id).or_insert(Guard {
+                    id: record.guard_id,
+                    minutes: HashMap::new(),
+                    minutes_asleep: 0,
+                });
+            }
             GuardRecordType::Sleep => {
                 last_minute = record.datetime.minute();
-            },
+            }
             GuardRecordType::Wake => {
                 guard.minutes_asleep += record.datetime.minute() - last_minute;
                 for i in last_minute..record.datetime.minute() {
                     guard.minutes.entry(i).and_modify(|m| *m += 1).or_insert(1);
                 }
-            },
+            }
         }
     }
 
@@ -112,16 +110,16 @@ fn solve_part_2(records: &[GuardRecord]) -> i64 {
                     minutes: HashMap::new(),
                     minutes_asleep: 0,
                 });
-            },
+            }
             GuardRecordType::Sleep => {
                 last_minute = record.datetime.minute();
-            },
+            }
             GuardRecordType::Wake => {
                 guard.minutes_asleep += record.datetime.minute() - last_minute;
                 for i in last_minute..record.datetime.minute() {
                     guard.minutes.entry(i).and_modify(|m| *m += 1).or_insert(1);
                 }
-            },
+            }
         }
     }
 
@@ -175,8 +173,7 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "[1518-11-01 00:00] Guard #10 begins shift
+        let input: [&str; 1] = ["[1518-11-01 00:00] Guard #10 begins shift
 [1518-11-01 00:05] falls asleep
 [1518-11-01 00:25] wakes up
 [1518-11-01 00:30] falls asleep
@@ -192,11 +189,8 @@ mod tests {
 [1518-11-04 00:46] wakes up
 [1518-11-05 00:03] Guard #99 begins shift
 [1518-11-05 00:45] falls asleep
-[1518-11-05 00:55] wakes up",
-        ];
-        let expected: [i64; 1] = [
-            240,
-        ];
+[1518-11-05 00:55] wakes up"];
+        let expected: [i64; 1] = [240];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());
@@ -206,8 +200,7 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "[1518-11-01 00:00] Guard #10 begins shift
+        let input: [&str; 1] = ["[1518-11-01 00:00] Guard #10 begins shift
 [1518-11-01 00:05] falls asleep
 [1518-11-01 00:25] wakes up
 [1518-11-01 00:30] falls asleep
@@ -223,11 +216,8 @@ mod tests {
 [1518-11-04 00:46] wakes up
 [1518-11-05 00:03] Guard #99 begins shift
 [1518-11-05 00:45] falls asleep
-[1518-11-05 00:55] wakes up",
-        ];
-        let expected: [i64; 1] = [
-            4455,
-        ];
+[1518-11-05 00:55] wakes up"];
+        let expected: [i64; 1] = [4455];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());

@@ -1,11 +1,15 @@
-﻿pub fn generate_permutations(input: &Vec<i64>) -> Vec<Vec<i64>> {
+pub fn generate_permutations(input: &Vec<i64>) -> Vec<Vec<i64>> {
     if input.len() == 1 {
         return vec![vec![input[0]]];
     }
 
     let mut permutations: Vec<Vec<i64>> = Vec::new();
     for item in input {
-        let remaining = input.iter().filter(|&i| i != item).copied().collect::<Vec<i64>>();
+        let remaining = input
+            .iter()
+            .filter(|&i| i != item)
+            .copied()
+            .collect::<Vec<i64>>();
         for sub_result in generate_permutations(&remaining) {
             let mut permutation: Vec<i64> = vec![*item];
             permutation.extend(sub_result);

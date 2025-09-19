@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use log::{debug, trace};
 
-use crate::shared::elfcode::{parse_device_instructions, Device, Instruction};
+use crate::shared::elfcode::{Device, Instruction, parse_device_instructions};
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
@@ -97,7 +97,9 @@ fn solve_part_2() -> usize {
                 // 14 addr 3 2 2 - add register 3 to register 2
                 // 16 seti 27 8 2 - set register 2 to 27 (jump to instruction 28)
                 if seen.contains(&r5) {
-                    trace!("we have seen the value {r5} before so return the last unique value {previous}");
+                    trace!(
+                        "we have seen the value {r5} before so return the last unique value {previous}"
+                    );
                     return previous;
                 }
                 seen.insert(r5);

@@ -1,4 +1,4 @@
-﻿use std::fmt;
+use std::fmt;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Point3d {
@@ -42,17 +42,7 @@ mod tests {
             (Point3d::new(0, 0, 0), Point3d::new(1, 1, 2)),
             (Point3d::new(0, 0, 0), Point3d::new(1, 3, 1)),
         ];
-        let expected: [i64; 9] = [
-            0,
-            1,
-            4,
-            2,
-            5,
-            3,
-            3,
-            4,
-            5,
-        ];
+        let expected: [i64; 9] = [0, 1, 4, 2, 5, 3, 3, 4, 5];
 
         for i in 0..input.len() {
             assert_eq!(input[i].0.manhattan(&input[i].1), expected[i]);

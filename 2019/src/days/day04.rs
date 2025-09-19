@@ -21,7 +21,8 @@ pub fn solve(file_contents: String) -> (String, String) {
 pub fn parse_input(file_contents: String) -> (i64, i64) {
     if let Some(range) = file_contents.split_once('-')
         && let Ok(start) = range.0.parse::<i64>()
-        && let Ok(end) = range.1.parse::<i64>() {
+        && let Ok(end) = range.1.parse::<i64>()
+    {
         return (start, end);
     }
     panic!("failed to parse input");
@@ -132,16 +133,7 @@ mod tests {
             "223450-223450",
             "123789-123789",
         ];
-        let expected: [i64; 8] = [
-            0,
-            0,
-            1,
-            1,
-            0,
-            1,
-            0,
-            0,
-        ];
+        let expected: [i64; 8] = [0, 0, 1, 1, 0, 1, 0, 0];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());
@@ -164,19 +156,7 @@ mod tests {
             "123444-123444",
             "111122-111122",
         ];
-        let expected: [i64; 11] = [
-            0,
-            0,
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            1,
-            0,
-            1,
-        ];
+        let expected: [i64; 11] = [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());

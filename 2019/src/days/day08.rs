@@ -42,7 +42,9 @@ fn parse_input(file_contents: String, width: usize, height: usize) -> Vec<Layer>
             }
 
             if rows_taken == height {
-                layers.push(Layer { pixels: rows.clone() });
+                layers.push(Layer {
+                    pixels: rows.clone(),
+                });
                 rows = Vec::new();
                 rows_taken = 0;
             }
@@ -102,7 +104,7 @@ fn solve_part_2(input: &[Layer], width: usize, height: usize) -> String {
             output.push(match column {
                 0 => '.',
                 1 => '#',
-                _ => unreachable!()
+                _ => unreachable!(),
             });
         }
     }
@@ -121,12 +123,8 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "123456789012",
-        ];
-        let expected: [i64; 1] = [
-            1,
-        ];
+        let input: [&str; 1] = ["123456789012"];
+        let expected: [i64; 1] = [1];
 
         let width = 3;
         let height = 2;
@@ -138,12 +136,8 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "0222112222120000",
-        ];
-        let expected: [&str; 1] = [
-            "\n.#\n#.",
-        ];
+        let input: [&str; 1] = ["0222112222120000"];
+        let expected: [&str; 1] = ["\n.#\n#."];
 
         let width = 2;
         let height = 2;

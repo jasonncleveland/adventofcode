@@ -1,4 +1,4 @@
-﻿use std::fmt;
+use std::fmt;
 
 #[derive(Clone, Debug)]
 pub enum Direction {
@@ -20,7 +20,12 @@ impl fmt::Display for Direction {
 }
 
 pub fn get_directions() -> Vec<Direction> {
-    vec![Direction::Up, Direction::Right, Direction::Down, Direction::Left]
+    vec![
+        Direction::Up,
+        Direction::Right,
+        Direction::Down,
+        Direction::Left,
+    ]
 }
 
 pub fn get_next_direction(current: &Direction, turn: &Direction) -> Direction {

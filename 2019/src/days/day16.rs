@@ -114,7 +114,11 @@ fn simulate_phases(input: &[i64], phase_count: usize) -> Vec<i64> {
     input_signal
 }
 
-fn simulate_phase(input_signal: &[i64], output_signal: &mut [i64], indexes: &[(Vec<usize>, Vec<usize>)]) {
+fn simulate_phase(
+    input_signal: &[i64],
+    output_signal: &mut [i64],
+    indexes: &[(Vec<usize>, Vec<usize>)],
+) {
     for offset in 0..input_signal.len() {
         let mut sum = 0;
 
@@ -144,11 +148,7 @@ mod tests {
             "19617804207202209144916044189917",
             "69317163492948606335995924319873",
         ];
-        let expected: [i64; 3] = [
-            24176176,
-            73745418,
-            52432133,
-        ];
+        let expected: [i64; 3] = [24176176, 73745418, 52432133];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());
@@ -163,11 +163,7 @@ mod tests {
             "02935109699940807407585447034323",
             "03081770884921959731165446850517",
         ];
-        let expected: [i64; 3] = [
-            84462026,
-            78725270,
-            53553731,
-        ];
+        let expected: [i64; 3] = [84462026, 78725270, 53553731];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());

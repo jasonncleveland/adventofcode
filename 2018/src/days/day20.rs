@@ -32,7 +32,12 @@ fn parse_input(file_contents: String) -> HashMap<Point2d, char> {
     maze
 }
 
-fn generate_maze_rec(directions: &[char], maze: &mut HashMap<Point2d, char>, coordinate: Point2d, index: &mut usize) {
+fn generate_maze_rec(
+    directions: &[char],
+    maze: &mut HashMap<Point2d, char>,
+    coordinate: Point2d,
+    index: &mut usize,
+) {
     let mut current = coordinate;
     while *index < directions.len() {
         let c = directions[*index];
@@ -65,7 +70,10 @@ fn generate_maze_rec(directions: &[char], maze: &mut HashMap<Point2d, char>, coo
             maze.insert(door, door_shape);
             let next = door.next(direction);
             maze.insert(next, '.');
-            trace!("moving in direction {} from {} to {} through door at {}", direction, current, next, door);
+            trace!(
+                "moving in direction {} from {} to {} through door at {}",
+                direction, current, next, door
+            );
             current = next;
         } else if c == '^' || c == '$' {
             continue;
@@ -84,7 +92,10 @@ fn solve_part_1(maze: &HashMap<Point2d, char>) -> i64 {
 
     let mut max_doors = i64::MIN;
     while let Some((coordinate, distance)) = queue.pop_front() {
-        trace!("checking location: {} doors passed: {}", coordinate, distance);
+        trace!(
+            "checking location: {} doors passed: {}",
+            coordinate, distance
+        );
 
         if distance > max_doors {
             max_doors = distance;
@@ -106,8 +117,13 @@ fn solve_part_1(maze: &HashMap<Point2d, char>) -> i64 {
             }
             visited.insert(neighbour);
 
-            if let Some(d) = maze.get(&door) && let Some(n) = maze.get(&door) {
-                trace!("found door {} leading to neighbour {} at {}", d, n, neighbour);
+            if let Some(d) = maze.get(&door)
+                && let Some(n) = maze.get(&door)
+            {
+                trace!(
+                    "found door {} leading to neighbour {} at {}",
+                    d, n, neighbour
+                );
                 queue.push_back((neighbour, distance + 1));
             }
         }
@@ -125,7 +141,10 @@ fn solve_part_2(maze: &HashMap<Point2d, char>) -> i64 {
     visited.insert(Point2d::new(0, 0));
 
     while let Some((coordinate, distance)) = queue.pop_front() {
-        trace!("checking location: {} doors passed: {}", coordinate, distance);
+        trace!(
+            "checking location: {} doors passed: {}",
+            coordinate, distance
+        );
 
         // If the number of doors passed through to get to this location is 1000 or more, increment
         if distance >= 1000 {
@@ -148,8 +167,13 @@ fn solve_part_2(maze: &HashMap<Point2d, char>) -> i64 {
             }
             visited.insert(neighbour);
 
-            if let Some(d) = maze.get(&door) && let Some(n) = maze.get(&door) {
-                trace!("found door {} leading to neighbour {} at {}", d, n, neighbour);
+            if let Some(d) = maze.get(&door)
+                && let Some(n) = maze.get(&door)
+            {
+                trace!(
+                    "found door {} leading to neighbour {} at {}",
+                    d, n, neighbour
+                );
                 queue.push_back((neighbour, distance + 1));
             }
         }
@@ -171,13 +195,7 @@ mod tests {
             "^ESSWWN(E|NNENN(EESS(WNSE|)SSS|WWWSSSSE(SW|NNNE)))$",
             "^WSSEESWWWNW(S|NENNEEEENN(ESSSSW(NWSW|SSEN)|WSWWN(E|WWS(E|SS))))$",
         ];
-        let expected: [i64; 5] = [
-            3,
-            10,
-            18,
-            23,
-            31,
-        ];
+        let expected: [i64; 5] = [3, 10, 18, 23, 31];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());

@@ -34,7 +34,8 @@ fn parse_input(file_contents: String) -> Vec<Moon> {
             && let Some(Some((_, value))) = positions.get(1)
             && let Ok(y) = value.parse::<i64>()
             && let Some(Some((_, value))) = positions.get(2)
-            && let Ok(z) = value.parse::<i64>() {
+            && let Ok(z) = value.parse::<i64>()
+        {
             points.push(Moon {
                 position: Point3d::new(x, y, z),
                 velocity: Point3d::new(0, 0, 0),
@@ -55,15 +56,24 @@ fn solve_part_1(input: &[Moon], steps: i64) -> i64 {
 }
 
 fn solve_part_2(input: &[Moon]) -> i64 {
-    let mut x_moons = input.iter().flat_map(|moon| [moon.position.x, moon.velocity.x]).collect::<Vec<i64>>();
+    let mut x_moons = input
+        .iter()
+        .flat_map(|moon| [moon.position.x, moon.velocity.x])
+        .collect::<Vec<i64>>();
     let x_step = get_repetition_step(&mut x_moons);
     trace!("x repeats after {} steps", x_step);
 
-    let mut y_moons = input.iter().flat_map(|moon| [moon.position.y, moon.velocity.y]).collect::<Vec<i64>>();
+    let mut y_moons = input
+        .iter()
+        .flat_map(|moon| [moon.position.y, moon.velocity.y])
+        .collect::<Vec<i64>>();
     let y_step = get_repetition_step(&mut y_moons);
     trace!("y repeats after {} steps", y_step);
 
-    let mut z_moons = input.iter().flat_map(|moon| [moon.position.z, moon.velocity.z]).collect::<Vec<i64>>();
+    let mut z_moons = input
+        .iter()
+        .flat_map(|moon| [moon.position.z, moon.velocity.z])
+        .collect::<Vec<i64>>();
     let z_step = get_repetition_step(&mut z_moons);
     trace!("z repeats after {} steps", z_step);
 
@@ -93,13 +103,12 @@ fn simulate_single_axis(moons: &mut [i64]) {
             match moons[s].cmp(&moons[e]) {
                 Ordering::Less => {
                     moons[s + 1] += 1;
-                },
+                }
                 Ordering::Greater => {
                     moons[s + 1] -= 1;
-                },
-                Ordering::Equal=> {},
+                }
+                Ordering::Equal => {}
             }
-
         }
     }
 
@@ -120,33 +129,32 @@ fn simulate_moons(moons: &mut [Moon]) {
             match moons[s].position.x.cmp(&moons[e].position.x) {
                 Ordering::Less => {
                     moons[s].velocity.x += 1;
-                },
+                }
                 Ordering::Greater => {
                     moons[s].velocity.x -= 1;
-                },
-                Ordering::Equal=> {},
+                }
+                Ordering::Equal => {}
             }
 
             match moons[s].position.y.cmp(&moons[e].position.y) {
                 Ordering::Less => {
                     moons[s].velocity.y += 1;
-                },
+                }
                 Ordering::Greater => {
                     moons[s].velocity.y -= 1;
-                },
-                Ordering::Equal=> {},
+                }
+                Ordering::Equal => {}
             }
 
             match moons[s].position.z.cmp(&moons[e].position.z) {
                 Ordering::Less => {
                     moons[s].velocity.z += 1;
-                },
+                }
                 Ordering::Greater => {
                     moons[s].velocity.z -= 1;
-                },
-                Ordering::Equal=> {},
+                }
+                Ordering::Equal => {}
             }
-
         }
     }
 
@@ -161,7 +169,8 @@ fn simulate_moons(moons: &mut [Moon]) {
 fn calculate_energy(moons: &Vec<Moon>) -> i64 {
     let mut total_energy: i64 = 0;
     for moon in moons {
-        let potential_energy = moon.position.x.abs() + moon.position.y.abs() + moon.position.z.abs();
+        let potential_energy =
+            moon.position.x.abs() + moon.position.y.abs() + moon.position.z.abs();
         let kinetic_energy = moon.velocity.x.abs() + moon.velocity.y.abs() + moon.velocity.z.abs();
         total_energy += potential_energy * kinetic_energy;
     }
@@ -176,9 +185,16 @@ struct Moon {
 
 impl fmt::Display for Moon {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "pos=<x={}, y={}, z={}>, vel=<x={}, y={}, z={}>",
-               self.position.x, self.position.y, self.position.z,
-               self.velocity.x, self.velocity.y, self.velocity.z)
+        write!(
+            f,
+            "pos=<x={}, y={}, z={}>, vel=<x={}, y={}, z={}>",
+            self.position.x,
+            self.position.y,
+            self.position.z,
+            self.velocity.x,
+            self.velocity.y,
+            self.velocity.z
+        )
     }
 }
 
@@ -189,19 +205,22 @@ mod tests {
     #[test]
     fn test_part_1() {
         let input: [(&str, i64); 2] = [
-            ("<x=-1, y=0, z=2>
+            (
+                "<x=-1, y=0, z=2>
 <x=2, y=-10, z=-7>
 <x=4, y=-8, z=8>
-<x=3, y=5, z=-1>", 10),
-            ("<x=-8, y=-10, z=0>
+<x=3, y=5, z=-1>",
+                10,
+            ),
+            (
+                "<x=-8, y=-10, z=0>
 <x=5, y=5, z=10>
 <x=2, y=-7, z=3>
-<x=9, y=-8, z=-3>", 100),
+<x=9, y=-8, z=-3>",
+                100,
+            ),
         ];
-        let expected: [i64; 2] = [
-            179,
-            1940,
-        ];
+        let expected: [i64; 2] = [179, 1940];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].0.to_string());
@@ -221,10 +240,7 @@ mod tests {
 <x=2, y=-7, z=3>
 <x=9, y=-8, z=-3>",
         ];
-        let expected: [i64; 2] = [
-            2772,
-            4686774924,
-        ];
+        let expected: [i64; 2] = [2772, 4686774924];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());

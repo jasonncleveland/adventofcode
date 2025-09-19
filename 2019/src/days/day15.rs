@@ -25,7 +25,12 @@ pub fn solve(file_contents: String) -> (String, String) {
 }
 
 fn solve_part_1(input: &[i64]) -> (usize, Droid) {
-    let directions = [Direction::Up, Direction::Down, Direction::Left, Direction::Right];
+    let directions = [
+        Direction::Up,
+        Direction::Down,
+        Direction::Left,
+        Direction::Right,
+    ];
 
     let mut queue: VecDeque<Droid> = VecDeque::new();
     let mut visited: HashSet<Point2d> = HashSet::new();
@@ -47,13 +52,19 @@ fn solve_part_1(input: &[i64]) -> (usize, Droid) {
                             _ => unreachable!(),
                         };
                     }
-                },
+                }
                 IntCodeStatus::InputRequired => {
                     for (i, direction) in directions.iter().enumerate() {
                         let mut droid_clone = droid.clone();
                         let next_position = droid_clone.position.next(direction);
                         if !visited.contains(&next_position) {
-                            trace!("moving in direction {} {} from {} to {}", i + 1, direction, droid_clone.position, next_position);
+                            trace!(
+                                "moving in direction {} {} from {} to {}",
+                                i + 1,
+                                direction,
+                                droid_clone.position,
+                                next_position
+                            );
                             visited.insert(next_position);
                             droid_clone.computer.input.push_back(i as i64 + 1);
                             droid_clone.position = next_position;
@@ -62,8 +73,8 @@ fn solve_part_1(input: &[i64]) -> (usize, Droid) {
                         }
                     }
                     break;
-                },
-                IntCodeStatus::ProgramHalted => break
+                }
+                IntCodeStatus::ProgramHalted => break,
             }
         }
     }
@@ -71,7 +82,12 @@ fn solve_part_1(input: &[i64]) -> (usize, Droid) {
 }
 
 fn solve_part_2(droid: Droid) -> i64 {
-    let directions = [Direction::Up, Direction::Down, Direction::Left, Direction::Right];
+    let directions = [
+        Direction::Up,
+        Direction::Down,
+        Direction::Left,
+        Direction::Right,
+    ];
 
     // Spread oxygen
     let mut visited: HashSet<Point2d> = HashSet::new();
@@ -95,13 +111,19 @@ fn solve_part_2(droid: Droid) -> i64 {
                                 _ => unreachable!(),
                             };
                         }
-                    },
+                    }
                     IntCodeStatus::InputRequired => {
                         for (i, direction) in directions.iter().enumerate() {
                             let mut droid_clone = droid.clone();
                             let next_position = droid_clone.position.next(direction);
                             if !visited.contains(&next_position) {
-                                trace!("moving in direction {} {} from {} to {}", i + 1, direction, droid_clone.position, next_position);
+                                trace!(
+                                    "moving in direction {} {} from {} to {}",
+                                    i + 1,
+                                    direction,
+                                    droid_clone.position,
+                                    next_position
+                                );
                                 visited.insert(next_position);
                                 droid_clone.computer.input.push_back(i as i64 + 1);
                                 droid_clone.position = next_position;
@@ -110,8 +132,8 @@ fn solve_part_2(droid: Droid) -> i64 {
                             }
                         }
                         break;
-                    },
-                    IntCodeStatus::ProgramHalted => break
+                    }
+                    IntCodeStatus::ProgramHalted => break,
                 }
             }
         }

@@ -28,7 +28,10 @@ fn parse_input(file_contents: String) -> (Vec<Sample>, Vec<Instruction>) {
         for line in left.split("\n\n") {
             let sample = line.split('\n').collect::<Vec<&str>>();
             let mut before = sample[0].chars();
-            let instruction = sample[1].split(' ').map(|i| i.parse::<usize>().unwrap()).collect::<Vec<usize>>();
+            let instruction = sample[1]
+                .split(' ')
+                .map(|i| i.parse::<usize>().unwrap())
+                .collect::<Vec<usize>>();
             let mut after = sample[2].chars();
             samples.push(Sample {
                 instruction: Instruction {
@@ -54,7 +57,10 @@ fn parse_input(file_contents: String) -> (Vec<Sample>, Vec<Instruction>) {
 
         // Parse instructions
         for line in right.lines() {
-            let instruction = line.split(' ').map(|i| i.parse::<usize>().unwrap()).collect::<Vec<usize>>();
+            let instruction = line
+                .split(' ')
+                .map(|i| i.parse::<usize>().unwrap())
+                .collect::<Vec<usize>>();
             instructions.push(Instruction {
                 opcode: instruction[0],
                 a: instruction[1],
@@ -69,22 +75,8 @@ fn parse_input(file_contents: String) -> (Vec<Sample>, Vec<Instruction>) {
 
 fn solve_part_1(samples: &Vec<Sample>) -> i64 {
     let opcodes: Vec<&str> = vec![
-        "addr",
-        "addi",
-        "mulr",
-        "muli",
-        "banr",
-        "bani",
-        "borr",
-        "bori",
-        "setr",
-        "seti",
-        "gtir",
-        "gtri",
-        "gtrr",
-        "eqir",
-        "eqri",
-        "eqrr",
+        "addr", "addi", "mulr", "muli", "banr", "bani", "borr", "bori", "setr", "seti", "gtir",
+        "gtri", "gtrr", "eqir", "eqri", "eqrr",
     ];
 
     let mut total = 0;
@@ -106,22 +98,8 @@ fn solve_part_1(samples: &Vec<Sample>) -> i64 {
 
 fn solve_part_2(samples: &Vec<Sample>, instructions: &Vec<Instruction>) -> usize {
     let mut opcodes: Vec<&str> = vec![
-        "addr",
-        "addi",
-        "mulr",
-        "muli",
-        "banr",
-        "bani",
-        "borr",
-        "bori",
-        "setr",
-        "seti",
-        "gtir",
-        "gtri",
-        "gtrr",
-        "eqir",
-        "eqri",
-        "eqrr",
+        "addr", "addi", "mulr", "muli", "banr", "bani", "borr", "bori", "setr", "seti", "gtir",
+        "gtri", "gtrr", "eqir", "eqri", "eqrr",
     ];
     let mut opcode_map: HashMap<usize, &str> = HashMap::new();
 
@@ -137,7 +115,9 @@ fn solve_part_2(samples: &Vec<Sample>, instructions: &Vec<Instruction>) -> usize
                 match_count += 1;
             }
         }
-        if match_count == 1 && let Some(name) = possible_opcodes.first() {
+        if match_count == 1
+            && let Some(name) = possible_opcodes.first()
+        {
             opcode_map.insert(sample.instruction.opcode, *name);
             if let Some(index) = opcodes.iter().position(|op| op == name) {
                 opcodes.remove(index);
@@ -168,31 +148,43 @@ fn process_instruction(registers: &mut [usize; 4], instruction: &Instruction, op
         "bori" => registers[instruction.c] = registers[instruction.a] | instruction.b,
         "setr" => registers[instruction.c] = registers[instruction.a],
         "seti" => registers[instruction.c] = instruction.a,
-        "gtir" => registers[instruction.c] = match instruction.a > registers[instruction.b] {
-            true => 1,
-            false => 0,
-        },
-        "gtri" => registers[instruction.c] = match registers[instruction.a] > instruction.b {
-            true => 1,
-            false => 0,
-        },
-        "gtrr" => registers[instruction.c] = match registers[instruction.a] > registers[instruction.b] {
-            true => 1,
-            false => 0,
-        },
-        "eqir" => registers[instruction.c] = match instruction.a == registers[instruction.b] {
-            true => 1,
-            false => 0,
-        },
-        "eqri" => registers[instruction.c] = match registers[instruction.a] == instruction.b {
-            true => 1,
-            false => 0,
-        },
-        "eqrr" => registers[instruction.c] = match registers[instruction.a] == registers[instruction.b] {
-            true => 1,
-            false => 0,
-        },
-        _ => panic!("Invalid instruction opcode")
+        "gtir" => {
+            registers[instruction.c] = match instruction.a > registers[instruction.b] {
+                true => 1,
+                false => 0,
+            }
+        }
+        "gtri" => {
+            registers[instruction.c] = match registers[instruction.a] > instruction.b {
+                true => 1,
+                false => 0,
+            }
+        }
+        "gtrr" => {
+            registers[instruction.c] = match registers[instruction.a] > registers[instruction.b] {
+                true => 1,
+                false => 0,
+            }
+        }
+        "eqir" => {
+            registers[instruction.c] = match instruction.a == registers[instruction.b] {
+                true => 1,
+                false => 0,
+            }
+        }
+        "eqri" => {
+            registers[instruction.c] = match registers[instruction.a] == instruction.b {
+                true => 1,
+                false => 0,
+            }
+        }
+        "eqrr" => {
+            registers[instruction.c] = match registers[instruction.a] == registers[instruction.b] {
+                true => 1,
+                false => 0,
+            }
+        }
+        _ => panic!("Invalid instruction opcode"),
     }
 }
 
@@ -218,28 +210,226 @@ mod tests {
     #[test]
     fn test_process_instruction() {
         let input: [([usize; 4], Instruction, &str); 22] = [
-            ([6, 3, 0, 0], Instruction { opcode: 0, a: 0, b: 1, c: 3 }, "addr"),
-            ([3, 0, 0, 0], Instruction { opcode: 1, a: 0, b: 5, c: 3 }, "addi"),
-            ([2, 3, 0, 0], Instruction { opcode: 2, a: 0, b: 1, c: 3 }, "mulr"),
-            ([3, 0, 0, 0], Instruction { opcode: 3, a: 0, b: 2, c: 3 }, "muli"),
-            ([7, 5, 0, 0], Instruction { opcode: 4, a: 0, b: 1, c: 3 }, "banr"),
-            ([9, 0, 0, 0], Instruction { opcode: 5, a: 0, b: 1, c: 3 }, "bani"),
-            ([2, 5, 0, 0], Instruction { opcode: 6, a: 0, b: 1, c: 3 }, "borr"),
-            ([6, 0, 0, 0], Instruction { opcode: 7, a: 0, b: 3, c: 3 }, "bori"),
-            ([0, 0, 7, 0], Instruction { opcode: 8, a: 2, b: 0, c: 3 }, "setr"),
-            ([0, 0, 0, 0], Instruction { opcode: 9, a: 9, b: 0, c: 3 }, "seti"),
-            ([0, 0, 4, 0], Instruction { opcode: 10, a: 7, b: 2, c: 3 }, "gtir"), // true
-            ([0, 0, 9, 0], Instruction { opcode: 10, a: 5, b: 2, c: 3 }, "gtir"), // false
-            ([0, 6, 0, 0], Instruction { opcode: 11, a: 1, b: 3, c: 3 }, "gtri"), // true
-            ([0, 1, 0, 0], Instruction { opcode: 11, a: 1, b: 9, c: 3 }, "gtri"), // false
-            ([9, 2, 0, 0], Instruction { opcode: 12, a: 0, b: 1, c: 3 }, "gtrr"), // true
-            ([2, 9, 0, 0], Instruction { opcode: 12, a: 0, b: 1, c: 3 }, "gtrr"), // false
-            ([0, 0, 9, 0], Instruction { opcode: 13, a: 9, b: 2, c: 3 }, "eqir"), // true
-            ([0, 0, 2, 0], Instruction { opcode: 13, a: 6, b: 2, c: 3 }, "eqir"), // false
-            ([0, 4, 0, 0], Instruction { opcode: 14, a: 1, b: 4, c: 3 }, "eqri"), // true
-            ([0, 5, 0, 0], Instruction { opcode: 14, a: 1, b: 3, c: 3 }, "eqri"), // false
-            ([3, 3, 0, 0], Instruction { opcode: 15, a: 0, b: 1, c: 3 }, "eqrr"), // true
-            ([2, 6, 0, 0], Instruction { opcode: 15, a: 0, b: 1, c: 3 }, "eqrr"), // false
+            (
+                [6, 3, 0, 0],
+                Instruction {
+                    opcode: 0,
+                    a: 0,
+                    b: 1,
+                    c: 3,
+                },
+                "addr",
+            ),
+            (
+                [3, 0, 0, 0],
+                Instruction {
+                    opcode: 1,
+                    a: 0,
+                    b: 5,
+                    c: 3,
+                },
+                "addi",
+            ),
+            (
+                [2, 3, 0, 0],
+                Instruction {
+                    opcode: 2,
+                    a: 0,
+                    b: 1,
+                    c: 3,
+                },
+                "mulr",
+            ),
+            (
+                [3, 0, 0, 0],
+                Instruction {
+                    opcode: 3,
+                    a: 0,
+                    b: 2,
+                    c: 3,
+                },
+                "muli",
+            ),
+            (
+                [7, 5, 0, 0],
+                Instruction {
+                    opcode: 4,
+                    a: 0,
+                    b: 1,
+                    c: 3,
+                },
+                "banr",
+            ),
+            (
+                [9, 0, 0, 0],
+                Instruction {
+                    opcode: 5,
+                    a: 0,
+                    b: 1,
+                    c: 3,
+                },
+                "bani",
+            ),
+            (
+                [2, 5, 0, 0],
+                Instruction {
+                    opcode: 6,
+                    a: 0,
+                    b: 1,
+                    c: 3,
+                },
+                "borr",
+            ),
+            (
+                [6, 0, 0, 0],
+                Instruction {
+                    opcode: 7,
+                    a: 0,
+                    b: 3,
+                    c: 3,
+                },
+                "bori",
+            ),
+            (
+                [0, 0, 7, 0],
+                Instruction {
+                    opcode: 8,
+                    a: 2,
+                    b: 0,
+                    c: 3,
+                },
+                "setr",
+            ),
+            (
+                [0, 0, 0, 0],
+                Instruction {
+                    opcode: 9,
+                    a: 9,
+                    b: 0,
+                    c: 3,
+                },
+                "seti",
+            ),
+            (
+                [0, 0, 4, 0],
+                Instruction {
+                    opcode: 10,
+                    a: 7,
+                    b: 2,
+                    c: 3,
+                },
+                "gtir",
+            ), // true
+            (
+                [0, 0, 9, 0],
+                Instruction {
+                    opcode: 10,
+                    a: 5,
+                    b: 2,
+                    c: 3,
+                },
+                "gtir",
+            ), // false
+            (
+                [0, 6, 0, 0],
+                Instruction {
+                    opcode: 11,
+                    a: 1,
+                    b: 3,
+                    c: 3,
+                },
+                "gtri",
+            ), // true
+            (
+                [0, 1, 0, 0],
+                Instruction {
+                    opcode: 11,
+                    a: 1,
+                    b: 9,
+                    c: 3,
+                },
+                "gtri",
+            ), // false
+            (
+                [9, 2, 0, 0],
+                Instruction {
+                    opcode: 12,
+                    a: 0,
+                    b: 1,
+                    c: 3,
+                },
+                "gtrr",
+            ), // true
+            (
+                [2, 9, 0, 0],
+                Instruction {
+                    opcode: 12,
+                    a: 0,
+                    b: 1,
+                    c: 3,
+                },
+                "gtrr",
+            ), // false
+            (
+                [0, 0, 9, 0],
+                Instruction {
+                    opcode: 13,
+                    a: 9,
+                    b: 2,
+                    c: 3,
+                },
+                "eqir",
+            ), // true
+            (
+                [0, 0, 2, 0],
+                Instruction {
+                    opcode: 13,
+                    a: 6,
+                    b: 2,
+                    c: 3,
+                },
+                "eqir",
+            ), // false
+            (
+                [0, 4, 0, 0],
+                Instruction {
+                    opcode: 14,
+                    a: 1,
+                    b: 4,
+                    c: 3,
+                },
+                "eqri",
+            ), // true
+            (
+                [0, 5, 0, 0],
+                Instruction {
+                    opcode: 14,
+                    a: 1,
+                    b: 3,
+                    c: 3,
+                },
+                "eqri",
+            ), // false
+            (
+                [3, 3, 0, 0],
+                Instruction {
+                    opcode: 15,
+                    a: 0,
+                    b: 1,
+                    c: 3,
+                },
+                "eqrr",
+            ), // true
+            (
+                [2, 6, 0, 0],
+                Instruction {
+                    opcode: 15,
+                    a: 0,
+                    b: 1,
+                    c: 3,
+                },
+                "eqrr",
+            ), // false
         ];
         let expected: [[usize; 4]; 22] = [
             [6, 3, 0, 9], // addr

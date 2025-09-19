@@ -25,21 +25,27 @@ fn parse_input(file_contents: String) -> HashMap<String, Planet> {
     for line in file_contents.lines() {
         if let Some((orbits, planet_name)) = line.split_once(')') {
             if !result.contains_key(planet_name) {
-                result.insert(planet_name.to_string(), Planet {
-                    name: planet_name.to_string(),
-                    orbits: None,
-                    orbited_by: vec![],
-                });
+                result.insert(
+                    planet_name.to_string(),
+                    Planet {
+                        name: planet_name.to_string(),
+                        orbits: None,
+                        orbited_by: vec![],
+                    },
+                );
             }
             if let Some(planet) = result.get_mut(planet_name) {
                 planet.orbits = Some(orbits.to_string());
             }
             if !result.contains_key(orbits) {
-                result.insert(orbits.to_string(), Planet {
-                    name: orbits.to_string(),
-                    orbits: None,
-                    orbited_by: vec![],
-                });
+                result.insert(
+                    orbits.to_string(),
+                    Planet {
+                        name: orbits.to_string(),
+                        orbits: None,
+                        orbited_by: vec![],
+                    },
+                );
             }
             if let Some(planet) = result.get_mut(orbits) {
                 planet.orbited_by.push(planet_name.to_string());
@@ -89,7 +95,9 @@ fn solve_part_2(input: &HashMap<String, Planet>) -> i64 {
 
         if let Some(planet) = input.get(&current.0.name) {
             // Check plant we are orbiting
-            if let Some(orbits) = planet.orbits.as_ref() && !visited.contains(orbits) {
+            if let Some(orbits) = planet.orbits.as_ref()
+                && !visited.contains(orbits)
+            {
                 visited.insert(orbits.clone());
                 queue.push_back((input[orbits].clone(), current.1 + 1));
             }
@@ -119,8 +127,7 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "COM)B
+        let input: [&str; 1] = ["COM)B
 B)C
 C)D
 D)E
@@ -130,11 +137,8 @@ G)H
 D)I
 E)J
 J)K
-K)L",
-        ];
-        let expected: [i64; 1] = [
-            42,
-        ];
+K)L"];
+        let expected: [i64; 1] = [42];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());
@@ -144,8 +148,7 @@ K)L",
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "COM)B
+        let input: [&str; 1] = ["COM)B
 B)C
 C)D
 D)E
@@ -157,11 +160,8 @@ E)J
 J)K
 K)L
 K)YOU
-I)SAN",
-        ];
-        let expected: [i64; 1] = [
-            4,
-        ];
+I)SAN"];
+        let expected: [i64; 1] = [4];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());

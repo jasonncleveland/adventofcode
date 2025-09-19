@@ -1,6 +1,6 @@
-use std::{env, fmt};
 use std::io;
 use std::time::Instant;
+use std::{env, fmt};
 
 use aoc_helpers::io::parse_int_list;
 use aoc_helpers::point2d::Point2d;
@@ -31,7 +31,12 @@ fn solve_part_1(input: &[i64]) -> usize {
     run(&mut display, &mut arcade);
 
     // Count number of blocks
-    display.screen.pixels.values().filter(|t| **t == '@').count()
+    display
+        .screen
+        .pixels
+        .values()
+        .filter(|t| **t == '@')
+        .count()
 }
 
 fn solve_part_2(input: &[i64]) -> i64 {
@@ -53,7 +58,9 @@ fn solve_part_2(input: &[i64]) -> i64 {
 fn run(display: &mut DisplayWithScore, arcade: &mut IntCodeComputer) {
     // Set the environment variable AOC_MANUAL_INPUT=true to have manual input
     let mut manual_input: bool = false;
-    if let Ok(env_var) = env::var("AOC_MANUAL_INPUT") && let Ok(value) = env_var.parse::<bool>() {
+    if let Ok(env_var) = env::var("AOC_MANUAL_INPUT")
+        && let Ok(value) = env_var.parse::<bool>()
+    {
         debug!("accepting manual input: {} {:?}", env_var, value);
         manual_input = value;
     }
@@ -63,23 +70,34 @@ fn run(display: &mut DisplayWithScore, arcade: &mut IntCodeComputer) {
             IntCodeStatus::OutputWaiting => {
                 if let Some(x) = arcade.output.pop_front()
                     && let Some(y) = arcade.output.pop_front()
-                    && let Some(tile_id) = arcade.output.pop_front() {
+                    && let Some(tile_id) = arcade.output.pop_front()
+                {
                     if x == -1 && y == 0 {
                         trace!("Printing score: {}", tile_id);
                         display.score = tile_id;
                     } else {
-                        trace!("printing tile {} at {}", get_tile(tile_id), Point2d::new(x, y));
-                        display.screen.pixels.insert(Point2d::new(x, y), get_tile(tile_id));
+                        trace!(
+                            "printing tile {} at {}",
+                            get_tile(tile_id),
+                            Point2d::new(x, y)
+                        );
+                        display
+                            .screen
+                            .pixels
+                            .insert(Point2d::new(x, y), get_tile(tile_id));
                     }
                 }
-            },
+            }
             IntCodeStatus::InputRequired => {
                 match manual_input {
                     false => {
                         // AI input
                         // The "AI" aims to keep the paddle directly below the ball
-                        if let Some((ball_position, _)) = display.screen.pixels.iter().find(|(_, v)| **v == '*')
-                            && let Some((paddle_position, _)) = display.screen.pixels.iter().find(|(_, v)| **v == '=') {
+                        if let Some((ball_position, _)) =
+                            display.screen.pixels.iter().find(|(_, v)| **v == '*')
+                            && let Some((paddle_position, _)) =
+                                display.screen.pixels.iter().find(|(_, v)| **v == '=')
+                        {
                             let optimal_move = match paddle_position.partial_cmp(ball_position) {
                                 Some(std::cmp::Ordering::Less) => 1,
                                 Some(std::cmp::Ordering::Equal) => 0,
@@ -99,33 +117,35 @@ fn run(display: &mut DisplayWithScore, arcade: &mut IntCodeComputer) {
                         println!("press key to move..");
                         loop {
                             let mut input = String::new();
-                            if let Ok(_) = io::stdin().read_line(&mut input) && let Some(char) = input.chars().next() {
+                            if let Ok(_) = io::stdin().read_line(&mut input)
+                                && let Some(char) = input.chars().next()
+                            {
                                 match char {
                                     'a' => {
                                         // Move paddle left
                                         arcade.input.push_back(-1);
                                         break;
-                                    },
+                                    }
                                     's' => {
                                         // Hold paddle at current position
                                         arcade.input.push_back(0);
                                         break;
-                                    },
+                                    }
                                     'd' => {
                                         // Move paddle right
                                         arcade.input.push_back(1);
                                         break;
-                                    },
+                                    }
                                     _ => {
                                         continue;
-                                    },
+                                    }
                                 }
                             }
                         }
-                    },
+                    }
                 }
-            },
-            IntCodeStatus::ProgramHalted => break
+            }
+            IntCodeStatus::ProgramHalted => break,
         }
     }
 }
@@ -143,7 +163,10 @@ impl fmt::Display for DisplayWithScore {
 
 impl DisplayWithScore {
     fn new() -> Self {
-        DisplayWithScore { screen: IntCodeDisplay::new(), score: 0 }
+        DisplayWithScore {
+            screen: IntCodeDisplay::new(),
+            score: 0,
+        }
     }
 }
 

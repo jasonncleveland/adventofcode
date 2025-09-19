@@ -37,7 +37,10 @@ fn solve_part_1(input: &[i64]) -> i64 {
     while let Some(mut controller) = controllers.pop_front() {
         if let Some(packets) = packet_queue.get_mut(&controller.network_address) {
             for packet in packets {
-                trace!("sending packet {:?} to nic {}", packet, controller.network_address);
+                trace!(
+                    "sending packet {:?} to nic {}",
+                    packet, controller.network_address
+                );
                 controller.computer.input.push_back(packet.x);
                 controller.computer.input.push_back(packet.y);
             }
@@ -48,8 +51,13 @@ fn solve_part_1(input: &[i64]) -> i64 {
         if let Ok(IntCodeStatus::OutputWaiting) = controller.computer.run_interactive(3)
             && let Some(target_address) = controller.computer.output.pop_front()
             && let Some(x) = controller.computer.output.pop_front()
-            && let Some(y) = controller.computer.output.pop_front() {
-            trace!("received packet {:?} addressed to {}", NetworkPacket::new(x, y), target_address);
+            && let Some(y) = controller.computer.output.pop_front()
+        {
+            trace!(
+                "received packet {:?} addressed to {}",
+                NetworkPacket::new(x, y),
+                target_address
+            );
             if target_address == 255 {
                 // Stop if a value is output to address 255
                 return y;
@@ -91,18 +99,22 @@ fn solve_part_2(input: &[i64]) -> i64 {
                 if let Ok(IntCodeStatus::OutputWaiting) = controller.run_interactive(3)
                     && let Some(target_address) = controller.output.pop_front()
                     && let Some(x) = controller.output.pop_front()
-                    && let Some(y) = controller.output.pop_front() {
+                    && let Some(y) = controller.output.pop_front()
+                {
                     if target_address == 255 {
                         trace!("sending packet {:?} to NAT", NetworkPacket::new(x, y));
                         nat_packet = NetworkPacket::new(x, y);
                     } else {
-                        trace!("sending packet {:?} to address {}", NetworkPacket::new(x, y), target_address);
+                        trace!(
+                            "sending packet {:?} to address {}",
+                            NetworkPacket::new(x, y),
+                            target_address
+                        );
                         controllers
                             .entry(target_address)
                             .and_modify(|c| c.input.extend([x, y]));
                     }
                 }
-
             }
         }
 

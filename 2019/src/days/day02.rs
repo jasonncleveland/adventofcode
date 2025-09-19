@@ -39,7 +39,7 @@ fn solve_part_2(input: &[i64]) -> i64 {
             computer.run();
             if computer.memory[0] == 19690720 {
                 trace!("Found noun: {} verb: {}", noun, verb);
-                return 100 * noun + verb
+                return 100 * noun + verb;
             }
         }
     }

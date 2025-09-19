@@ -1,4 +1,4 @@
-﻿use std::fmt;
+use std::fmt;
 use std::fmt::{Display, Formatter};
 
 use log::trace;
@@ -42,50 +42,87 @@ impl Device {
 
     pub fn process_instruction(&mut self) -> bool {
         if self.registers[self.instruction_pointer_register] >= self.instructions.len() {
-            trace!("attempting to process instruction at index {} which is outside bounds [0..{}]", self.registers[self.instruction_pointer_register], self.instructions.len());
+            trace!(
+                "attempting to process instruction at index {} which is outside bounds [0..{}]",
+                self.registers[self.instruction_pointer_register],
+                self.instructions.len()
+            );
             return false;
         }
 
         let instruction = &self.instructions[self.registers[self.instruction_pointer_register]];
-        trace!("executing instruction at {}: {}", self.registers[self.instruction_pointer_register], instruction);
+        trace!(
+            "executing instruction at {}: {}",
+            self.registers[self.instruction_pointer_register], instruction
+        );
 
         match instruction.opcode.as_str() {
             "#ip" => self.instruction_pointer_register = instruction.a,
-            "addr" => self.registers[instruction.c] = self.registers[instruction.a] + self.registers[instruction.b],
+            "addr" => {
+                self.registers[instruction.c] =
+                    self.registers[instruction.a] + self.registers[instruction.b]
+            }
             "addi" => self.registers[instruction.c] = self.registers[instruction.a] + instruction.b,
-            "mulr" => self.registers[instruction.c] = self.registers[instruction.a] * self.registers[instruction.b],
+            "mulr" => {
+                self.registers[instruction.c] =
+                    self.registers[instruction.a] * self.registers[instruction.b]
+            }
             "muli" => self.registers[instruction.c] = self.registers[instruction.a] * instruction.b,
-            "banr" => self.registers[instruction.c] = self.registers[instruction.a] & self.registers[instruction.b],
+            "banr" => {
+                self.registers[instruction.c] =
+                    self.registers[instruction.a] & self.registers[instruction.b]
+            }
             "bani" => self.registers[instruction.c] = self.registers[instruction.a] & instruction.b,
-            "borr" => self.registers[instruction.c] = self.registers[instruction.a] | self.registers[instruction.b],
+            "borr" => {
+                self.registers[instruction.c] =
+                    self.registers[instruction.a] | self.registers[instruction.b]
+            }
             "bori" => self.registers[instruction.c] = self.registers[instruction.a] | instruction.b,
             "setr" => self.registers[instruction.c] = self.registers[instruction.a],
             "seti" => self.registers[instruction.c] = instruction.a,
-            "gtir" => self.registers[instruction.c] = match instruction.a > self.registers[instruction.b] {
-                true => 1,
-                false => 0,
-            },
-            "gtri" => self.registers[instruction.c] = match self.registers[instruction.a] > instruction.b {
-                true => 1,
-                false => 0,
-            },
-            "gtrr" => self.registers[instruction.c] = match self.registers[instruction.a] > self.registers[instruction.b] {
-                true => 1,
-                false => 0,
-            },
-            "eqir" => self.registers[instruction.c] = match instruction.a == self.registers[instruction.b] {
-                true => 1,
-                false => 0,
-            },
-            "eqri" => self.registers[instruction.c] = match self.registers[instruction.a] == instruction.b {
-                true => 1,
-                false => 0,
-            },
-            "eqrr" => self.registers[instruction.c] = match self.registers[instruction.a] == self.registers[instruction.b] {
-                true => 1,
-                false => 0,
-            },
-            _ => panic!("Invalid instruction opcode")
+            "gtir" => {
+                self.registers[instruction.c] = match instruction.a > self.registers[instruction.b]
+                {
+                    true => 1,
+                    false => 0,
+                }
+            }
+            "gtri" => {
+                self.registers[instruction.c] = match self.registers[instruction.a] > instruction.b
+                {
+                    true => 1,
+                    false => 0,
+                }
+            }
+            "gtrr" => {
+                self.registers[instruction.c] =
+                    match self.registers[instruction.a] > self.registers[instruction.b] {
+                        true => 1,
+                        false => 0,
+                    }
+            }
+            "eqir" => {
+                self.registers[instruction.c] = match instruction.a == self.registers[instruction.b]
+                {
+                    true => 1,
+                    false => 0,
+                }
+            }
+            "eqri" => {
+                self.registers[instruction.c] = match self.registers[instruction.a] == instruction.b
+                {
+                    true => 1,
+                    false => 0,
+                }
+            }
+            "eqrr" => {
+                self.registers[instruction.c] =
+                    match self.registers[instruction.a] == self.registers[instruction.b] {
+                        true => 1,
+                        false => 0,
+                    }
+            }
+            _ => panic!("Invalid instruction opcode"),
         }
 
         // Increment the instruction pointer by 1
@@ -105,7 +142,9 @@ pub fn parse_device_instructions(file_contents: String) -> Vec<Instruction> {
     // Parse instructions
     for line in file_contents.lines() {
         if let Some((opcode, inputs)) = line.split_once(' ') {
-            if opcode == "#ip" && let Ok(a) = inputs.trim().parse::<usize>() {
+            if opcode == "#ip"
+                && let Ok(a) = inputs.trim().parse::<usize>()
+            {
                 instructions.push(Instruction::new(opcode.to_string(), a, 0, 0));
             } else if let Some((left, rest)) = inputs.split_once(' ')
                 && let Some((middle, right)) = rest.split_once(' ')

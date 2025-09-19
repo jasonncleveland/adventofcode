@@ -20,10 +20,7 @@ pub fn solve(file_contents: String) -> (String, String) {
 }
 
 fn parse_input(file_contents: String) -> Vec<String> {
-    file_contents
-        .lines()
-        .map(|l| l.to_string())
-        .collect()
+    file_contents.lines().map(|l| l.to_string()).collect()
 }
 
 fn solve_part_1(lines: &[String]) -> i64 {
@@ -32,7 +29,10 @@ fn solve_part_1(lines: &[String]) -> i64 {
     for line in lines {
         let mut occurrences: HashMap<char, i64> = HashMap::new();
         for letter in line.chars() {
-            occurrences.entry(letter).and_modify(|e| *e += 1).or_insert(1);
+            occurrences
+                .entry(letter)
+                .and_modify(|e| *e += 1)
+                .or_insert(1);
         }
 
         let mut found_two: bool = false;
@@ -82,12 +82,8 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "abcdef\nbababc\nabbcde\nabcccd\naabcdd\nabcdee\nababab",
-        ];
-        let expected: [i64; 1] = [
-            12,
-        ];
+        let input: [&str; 1] = ["abcdef\nbababc\nabbcde\nabcccd\naabcdd\nabcdee\nababab"];
+        let expected: [i64; 1] = [12];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());
@@ -97,12 +93,8 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "abcde\nfghij\nklmno\npqrst\nfguij\naxcye\nwvxyz",
-        ];
-        let expected: [&str; 1] = [
-            "fgij",
-        ];
+        let input: [&str; 1] = ["abcde\nfghij\nklmno\npqrst\nfguij\naxcye\nwvxyz"];
+        let expected: [&str; 1] = ["fgij"];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());

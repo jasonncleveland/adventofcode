@@ -22,7 +22,8 @@ pub fn solve(file_contents: String) -> (String, String) {
 fn parse_input(file_contents: String) -> (i64, i64) {
     let words = file_contents.split_whitespace().collect::<Vec<&str>>();
     if let Ok(player_count) = words[0].parse::<i64>()
-        && let Ok(last_marble_value) = words[6].parse::<i64>() {
+        && let Ok(last_marble_value) = words[6].parse::<i64>()
+    {
         return (player_count, last_marble_value);
     }
     unreachable!()
@@ -83,14 +84,7 @@ mod tests {
             "21 players; last marble is worth 6111 points",
             "30 players; last marble is worth 5807 points",
         ];
-        let expected: [i64; 6] = [
-            32,
-            8317,
-            146373,
-            2764,
-            54718,
-            37305,
-        ];
+        let expected: [i64; 6] = [32, 8317, 146373, 2764, 54718, 37305];
 
         for i in 0..input.len() {
             let (player_count, last_marble_value) = parse_input(input[i].to_string());
@@ -108,14 +102,7 @@ mod tests {
             "21 players; last marble is worth 6111 points",
             "30 players; last marble is worth 5807 points",
         ];
-        let expected: [i64; 6] = [
-            22563,
-            74765078,
-            1406506154,
-            20548882,
-            507583214,
-            320997431,
-        ];
+        let expected: [i64; 6] = [22563, 74765078, 1406506154, 20548882, 507583214, 320997431];
 
         for i in 0..input.len() {
             let (player_count, last_marble_value) = parse_input(input[i].to_string());

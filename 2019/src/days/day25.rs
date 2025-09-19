@@ -1,6 +1,6 @@
-use std::{env, io};
 use std::collections::{HashSet, VecDeque};
 use std::time::Instant;
+use std::{env, io};
 
 use aoc_helpers::direction::Direction;
 use aoc_helpers::io::parse_int_list;
@@ -25,7 +25,9 @@ fn solve_part_1(input: &[i64]) -> String {
     let mut computer = IntCodeComputer::new(input);
 
     // Set the environment variable AOC_MANUAL_INPUT=true to have manual input
-    if let Ok(env_var) = env::var("AOC_MANUAL_INPUT") && let Ok(value) = env_var.parse::<bool>() {
+    if let Ok(env_var) = env::var("AOC_MANUAL_INPUT")
+        && let Ok(value) = env_var.parse::<bool>()
+    {
         info!("accepting manual input: {} {:?}", env_var, value);
         run_manual(&mut computer)
     } else {
@@ -43,7 +45,7 @@ fn run_manual(computer: &mut IntCodeComputer) -> String {
                 if let Some(status) = computer.output.pop_front() {
                     display.write_character(status as u8 as char);
                 }
-            },
+            }
             IntCodeStatus::InputRequired => {
                 let output = display.to_string();
                 output.lines().for_each(|l| info!("{}", l));
@@ -55,15 +57,18 @@ fn run_manual(computer: &mut IntCodeComputer) -> String {
                     }
                 }
                 display.clear();
-            },
+            }
             IntCodeStatus::ProgramHalted => {
                 let output = display.to_string();
                 output.lines().for_each(|l| info!("{}", l));
                 if output.contains("Pressure-Sensitive Floor") {
-                    return output.chars().filter(|char| char.is_ascii_digit()).collect();
+                    return output
+                        .chars()
+                        .filter(|char| char.is_ascii_digit())
+                        .collect();
                 }
                 break;
-            },
+            }
         }
     }
     unreachable!();
@@ -88,7 +93,7 @@ fn run(computer: &mut IntCodeComputer) -> String {
                     if let Some(status) = robot.output.pop_front() {
                         display.write_character(status as u8 as char);
                     }
-                },
+                }
                 IntCodeStatus::InputRequired => {
                     let output = display.to_string();
                     // If we see the pressure sensitive floor and input is required, our weight is incorrect
@@ -167,15 +172,18 @@ fn run(computer: &mut IntCodeComputer) -> String {
                         }
                     }
                     break;
-                },
+                }
                 IntCodeStatus::ProgramHalted => {
                     let output = display.to_string();
                     // If we see the pressure sensitive floor and the program has halted, our weight is correct
                     if output.contains("Pressure-Sensitive Floor") {
-                        return output.chars().filter(|char| char.is_ascii_digit()).collect();
+                        return output
+                            .chars()
+                            .filter(|char| char.is_ascii_digit())
+                            .collect();
                     }
                     break;
-                },
+                }
             }
         }
     }

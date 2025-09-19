@@ -58,18 +58,8 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 4] = [
-            "+1\n-2\n+3\n+1",
-            "+1\n+1\n+1",
-            "+1\n+1\n-2",
-            "-1\n-2\n-3",
-        ];
-        let expected: [i64; 4] = [
-            3,
-            3,
-            0,
-            -6,
-        ];
+        let input: [&str; 4] = ["+1\n-2\n+3\n+1", "+1\n+1\n+1", "+1\n+1\n-2", "-1\n-2\n-3"];
+        let expected: [i64; 4] = [3, 3, 0, -6];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());
@@ -86,13 +76,7 @@ mod tests {
             "-6\n+3\n+8\n+5\n-6",
             "+7\n+7\n-2\n-7\n-4",
         ];
-        let expected: [i64; 5] = [
-            2,
-            0,
-            10,
-            5,
-            14,
-        ];
+        let expected: [i64; 5] = [2, 0, 10, 5, 14];
 
         for i in 0..input.len() {
             let input = parse_input(input[i].to_string());

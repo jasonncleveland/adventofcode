@@ -31,7 +31,9 @@ fn parse_input(file_contents: String) -> (Vec<Point2d>, Boundaries) {
 
     for line in file_contents.lines() {
         let parts = line.split(", ").collect::<Vec<&str>>();
-        if let Ok(x) = parts[0].parse::<i64>() && let Ok(y) = parts[1].parse::<i64>() {
+        if let Ok(x) = parts[0].parse::<i64>()
+            && let Ok(y) = parts[1].parse::<i64>()
+        {
             if x < boundaries.min_x {
                 boundaries.min_x = x;
             }
@@ -53,8 +55,15 @@ fn parse_input(file_contents: String) -> (Vec<Point2d>, Boundaries) {
 fn solve_part_1(points: &Vec<Point2d>, boundaries: &Boundaries) -> i64 {
     let mut max_area = i64::MIN;
     for point in points.iter() {
-        if let Ok(area) = find_area_rec(points, boundaries, &mut HashSet::new(), point, point.x, point.y)
-            && area > max_area {
+        if let Ok(area) = find_area_rec(
+            points,
+            boundaries,
+            &mut HashSet::new(),
+            point,
+            point.x,
+            point.y,
+        ) && area > max_area
+        {
             max_area = area;
         }
     }
@@ -74,7 +83,14 @@ fn is_out_of_bounds(boundaries: &Boundaries, x: i64, y: i64) -> bool {
     x < boundaries.min_x || x > boundaries.max_x || y < boundaries.min_y || y > boundaries.max_y
 }
 
-fn find_area_rec(points: &Vec<Point2d>, boundaries: &Boundaries, visited: &mut HashSet<(i64, i64)>, source: &Point2d, x: i64, y: i64) -> Result<i64, i64> {
+fn find_area_rec(
+    points: &Vec<Point2d>,
+    boundaries: &Boundaries,
+    visited: &mut HashSet<(i64, i64)>,
+    source: &Point2d,
+    x: i64,
+    y: i64,
+) -> Result<i64, i64> {
     if visited.contains(&(x, y)) {
         return Ok(0);
     }
@@ -154,7 +170,12 @@ fn find_closest_coordinate(points: &[Point2d], origin: &Point2d) -> usize {
     }
 }
 
-fn find_region_area(points: &Vec<Point2d>, boundaries: &Boundaries, source: &Point2d, max_distance: i64) -> i64 {
+fn find_region_area(
+    points: &Vec<Point2d>,
+    boundaries: &Boundaries,
+    source: &Point2d,
+    max_distance: i64,
+) -> i64 {
     let mut queue: VecDeque<(i64, i64)> = VecDeque::new();
     let mut visited: HashSet<(i64, i64)> = HashSet::new();
 
@@ -229,17 +250,13 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "1, 1
+        let input: [&str; 1] = ["1, 1
 1, 6
 8, 3
 3, 4
 5, 5
-8, 9",
-        ];
-        let expected: [i64; 1] = [
-            17,
-        ];
+8, 9"];
+        let expected: [i64; 1] = [17];
 
         for i in 0..input.len() {
             let (points, boundaries) = parse_input(input[i].to_string());
@@ -249,17 +266,13 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "1, 1
+        let input: [&str; 1] = ["1, 1
 1, 6
 8, 3
 3, 4
 5, 5
-8, 9",
-        ];
-        let expected: [i64; 1] = [
-            16,
-        ];
+8, 9"];
+        let expected: [i64; 1] = [16];
 
         for i in 0..input.len() {
             let (points, boundaries) = parse_input(input[i].to_string());

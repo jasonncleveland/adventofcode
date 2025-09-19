@@ -70,7 +70,10 @@ fn solve_part_2(serial_number: i64) -> String {
         }
     }
 
-    format!("{},{},{}", max_power_level_x, max_power_level_y, max_power_level_size)
+    format!(
+        "{},{},{}",
+        max_power_level_x, max_power_level_y, max_power_level_size
+    )
 }
 
 fn generate_summed_area_table(width: usize, get_value: impl Fn(i64, i64) -> i64) -> Vec<Vec<i64>> {
@@ -114,7 +117,11 @@ fn generate_calculate_power_level_func(serial_number: i64) -> impl Fn(i64, i64) 
     }
 }
 
-fn calculate_summed_area(summed_area_table: &[Vec<i64>], start: (usize, usize), end: (usize, usize)) -> i64 {
+fn calculate_summed_area(
+    summed_area_table: &[Vec<i64>],
+    start: (usize, usize),
+    end: (usize, usize),
+) -> i64 {
     // println!("{:?} {:?}", start, end);
     let mut a = 0;
     if start.1 > 0 && start.0 > 0 {
@@ -125,7 +132,7 @@ fn calculate_summed_area(summed_area_table: &[Vec<i64>], start: (usize, usize), 
         b = summed_area_table[start.1 - 1][end.0];
     }
     let mut c = 0;
-    if start.0 > 0{
+    if start.0 > 0 {
         c = summed_area_table[end.1][start.0 - 1];
     }
     let d = summed_area_table[end.1][end.0];
@@ -140,18 +147,9 @@ mod tests {
 
     #[test]
     fn test_calculate_power_level() {
-        let input: [(i64, i64, i64); 4] = [
-            (8, 3, 5),
-            (57, 122, 79),
-            (39, 217, 196),
-            (71, 101, 153),
-        ];
-        let expected: [i64; 4] = [
-            4,
-            -5,
-            0,
-            4,
-        ];
+        let input: [(i64, i64, i64); 4] =
+            [(8, 3, 5), (57, 122, 79), (39, 217, 196), (71, 101, 153)];
+        let expected: [i64; 4] = [4, -5, 0, 4];
 
         for i in 0..input.len() {
             let calculate_power_level = generate_calculate_power_level_func(input[i].0);
@@ -200,7 +198,10 @@ mod tests {
 
         for i in 0..input.len() {
             let get_value = generate_get_value(&input[i]);
-            assert_eq!(generate_summed_area_table(input[i].len(), &get_value), expected[i]);
+            assert_eq!(
+                generate_summed_area_table(input[i].len(), &get_value),
+                expected[i]
+            );
         }
     }
 
@@ -216,36 +217,26 @@ mod tests {
         ];
         let input: [((usize, usize), (usize, usize)); 6] = [
             ((2, 3), (4, 4)),
-            ((0, 0), (4,4)),
-            ((0, 0), (1,2)),
-            ((0, 0), (4,2)),
-            ((0, 0), (1,4)),
-            ((2, 3), (4,4)),
+            ((0, 0), (4, 4)),
+            ((0, 0), (1, 2)),
+            ((0, 0), (4, 2)),
+            ((0, 0), (1, 4)),
+            ((2, 3), (4, 4)),
         ];
-        let expected: [i64; 6] = [
-            27,
-            110,
-            28,
-            65,
-            46,
-            27,
-        ];
+        let expected: [i64; 6] = [27, 110, 28, 65, 46, 27];
 
         for i in 0..input.len() {
-            assert_eq!(calculate_summed_area(&table, input[i].0, input[i].1), expected[i]);
+            assert_eq!(
+                calculate_summed_area(&table, input[i].0, input[i].1),
+                expected[i]
+            );
         }
     }
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 2] = [
-            "18",
-            "42",
-        ];
-        let expected: [&str; 2] = [
-            "33,45",
-            "21,61",
-        ];
+        let input: [&str; 2] = ["18", "42"];
+        let expected: [&str; 2] = ["33,45", "21,61"];
 
         for i in 0..input.len() {
             let input = parse_int(input[i].to_string());
@@ -255,14 +246,8 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 2] = [
-            "18",
-            "42",
-        ];
-        let expected: [&str; 2] = [
-            "90,269,16",
-            "232,251,12",
-        ];
+        let input: [&str; 2] = ["18", "42"];
+        let expected: [&str; 2] = ["90,269,16", "232,251,12"];
 
         for i in 0..input.len() {
             let input = parse_int(input[i].to_string());

@@ -48,7 +48,10 @@ fn get_line_segments(instructions: &str) -> Vec<LineData> {
                 "D" => current.y += num,
                 other => panic!("Unknown direction: {}", other),
             }
-            segments.push(LineData { line: LineSegment2d::new(previous, current), steps });
+            segments.push(LineData {
+                line: LineSegment2d::new(previous, current),
+                steps,
+            });
             previous = current;
         }
     }
@@ -63,12 +66,17 @@ fn solve_part_2(input: &(Vec<LineData>, Vec<LineData>)) -> i64 {
     find_closest_intersection(input, choose_shortest_total_steps)
 }
 
-fn find_closest_intersection(input: &(Vec<LineData>, Vec<LineData>), get_distance: impl Fn(Point2d, &LineData, &LineData) -> i64) -> i64 {
+fn find_closest_intersection(
+    input: &(Vec<LineData>, Vec<LineData>),
+    get_distance: impl Fn(Point2d, &LineData, &LineData) -> i64,
+) -> i64 {
     let mut min_distance = i64::MAX;
     for first in input.0.iter() {
         for second in input.1.iter() {
             if first.line.start.x == first.line.end.x && second.line.start.x == second.line.end.x
-                || first.line.start.y == first.line.end.y && second.line.start.y == second.line.end.y {
+                || first.line.start.y == first.line.end.y
+                    && second.line.start.y == second.line.end.y
+            {
                 // Ignore parallel lines
                 continue;
             }
@@ -79,8 +87,11 @@ fn find_closest_intersection(input: &(Vec<LineData>, Vec<LineData>), get_distanc
                 let min_y = min(first.line.start.y, first.line.end.y);
                 let max_y = max(first.line.start.y, first.line.end.y);
 
-                if min_y <= second.line.start.y && second.line.start.y <= max_y
-                    && min_x <= first.line.start.x && first.line.start.x <= max_x {
+                if min_y <= second.line.start.y
+                    && second.line.start.y <= max_y
+                    && min_x <= first.line.start.x
+                    && first.line.start.x <= max_x
+                {
                     let intersection = Point2d::new(first.line.start.x, second.line.start.y);
                     let distance = get_distance(intersection, first, second);
                     if distance == 0 {
@@ -98,8 +109,11 @@ fn find_closest_intersection(input: &(Vec<LineData>, Vec<LineData>), get_distanc
                 let min_x = min(first.line.start.x, first.line.end.x);
                 let max_x = max(first.line.start.x, first.line.end.x);
 
-                if min_x <= second.line.start.x && second.line.start.x <= max_x
-                    && min_y <= first.line.start.y && first.line.start.y <= max_y {
+                if min_x <= second.line.start.x
+                    && second.line.start.x <= max_x
+                    && min_y <= first.line.start.y
+                    && first.line.start.y <= max_y
+                {
                     let intersection = Point2d::new(second.line.start.x, first.line.start.y);
                     let distance = get_distance(intersection, first, second);
                     if distance == 0 {
@@ -155,11 +169,7 @@ U62,R66,U55,R34,D71,R55,D58,R83",
             "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51
 U98,R91,D20,R16,D67,R40,U7,R15,U6,R7",
         ];
-        let expected: [i64; 3] = [
-            6,
-            159,
-            135,
-        ];
+        let expected: [i64; 3] = [6, 159, 135];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());
@@ -177,11 +187,7 @@ U62,R66,U55,R34,D71,R55,D58,R83",
             "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51
 U98,R91,D20,R16,D67,R40,U7,R15,U6,R7",
         ];
-        let expected: [i64; 3] = [
-            30,
-            610,
-            410,
-        ];
+        let expected: [i64; 3] = [30, 610, 410];
 
         for i in 0..input.len() {
             let parsed = parse_input(input[i].to_string());

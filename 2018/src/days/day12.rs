@@ -29,7 +29,9 @@ fn parse_input(file_contents: String) -> (Vec<char>, HashMap<String, char>) {
         }
 
         for line in mutations_content.lines() {
-            if let Some((input, o)) = line.split_once(" => ") && let Some(output) = o.chars().next() {
+            if let Some((input, o)) = line.split_once(" => ")
+                && let Some(output) = o.chars().next()
+            {
                 mutations.insert(input.to_string(), output);
             }
         }
@@ -76,7 +78,11 @@ fn solve_part_2(state: &[char], mutations: &HashMap<String, char>) -> i64 {
     last_score + (last_score_delta * (50_000_000_000 - generations))
 }
 
-fn simulate_generations(state: &mut Vec<char>, mutations: &HashMap<String, char>, iterations: i64) -> i64 {
+fn simulate_generations(
+    state: &mut Vec<char>,
+    mutations: &HashMap<String, char>,
+    iterations: i64,
+) -> i64 {
     // Keep track of the left side offset to know how many zeros were added for padding
     let mut offset: i64 = 0;
 
@@ -91,7 +97,7 @@ fn simulate_generations(state: &mut Vec<char>, mutations: &HashMap<String, char>
         state.push('.');
 
         let mut current_state = state.clone();
-        for pot_index in 2..current_state.len()-2 {
+        for pot_index in 2..current_state.len() - 2 {
             let row: Vec<char> = vec![
                 state[pot_index - 2],
                 state[pot_index - 1],
@@ -128,8 +134,7 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input: [&str; 1] = [
-            "initial state: #..#.#..##......###...###
+        let input: [&str; 1] = ["initial state: #..#.#..##......###...###
 
 ...## => #
 ..#.. => #
@@ -144,11 +149,8 @@ mod tests {
 ##.## => #
 ###.. => #
 ###.# => #
-####. => #",
-        ];
-        let expected: [i64; 1] = [
-            325,
-        ];
+####. => #"];
+        let expected: [i64; 1] = [325];
 
         for i in 0..input.len() {
             let (state, mutations) = parse_input(input[i].to_string());
@@ -158,8 +160,7 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let input: [&str; 1] = [
-            "initial state: #..#.#..##......###...###
+        let input: [&str; 1] = ["initial state: #..#.#..##......###...###
 
 ...## => #
 ..#.. => #
@@ -174,11 +175,8 @@ mod tests {
 ##.## => #
 ###.. => #
 ###.# => #
-####. => #",
-        ];
-        let expected: [i64; 1] = [
-            999999999374,
-        ];
+####. => #"];
+        let expected: [i64; 1] = [999999999374];
 
         for i in 0..input.len() {
             let (state, mutations) = parse_input(input[i].to_string());

@@ -24,13 +24,17 @@ fn parse_input(file_contents: String) -> Vec<Instruction> {
     let mut instructions: Vec<Instruction> = Vec::new();
     for line in file_contents.lines() {
         if line.starts_with("cut") {
-            if let Some((_, value)) = line.split_once(' ') && let Ok(n) = value.parse::<i64>() {
+            if let Some((_, value)) = line.split_once(' ')
+                && let Ok(n) = value.parse::<i64>()
+            {
                 instructions.push(Instruction::Cut(n));
             }
         } else if line.starts_with("deal") {
             if line == "deal into new stack" {
                 instructions.push(Instruction::DealIntoNewStack);
-            } else if let Some(value) = line.split(' ').nth(3) && let Ok(n) = value.parse::<usize>() {
+            } else if let Some(value) = line.split(' ').nth(3)
+                && let Ok(n) = value.parse::<usize>()
+            {
                 instructions.push(Instruction::DealWithIncrement(n));
             }
         } else {
@@ -70,16 +74,16 @@ fn solve_part_2(input: &[Instruction], deck_size: i128) -> i128 {
                 // Position multiplied by -1
                 a = (-a) % deck_size;
                 b = (-b - 1) % deck_size;
-            },
+            }
             Instruction::Cut(n) => {
                 // Position is decreased by n
                 b = (b - *n as i128) % deck_size;
-            },
+            }
             Instruction::DealWithIncrement(n) => {
                 // Position multiplied by n
                 a = (a * *n as i128) % deck_size;
                 b = (b * *n as i128) % deck_size;
-            },
+            }
         }
     }
 
@@ -105,7 +109,7 @@ fn process_instructions(instructions: &[Instruction], deck: &mut VecDeque<i64>) 
                     trace!("cutting {:?} from top of deck", 0..*n as usize);
                     deck.rotate_left((*n) as usize);
                 }
-            },
+            }
             Instruction::DealWithIncrement(n) => {
                 trace!("deal {n} increments to new deck");
                 let deck_size = deck.len();
@@ -117,7 +121,7 @@ fn process_instructions(instructions: &[Instruction], deck: &mut VecDeque<i64>) 
                     index += *n;
                 }
                 swap(deck, &mut new_deck);
-            },
+            }
             Instruction::DealIntoNewStack => {
                 let mut new_deck = VecDeque::new();
                 while let Some(card) = deck.pop_front() {
@@ -211,12 +215,12 @@ cut -1",
         let expected: [[i64; 10]; 8] = [
             [9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
             [3, 4, 5, 6, 7, 8, 9, 0, 1, 2],
-            [6, 7, 8, 9, 0 ,1, 2, 3, 4, 5],
-            [0, 7, 4, 1, 8 ,5, 2, 9, 6, 3],
-            [0, 3, 6, 9, 2 ,5, 8, 1, 4, 7],
-            [3, 0, 7, 4, 1 ,8, 5, 2, 9, 6],
-            [6, 3, 0, 7, 4 ,1, 8, 5, 2, 9],
-            [9, 2, 5, 8, 1 ,4, 7, 0, 3, 6],
+            [6, 7, 8, 9, 0, 1, 2, 3, 4, 5],
+            [0, 7, 4, 1, 8, 5, 2, 9, 6, 3],
+            [0, 3, 6, 9, 2, 5, 8, 1, 4, 7],
+            [3, 0, 7, 4, 1, 8, 5, 2, 9, 6],
+            [6, 3, 0, 7, 4, 1, 8, 5, 2, 9],
+            [9, 2, 5, 8, 1, 4, 7, 0, 3, 6],
         ];
 
         for i in 0..input.len() {

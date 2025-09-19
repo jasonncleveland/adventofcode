@@ -66,7 +66,14 @@ fn solve_part_2(input: &[i64]) -> i64 {
 
         // Calculate the width of the current row
         // The width varies by 1 at most so we only need to check around the start and end coordinates
-        let relevant_coordinates: HashSet<i64> = HashSet::from_iter(vec![start_x, start_x + 1, end_x - 1, end_x, end_x + 1, end_x + 2]);
+        let relevant_coordinates: HashSet<i64> = HashSet::from_iter(vec![
+            start_x,
+            start_x + 1,
+            end_x - 1,
+            end_x,
+            end_x + 1,
+            end_x + 2,
+        ]);
         for x in relevant_coordinates {
             if x < 0 {
                 continue;

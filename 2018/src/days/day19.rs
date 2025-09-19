@@ -3,7 +3,7 @@ use std::time::Instant;
 use aoc_helpers::math::factors;
 use log::{debug, trace};
 
-use crate::shared::elfcode::{parse_device_instructions, Device, Instruction};
+use crate::shared::elfcode::{Device, Instruction, parse_device_instructions};
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
