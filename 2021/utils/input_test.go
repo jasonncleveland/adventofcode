@@ -49,3 +49,33 @@ func TestReadFileLines(t *testing.T) {
 	}()
 	ReadFileLines("invalidData.txt")
 }
+
+func TestReadFile(t *testing.T) {
+	line := []byte("#######\n#.....#\n#..#..#\n#.###.#\n#.###.#\n#..#..#\n#.....#\n#######")
+
+	tempDir := t.TempDir()
+	fileName := tempDir + "testFileName"
+	err := os.WriteFile(fileName, line, 0777)
+	if err != nil {
+		t.Fatal("Could not write test file with name", fileName)
+	}
+
+	// Test with a valid file
+	result := ReadFile(fileName)
+	if len(result) != len(line) {
+		t.Fatalf("Length of result %d is not equal to the expected length %d\n", len(result), len(line))
+	}
+	for i := range result {
+		if result[i] != line[i] {
+			t.Errorf("Number at index %d in result %d is not equal to expected %d\n", i, result[i], line[i])
+		}
+	}
+
+	// Test with an invalid file
+	defer func() {
+		if r := recover(); r == nil {
+			t.Fatal("Expected to recover panic from file open error")
+		}
+	}()
+	ReadFile("invalidData.txt")
+}

@@ -24,6 +24,7 @@ import (
 	"advent-of-code-2021/day16"
 	"advent-of-code-2021/day17"
 	"advent-of-code-2021/day18"
+	"advent-of-code-2021/day20"
 )
 
 func main() {
@@ -112,6 +113,10 @@ func main() {
 	if runAllDays || dayToRun == "day18" {
 		fmt.Println("Day 18")
 		day18.Run(filepath.Join("day18", fileName))
+	}
+	if runAllDays || dayToRun == "day20" {
+		fmt.Println("Day 20")
+		day20.Run(filepath.Join("day20", fileName))
 	}
 
 	fmt.Printf("Total: %s\n", time.Since(start))
