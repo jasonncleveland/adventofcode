@@ -15,5 +15,8 @@ main
 # JetBrains
 .idea/
 
+# Ignore session file
+session
+
 # Ignore input text files
 input
