@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Direction {
     Up,
     Down,
@@ -19,6 +19,27 @@ impl fmt::Display for Direction {
     }
 }
 
+impl Direction {
+    /// Return the direction after performing a turn in the given direction
+    pub fn next(&self, turn: &Direction) -> Direction {
+        match turn {
+            Direction::Left => match self {
+                Direction::Up => Direction::Left,
+                Direction::Down => Direction::Right,
+                Direction::Left => Direction::Down,
+                Direction::Right => Direction::Up,
+            },
+            Direction::Right => match self {
+                Direction::Up => Direction::Right,
+                Direction::Down => Direction::Left,
+                Direction::Left => Direction::Up,
+                Direction::Right => Direction::Down,
+            },
+            _ => unreachable!(),
+        }
+    }
+}
+
 pub fn get_directions() -> Vec<Direction> {
     vec![
         Direction::Up,
@@ -28,20 +49,24 @@ pub fn get_directions() -> Vec<Direction> {
     ]
 }
 
-pub fn get_next_direction(current: &Direction, turn: &Direction) -> Direction {
-    match turn {
-        Direction::Left => match current {
-            Direction::Up => Direction::Left,
-            Direction::Down => Direction::Right,
-            Direction::Left => Direction::Down,
-            Direction::Right => Direction::Up,
-        },
-        Direction::Right => match current {
-            Direction::Up => Direction::Right,
-            Direction::Down => Direction::Left,
-            Direction::Left => Direction::Up,
-            Direction::Right => Direction::Down,
-        },
-        _ => unreachable!(),
+mod tests {
+    #[test]
+    fn test_next() {
+        use super::*;
+
+        let data: [(Direction, Direction, Direction); 8] = [
+            (Direction::Up, Direction::Left, Direction::Left),
+            (Direction::Up, Direction::Right, Direction::Right),
+            (Direction::Left, Direction::Left, Direction::Down),
+            (Direction::Left, Direction::Right, Direction::Up),
+            (Direction::Right, Direction::Left, Direction::Up),
+            (Direction::Right, Direction::Right, Direction::Down),
+            (Direction::Down, Direction::Left, Direction::Right),
+            (Direction::Down, Direction::Right, Direction::Left),
+        ];
+
+        for (current, turn, expected) in data {
+            assert_eq!(current.next(&turn), expected);
+        }
     }
 }

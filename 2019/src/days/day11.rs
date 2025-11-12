@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use aoc_helpers::direction::{Direction, get_next_direction};
+use aoc_helpers::direction::Direction;
 use aoc_helpers::io::parse_int_list;
 use aoc_helpers::point2d::Point2d;
 use log::{debug, trace};
@@ -71,7 +71,7 @@ fn paint_tiles(screen: &mut IntCodeDisplay, robot: &mut IntCodeComputer) {
                 screen.pixels.insert(current_position, next_colour);
 
                 // Move to next tile
-                let next_direction = get_next_direction(&current_direction, &turn_direction);
+                let next_direction = current_direction.next(&turn_direction);
                 trace!(
                     "Changing direction from {} to {}",
                     current_direction, next_direction

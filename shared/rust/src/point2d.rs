@@ -54,14 +54,35 @@ impl Point2d {
 
     pub fn neighbours(&self) -> Vec<Point2d> {
         vec![
+            // up
+            Point2d::new(self.x, self.y - 1),
             // left
             Point2d::new(self.x - 1, self.y),
             // right
             Point2d::new(self.x + 1, self.y),
-            // up
-            Point2d::new(self.x, self.y - 1),
             // down
             Point2d::new(self.x, self.y + 1),
+        ]
+    }
+
+    pub fn neighbours8(&self) -> Vec<Point2d> {
+        vec![
+            // up left
+            Point2d::new(self.x - 1, self.y - 1),
+            // up
+            Point2d::new(self.x, self.y - 1),
+            // up right
+            Point2d::new(self.x + 1, self.y - 1),
+            // left
+            Point2d::new(self.x - 1, self.y),
+            // right
+            Point2d::new(self.x + 1, self.y),
+            // down left
+            Point2d::new(self.x - 1, self.y + 1),
+            // down
+            Point2d::new(self.x, self.y + 1),
+            // down right
+            Point2d::new(self.x + 1, self.y + 1),
         ]
     }
 }
@@ -130,5 +151,35 @@ mod tests {
             let result = input[i].0.angle(&input[i].1);
             assert_eq!(result, expected[i]);
         }
+    }
+
+    #[test]
+    fn test_neighbours() {
+        let input = Point2d::new(0, 0);
+        let expected: [Point2d; 4] = [
+            Point2d::new(0, -1),
+            Point2d::new(-1, 0),
+            Point2d::new(1, 0),
+            Point2d::new(0, 1),
+        ];
+
+        assert_eq!(input.neighbours(), expected);
+    }
+
+    #[test]
+    fn test_neighbours8() {
+        let input = Point2d::new(0, 0);
+        let expected: [Point2d; 8] = [
+            Point2d::new(-1, -1),
+            Point2d::new(0, -1),
+            Point2d::new(1, -1),
+            Point2d::new(-1, 0),
+            Point2d::new(1, 0),
+            Point2d::new(-1, 1),
+            Point2d::new(0, 1),
+            Point2d::new(1, 1),
+        ];
+
+        assert_eq!(input.neighbours8(), expected);
     }
 }
