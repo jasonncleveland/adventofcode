@@ -14,3 +14,6 @@ main
 
 # JetBrains
 .idea/
+
+# Ignore input text files
+input
