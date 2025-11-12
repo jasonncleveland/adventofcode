@@ -6,8 +6,9 @@ use super::point2d::Point2d;
 pub fn read_file(file_name: String) -> String {
     // Some input has a Byte Order Mark at the start of the input.
     // We need to remove the BOM before parsing
+    // Strip trailing newline to help parsing
     let file_contents = read_to_string(file_name).expect("Something went wrong reading the file");
-    file_contents.trim_start_matches("\u{feff}").to_string()
+    file_contents.trim_start_matches("\u{feff}").trim_end_matches("\n").to_string()
 }
 
 pub fn parse_int(file_contents: String) -> i64 {
