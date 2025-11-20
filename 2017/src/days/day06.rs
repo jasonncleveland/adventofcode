@@ -36,7 +36,10 @@ fn solve_part_1(input: &[i64]) -> i64 {
 
         // Check state
         if states.contains(&memory) {
-            trace!("Found duplicate state: {:?} after {} cycles", memory, cycles);
+            trace!(
+                "Found duplicate state: {:?} after {} cycles",
+                memory, cycles
+            );
             return cycles;
         }
         states.insert(memory.clone());
@@ -59,7 +62,10 @@ fn solve_part_2(input: &[i64]) -> i64 {
 
         // Check state
         if let Some(last_seen) = states.get(&memory) {
-            trace!("Found duplicate state: {:?} after {} cycles. Last seen on cycle {}", memory, cycles, last_seen);
+            trace!(
+                "Found duplicate state: {:?} after {} cycles. Last seen on cycle {}",
+                memory, cycles, last_seen
+            );
             return cycles - last_seen;
         }
         states.insert(memory.clone(), cycles);
