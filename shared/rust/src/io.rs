@@ -30,6 +30,10 @@ pub fn parse_int_list(file_contents: String, separator: char) -> Vec<i64> {
     result
 }
 
+pub fn parse_char_list(file_contents: String) -> Vec<char> {
+    file_contents.chars().collect()
+}
+
 pub fn parse_char_grid(file_contents: String) -> HashMap<Point2d, char> {
     let mut result: HashMap<Point2d, char> = HashMap::new();
     for (y, line) in file_contents.lines().enumerate() {
