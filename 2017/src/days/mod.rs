@@ -8,6 +8,7 @@ mod day07;
 mod day08;
 mod day09;
 mod day10;
+mod day11;
 
 type SolveFunction = fn(String) -> (String, String);
 
@@ -23,6 +24,7 @@ pub fn get_solve_module(day: u8) -> Result<SolveFunction, String> {
         8 => Ok(day08::solve),
         9 => Ok(day09::solve),
         10 => Ok(day10::solve),
+        11 => Ok(day11::solve),
         other => Err(format!("Invalid day provided: {}", other)),
     }
 }
