@@ -33,41 +33,35 @@ fn parse_input(file_contents: String) -> HashMap<i64, i64> {
 }
 
 fn solve_part_1(input: &HashMap<i64, i64>) -> i64 {
-    if let Some(severity) = calculate_trip_severity(input, 0) {
-        return severity;
+    let mut total = 0;
+    if let Some(&max_depth) = input.keys().max() {
+        for layer in 0..=max_depth {
+            if let Some(range) = input.get(&layer) {
+                // The scanner cycles through its range so it will return to the top after range * 2 - 2 steps
+                if layer % (range * 2 - 2) == 0 {
+                    total += layer * range;
+                }
+            }
+        }
     }
-    unreachable!();
+    total
 }
 
 fn solve_part_2(input: &HashMap<i64, i64>) -> i64 {
     let mut delay = 1;
     loop {
-        if calculate_trip_severity(input, delay).is_none() {
+        let mut is_caught = false;
+        for (layer, range) in input {
+            // The scanner cycles through its range so it will return to the top after range * 2 - 2 steps
+            if (delay + layer) % (range * 2 - 2) == 0 {
+                is_caught = true;
+                break;
+            }
+        }
+        if !is_caught {
             return delay;
         }
         delay += 1;
-    }
-}
-
-fn calculate_trip_severity(input: &HashMap<i64, i64>, delay: i64) -> Option<i64> {
-    let mut total = 0;
-    let mut is_caught = false;
-    if let Some(&max_depth) = input.keys().max() {
-        let mut picoseconds = delay;
-        for layer in 0..=max_depth {
-            if let Some(range) = input.get(&layer) {
-                // The scanner cycles through its range so it will return to the top after range * 2 - 2 steps
-                if picoseconds % (range * 2 - 2) == 0 {
-                    is_caught = true;
-                    total += layer * range;
-                }
-            }
-            picoseconds += 1;
-        }
-    }
-    match is_caught {
-        true => Some(total),
-        false => None,
     }
 }
 
