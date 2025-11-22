@@ -2,7 +2,9 @@ use std::collections::VecDeque;
 use std::time::Instant;
 
 use aoc_helpers::io::parse_int_list;
-use log::{debug, trace};
+use log::debug;
+
+use crate::shared::knot_hash::{calculate_knot_hash, reverse_numbers};
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
@@ -37,44 +39,7 @@ fn solve_part_1(lengths: &[i64], size: i64) -> i64 {
 }
 
 fn solve_part_2(input: String) -> String {
-    let mut numbers: VecDeque<i64> = (0..256).collect();
-    let mut current_position = 0;
-    let mut skip_size = 0;
-
-    let mut lengths: VecDeque<usize> = input.chars().map(|c| c as usize).collect();
-    lengths.extend([17, 31, 73, 47, 23]);
-
-    for _ in 0..64 {
-        for length in &lengths {
-            reverse_numbers(&mut numbers, current_position, current_position + length);
-            current_position += length + skip_size;
-            skip_size += 1;
-        }
-    }
-
-    let mut hash = String::new();
-    for i in 0..16 {
-        let mut reduced = 0;
-        for j in 0..16 {
-            reduced ^= numbers[i * 16 + j];
-        }
-        hash.push_str(&format!("{:02x}", reduced));
-    }
-    hash
-}
-
-fn reverse_numbers(numbers: &mut VecDeque<i64>, start: usize, end: usize) {
-    trace!(
-        "reversing numbers from start index {} to end index {} of {:?}",
-        start, end, numbers
-    );
-    let mut i = start;
-    let mut j = end - 1;
-    while i < j {
-        numbers.swap(i % numbers.len(), j % numbers.len());
-        i += 1;
-        j -= 1;
-    }
+    calculate_knot_hash(input)
 }
 
 #[cfg(test)]

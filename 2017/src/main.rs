@@ -1,4 +1,5 @@
 mod days;
+mod shared;
 
 use std::env;
 use std::time::Instant;
