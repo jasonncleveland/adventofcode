@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 use std::time::Instant;
 
 use aoc_helpers::io::parse_int;
-use log::{debug, trace};
+use log::debug;
 
 pub fn solve(file_contents: String) -> (String, String) {
     let parse_timer = Instant::now();
@@ -37,25 +37,18 @@ fn solve_part_1(input: i64) -> i64 {
 }
 
 fn solve_part_2(input: i64) -> i64 {
-    let mut buffer: VecDeque<i64> = VecDeque::new();
-    buffer.push_back(0);
+    let mut index = 0;
+    let mut after_zero = 0;
 
     for i in 1..=50_000_000 {
-        buffer.rotate_left(input as usize % buffer.len());
-        buffer.push_back(i);
-    }
-
-    if let Some(index) = buffer.iter().position(|&v| v == 0) {
-        trace!(
-            "index of 0: {} {:?}",
-            index,
-            buffer.get((index + 1) % buffer.len())
-        );
-        if let Some(&result) = buffer.get((index + 1) % buffer.len()) {
-            return result;
+        // Calculate the index that the new value should be inserted at
+        index = ((index + input) % i) + 1;
+        if index == 1 {
+            // Keep track of the most recent number inserted at index 1
+            after_zero = i;
         }
     }
-    unreachable!();
+    after_zero
 }
 
 #[cfg(test)]
