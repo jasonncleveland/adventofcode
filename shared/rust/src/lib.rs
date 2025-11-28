@@ -1,5 +1,6 @@
 pub mod direction;
 pub mod graph;
+pub mod grid;
 pub mod hex;
 pub mod io;
 pub mod line;
