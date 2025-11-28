@@ -4,6 +4,7 @@ pub mod hex;
 pub mod io;
 pub mod line;
 pub mod math;
+pub mod matrix;
 pub mod permutations;
 pub mod point2d;
 pub mod point3d;
