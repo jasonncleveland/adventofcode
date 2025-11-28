@@ -38,6 +38,16 @@ impl Direction {
             _ => unreachable!(),
         }
     }
+
+    /// Return the direction opposite the given direction
+    pub fn opposite(&self) -> Direction {
+        match self {
+            Direction::Left => Direction::Right,
+            Direction::Right => Direction::Left,
+            Direction::Up => Direction::Down,
+            Direction::Down => Direction::Up,
+        }
+    }
 }
 
 pub fn get_directions() -> Vec<Direction> {
@@ -67,6 +77,22 @@ mod tests {
 
         for (current, turn, expected) in data {
             assert_eq!(current.next(&turn), expected);
+        }
+    }
+
+    #[test]
+    fn test_opposite() {
+        use super::*;
+
+        let data: [(Direction, Direction); 4] = [
+            (Direction::Up, Direction::Down),
+            (Direction::Down, Direction::Up),
+            (Direction::Left, Direction::Right),
+            (Direction::Right, Direction::Left),
+        ];
+
+        for (current, expected) in data {
+            assert_eq!(current.opposite(), expected);
         }
     }
 }
