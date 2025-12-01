@@ -1,5 +1,4 @@
 mod days;
-mod shared;
 
 use std::env;
 use std::time::Instant;
@@ -31,7 +30,7 @@ fn main() {
 
 fn run_all_days(year: u16) {
     let all_days_timer = Instant::now();
-    for day in 1..=25 {
+    for day in 1..=12 {
         run_single_day(year, day);
     }
     info!("Total runtime: ({:?})", all_days_timer.elapsed());
