@@ -1,5 +1,6 @@
 use std::time::Instant;
 
+use aoc_helpers::math::{get_digit, get_digits_count};
 use log::debug;
 
 pub fn solve(file_contents: String) -> (String, String) {
@@ -35,24 +36,24 @@ fn solve_part_1(input: &[(i64, i64)]) -> i64 {
     let mut total = 0;
 
     for &(start, end) in input {
-        for i in start..=end {
-            let str_repr = i.to_string();
-            let chars = str_repr.chars().collect::<Vec<char>>();
-            if !chars.len().is_multiple_of(2) {
+        'outer: for number in start..=end {
+            let digits_count = get_digits_count(number);
+            if !digits_count.is_multiple_of(2) {
                 continue;
             }
-            let len = chars.len() / 2;
-            let mut left: Vec<char> = Vec::with_capacity(len);
-            let mut right: Vec<char> = Vec::with_capacity(len);
-            for i in 0..len {
-                left.push(chars[i]);
-                right.push(chars[len + i]);
+
+            // The pattern will always be two numbers repeated,
+            // so we can compare one half against the other
+            let pattern_length = digits_count / 2;
+            for index in 1..=pattern_length {
+                if let Ok(left) = get_digit(number, index)
+                    && let Ok(right) = get_digit(number, pattern_length + index)
+                    && left != right
+                {
+                    continue 'outer;
+                }
             }
-            let a = left.iter().collect::<String>();
-            let b = right.iter().collect::<String>();
-            if a == b {
-                total += i;
-            }
+            total += number;
         }
     }
 
@@ -63,38 +64,29 @@ fn solve_part_2(input: &[(i64, i64)]) -> i64 {
     let mut total = 0;
 
     for &(start, end) in input {
-        'outer: for i in start..=end {
-            let str_repr = i.to_string();
-            let mut chars = str_repr.chars();
-            let mut pattern: Vec<char> = Vec::new();
-            let mut possible_patterns: Vec<Vec<char>> = Vec::new();
-            let mut pattern_len = chars.clone().count() / 2;
-            if let Some(first) = chars.next() {
-                pattern.push(first);
-                possible_patterns.push(pattern.clone());
-                pattern_len -= 1;
-                while let Some(next) = chars.next()
-                    && pattern_len > 0
-                {
-                    pattern.push(next);
-                    possible_patterns.push(pattern.clone());
-                    pattern_len -= 1;
-                }
-            }
+        'outer: for number in start..=end {
+            let digits_count = get_digits_count(number);
 
-            'inner: for p in possible_patterns {
-                let str_len = str_repr.chars().count();
-                if p.len() == str_len || str_len % p.len() != 0 {
+            // The max pattern length will be half of the number
+            'inner: for pattern_length in 1..=digits_count / 2 {
+                if !digits_count.is_multiple_of(pattern_length) {
                     continue;
                 }
 
-                for (i, c) in str_repr.chars().enumerate() {
-                    if c != p[i % p.len()] {
-                        continue 'inner;
+                let groups_count = digits_count / pattern_length;
+                for group in 1..groups_count {
+                    for index in 1..=pattern_length {
+                        let offset_index = group * pattern_length + index;
+                        if let Ok(left) = get_digit(number, index)
+                            && let Ok(right) = get_digit(number, offset_index)
+                            && left != right
+                        {
+                            continue 'inner;
+                        }
                     }
                 }
 
-                total += i;
+                total += number;
                 continue 'outer;
             }
         }

@@ -32,6 +32,46 @@ pub fn factors(number: i64) -> Vec<i64> {
     factors
 }
 
+/// Gets the number of digits in the given number.
+///
+/// # Examples
+/// ```
+/// get_digits_count(12345) -> 5
+/// get_digits_count(123456789) -> 9
+/// ```
+#[inline]
+pub fn get_digits_count(number: i64) -> u32 {
+    // The number of digits in a number can be found by num log10 + 1
+    // The +1 is needed because the log is a float and this is equivalent to num.ceil()
+    // u128 has a max of 39 digits so we can use u32
+    (number as f64).log10() as u32 + 1
+}
+
+/// Returns the digit at the given index.
+/// Index is 1 based from the left-most digit.
+///
+/// # Examples
+/// ```
+/// get_digit(12345, 2) -> Ok(2)
+/// get_digit(12345, 5) -> Ok(5)
+/// get_digit(12345, 0) -> Err("Index out of range")
+/// get_digit(12345, 6) -> Err("Index out of range")
+/// ```
+#[inline]
+pub fn get_digit(number: i64, index: u32) -> Result<i64, String> {
+    let digits = get_digits_count(number);
+    if index < 1 || index > digits {
+        return Err("Index out of range".to_string());
+    }
+
+    let ten: i64 = 10;
+    // Remove digits to the left using the remainder of the next power of 10
+    let remainder = number % ten.pow(digits - index + 1);
+    // Remove digits to the right using division of the current power of 10
+    let digit = remainder / ten.pow(digits - index);
+    Ok(digit)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -68,6 +108,30 @@ mod tests {
 
         for i in 0..input.len() {
             assert_eq!(factors(input[i]), expected[i]);
+        }
+    }
+
+    #[test]
+    fn test_get_digits_count() {
+        let data: [(i64, u32); 3] = [(7, 1), (24680, 5), (123456789, 9)];
+
+        for (input, expected) in data {
+            assert_eq!(get_digits_count(input), expected);
+        }
+    }
+
+    #[test]
+    fn test_get_digit() {
+        let data: [(i64, u32, Result<i64, String>); 5] = [
+            (7, 1, Ok(7)),
+            (24680, 3, Ok(6)),
+            (12345678987654321, 12, Ok(6)),
+            (123, 0, Err("Index out of range".to_string())),
+            (123, 5, Err("Index out of range".to_string())),
+        ];
+
+        for (number, index, expected) in data {
+            assert_eq!(get_digit(number, index), expected);
         }
     }
 }
