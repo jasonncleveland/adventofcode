@@ -70,6 +70,9 @@ cargo build --release
 
 # Run optimized release build
 cargo run --profile release -- <data-file>
+
+# Run solution with optional year and day
+time RUST_LOG=info cargo run --release <year> <day>
 ```
 
 Running tests using cargo CLI

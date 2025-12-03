@@ -1,0 +1,13 @@
+[package]
+name = "AdventOfCode"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+advent_of_code_2017 = {path = "2017", version = "0.1.0"}
+advent_of_code_2018 = {path = "2018", version = "0.1.0"}
+advent_of_code_2019 = {path = "2019", version = "0.1.0"}
+advent_of_code_2025 = {path = "2025", version = "0.1.0"}
+aoc_helpers = {path = "shared/rust", version = "0.1.0"}
+env_logger = "0.11.8"
+log = "0.4.28"
