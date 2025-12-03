@@ -1,6 +1,5 @@
 use std::time::Instant;
 
-use aoc_helpers::math::get_digits_count;
 use log::debug;
 
 pub fn solve(file_contents: String) -> (String, String) {
@@ -69,28 +68,39 @@ fn solve_part_2(input: &[(i64, i64)]) -> i64 {
                     continue;
                 }
 
-                let groups_count = digits_count / pattern_length;
+                // A repeating patter will produce a sequence of 1s and 0s
+                // e.g. 123123123 / 123 = 1001001
                 let pattern_power = 10i64.pow(pattern_length);
-                let mut divisor = 10i64.pow(pattern_length * (groups_count - 1));
-                let mut remainder = number % divisor;
-                let start_pattern = number / divisor;
-                divisor /= pattern_power;
-                for _ in 1..groups_count {
-                    let found_pattern = remainder / divisor;
-                    if found_pattern != start_pattern {
-                        continue 'inner;
+                let pattern = number % pattern_power;
+                let groups_count = digits_count / pattern_length;
+                if pattern > 0 {
+                    let mut n = number;
+                    for _ in 0..groups_count {
+                        if n / pattern % pattern_power != 1 {
+                            continue 'inner;
+                        }
+                        n /= pattern_power;
                     }
-                    remainder %= divisor;
-                    divisor /= pattern_power;
+                    total += number;
+                    continue 'outer;
                 }
-
-                total += number;
-                continue 'outer;
             }
         }
     }
 
     total
+}
+
+#[inline]
+fn get_digits_count(number: i64) -> u32 {
+    // Log10 is slow to calculate digits so it is faster to calculate manually
+    let mut digits_count = 1;
+    let mut power = 10;
+    while number > power {
+        digits_count += 1;
+        power *= 10;
+    }
+    digits_count
 }
 
 #[cfg(test)]
