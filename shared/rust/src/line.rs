@@ -1,4 +1,4 @@
-﻿use std::fmt;
+use std::fmt;
 
 use super::point2d::Point2d;
 
@@ -9,13 +9,16 @@ pub struct LineSegment2d {
 }
 
 impl fmt::Display for LineSegment2d {
+    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} -> {}", self.start, self.end)
     }
 }
 
 impl LineSegment2d {
-    pub fn new(start: Point2d, end: Point2d) -> LineSegment2d {
-        LineSegment2d { start, end }
+    #[inline]
+    #[must_use]
+    pub const fn new(start: Point2d, end: Point2d) -> Self {
+        Self { start, end }
     }
 }

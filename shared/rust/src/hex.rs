@@ -12,8 +12,8 @@ pub enum HexDirection {
 
 /// Hex coordinate is stored using cube coordinates
 ///
-/// ref: https://www.redblobgames.com/grids/hexagons/#neighbors-cube
-#[derive(Clone, Debug, PartialEq)]
+/// ref: <https://www.redblobgames.com/grids/hexagons/#neighbors-cube>
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct HexCoordinate {
     q: i64,
     s: i64,
@@ -21,11 +21,14 @@ pub struct HexCoordinate {
 }
 
 impl HexCoordinate {
-    pub fn new(q: i64, s: i64, r: i64) -> HexCoordinate {
-        HexCoordinate { q, s, r }
+    #[inline]
+    #[must_use]
+    pub const fn new(q: i64, s: i64, r: i64) -> Self {
+        Self { q, s, r }
     }
 
-    pub fn move_hex(&mut self, direction: &HexDirection) {
+    #[inline]
+    pub const fn move_hex(&mut self, direction: &HexDirection) {
         match direction {
             HexDirection::NorthWest => {
                 self.q -= 1;
@@ -58,8 +61,10 @@ impl HexCoordinate {
     ///
     /// d(a, b) = max(|q₁ - q₂|, |s₁ - s₂|, |r₁ - r₂|)
     ///
-    /// ref: https://www.redblobgames.com/grids/hexagons/#distances
-    pub fn distance(&self, other: &HexCoordinate) -> i64 {
+    /// ref: <https://www.redblobgames.com/grids/hexagons/#distances>
+    #[inline]
+    #[must_use]
+    pub fn distance(&self, other: &Self) -> i64 {
         max(
             max((self.q - other.q).abs(), (self.s - other.s).abs()),
             (self.r - other.r).abs(),

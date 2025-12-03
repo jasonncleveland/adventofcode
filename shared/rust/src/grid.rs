@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use super::point2d::Point2d;
 
+#[inline]
+#[must_use]
 pub fn get_dimensions(grid: &HashMap<Point2d, char>) -> (i64, i64) {
     // Get boundaries
     let mut min_x = i64::MAX;

@@ -4,7 +4,9 @@ pub struct Node<T: Clone> {
 }
 
 impl<T: Clone> Node<T> {
-    pub fn new(edges: Vec<Edge<T>>) -> Self {
+    #[inline]
+    #[must_use]
+    pub const fn new(edges: Vec<Edge<T>>) -> Self {
         Self { edges }
     }
 }
@@ -16,7 +18,9 @@ pub struct Edge<T: Clone> {
 }
 
 impl<T: Clone> Edge<T> {
-    pub fn new(value: T, weight: i64) -> Self {
+    #[inline]
+    #[must_use]
+    pub const fn new(value: T, weight: i64) -> Self {
         Self { value, weight }
     }
 }

@@ -1,3 +1,5 @@
+#[inline]
+#[must_use]
 pub fn greatest_common_divisor(a: i64, b: i64) -> i64 {
     if b == 0 {
         return a;
@@ -9,10 +11,14 @@ pub fn greatest_common_divisor(a: i64, b: i64) -> i64 {
     }
 }
 
+#[inline]
+#[must_use]
 pub fn least_common_multiple(first: i64, second: i64) -> i64 {
     first.abs() * (second.abs() / greatest_common_divisor(first, second))
 }
 
+#[inline]
+#[must_use]
 pub fn factors(number: i64) -> Vec<i64> {
     let mut factors: Vec<i64> = Vec::new();
 
@@ -40,6 +46,7 @@ pub fn factors(number: i64) -> Vec<i64> {
 /// get_digits_count(123456789) -> 9
 /// ```
 #[inline]
+#[must_use]
 pub fn get_digits_count(number: i64) -> u32 {
     // The number of digits in a number can be found by num log10 + 1
     // The +1 is needed because the log is a float and this is equivalent to num.ceil()
@@ -49,6 +56,11 @@ pub fn get_digits_count(number: i64) -> u32 {
 
 /// Returns the digit at the given index.
 /// Index is 1 based from the left-most digit.
+///
+/// # Errors
+///
+/// Will return `Err` if `index` is less than 0
+/// or greater than the number of digits in the given number
 ///
 /// # Examples
 /// ```

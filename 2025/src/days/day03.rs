@@ -1,8 +1,8 @@
 use std::time::Instant;
 
-use log::{debug, trace};
+use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -18,7 +18,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<Vec<i64>> {
+fn parse_input(file_contents: &str) -> Vec<Vec<i64>> {
     let mut turns: Vec<Vec<i64>> = Vec::new();
     for line in file_contents.lines() {
         turns.push(line.chars().map(|c| c as i64 - '0' as i64).collect());
@@ -29,13 +29,10 @@ fn parse_input(file_contents: String) -> Vec<Vec<i64>> {
 fn solve_part_1(input: &Vec<Vec<i64>>) -> i64 {
     let mut total = 0;
 
-    trace!("input: {:?}", input);
     for bank in input {
-        trace!("Bank: {:?}", bank);
         let mut first_highest = 0;
         let mut second_highest = 0;
         for (i, &battery) in bank.iter().enumerate() {
-            trace!("Battery: {:?}", battery);
             if battery > first_highest && i != bank.len() - 1 {
                 first_highest = battery;
                 second_highest = 0;
@@ -45,7 +42,6 @@ fn solve_part_1(input: &Vec<Vec<i64>>) -> i64 {
                 second_highest = battery;
             }
         }
-        trace!("highest battery: {} {}", first_highest, second_highest);
         total += first_highest * 10 + second_highest;
     }
 
@@ -55,9 +51,7 @@ fn solve_part_1(input: &Vec<Vec<i64>>) -> i64 {
 fn solve_part_2(input: &Vec<Vec<i64>>) -> i64 {
     let mut total = 0;
 
-    trace!("input: {:?}", input);
     for bank in input {
-        trace!("Bank: {:?}", bank);
         let mut first_highest = 0;
         let mut second_highest = 0;
         let mut third_highest = 0;
@@ -71,7 +65,6 @@ fn solve_part_2(input: &Vec<Vec<i64>>) -> i64 {
         let mut eleventh_highest = 0;
         let mut twelth_highest = 0;
         for (i, &battery) in bank.iter().enumerate() {
-            trace!("Battery: {:?}", battery);
             if battery > first_highest && i < bank.len() - 11 {
                 first_highest = battery;
                 second_highest = 0;
@@ -186,15 +179,14 @@ fn solve_part_2(input: &Vec<Vec<i64>>) -> i64 {
                 twelth_highest = battery;
             }
         }
-        trace!("highest battery: {} {}", first_highest, second_highest);
-        total += first_highest * 100000000000;
-        total += second_highest * 10000000000;
-        total += third_highest * 1000000000;
-        total += fourth_highest * 100000000;
-        total += fifth_highest * 10000000;
-        total += sixth_highest * 1000000;
-        total += seventh_highest * 100000;
-        total += eigth_highest * 10000;
+        total += first_highest * 100_000_000_000;
+        total += second_highest * 10_000_000_000;
+        total += third_highest * 1_000_000_000;
+        total += fourth_highest * 100_000_000;
+        total += fifth_highest * 10_000_000;
+        total += sixth_highest * 1_000_000;
+        total += seventh_highest * 100_000;
+        total += eigth_highest * 10_000;
         total += ninth_highest * 1000;
         total += tenth_highest * 100;
         total += eleventh_highest * 10;
@@ -219,7 +211,7 @@ mod tests {
         )];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_1(&input), expected);
         }
     }
@@ -235,7 +227,7 @@ mod tests {
         )];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_2(&input), expected);
         }
     }

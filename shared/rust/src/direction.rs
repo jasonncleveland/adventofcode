@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Direction {
     Up,
     Down,
@@ -9,47 +9,53 @@ pub enum Direction {
 }
 
 impl fmt::Display for Direction {
+    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Direction::Up => write!(f, "up"),
-            Direction::Down => write!(f, "down"),
-            Direction::Left => write!(f, "left"),
-            Direction::Right => write!(f, "right"),
+            Self::Up => write!(f, "up"),
+            Self::Down => write!(f, "down"),
+            Self::Left => write!(f, "left"),
+            Self::Right => write!(f, "right"),
         }
     }
 }
 
 impl Direction {
     /// Return the direction after performing a turn in the given direction
-    pub fn next(&self, turn: &Direction) -> Direction {
+    #[inline]
+    #[must_use]
+    pub fn next(&self, turn: &Self) -> Self {
         match turn {
-            Direction::Left => match self {
-                Direction::Up => Direction::Left,
-                Direction::Down => Direction::Right,
-                Direction::Left => Direction::Down,
-                Direction::Right => Direction::Up,
+            Self::Left => match self {
+                Self::Up => Self::Left,
+                Self::Down => Self::Right,
+                Self::Left => Self::Down,
+                Self::Right => Self::Up,
             },
-            Direction::Right => match self {
-                Direction::Up => Direction::Right,
-                Direction::Down => Direction::Left,
-                Direction::Left => Direction::Up,
-                Direction::Right => Direction::Down,
+            Self::Right => match self {
+                Self::Up => Self::Right,
+                Self::Down => Self::Left,
+                Self::Left => Self::Up,
+                Self::Right => Self::Down,
             },
             _ => unreachable!(),
         }
     }
 
     /// Return the direction opposite the given direction
-    pub fn opposite(&self) -> Direction {
+    #[inline]
+    #[must_use]
+    pub const fn opposite(&self) -> Self {
         match self {
-            Direction::Left => Direction::Right,
-            Direction::Right => Direction::Left,
-            Direction::Up => Direction::Down,
-            Direction::Down => Direction::Up,
+            Self::Left => Self::Right,
+            Self::Right => Self::Left,
+            Self::Up => Self::Down,
+            Self::Down => Self::Up,
         }
     }
 }
 
+#[must_use]
 pub fn get_directions() -> Vec<Direction> {
     vec![
         Direction::Up,

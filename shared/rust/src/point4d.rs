@@ -9,19 +9,24 @@ pub struct Point4d {
 }
 
 impl fmt::Display for Point4d {
+    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({}, {}, {}, {})", self.x, self.y, self.z, self.w)
     }
 }
 
 impl Point4d {
-    pub fn new(x: i64, y: i64, z: i64, w: i64) -> Self {
+    #[inline]
+    #[must_use]
+    pub const fn new(x: i64, y: i64, z: i64, w: i64) -> Self {
         Self { x, y, z, w }
     }
 
     /// Calculate the manhattan distance between two points
     /// d(a, b) = |a₁ - b₁| + |a₂ - b₂| + |a₃ - b₃| + |a₄ - b₄|
-    pub fn manhattan(&self, other: &Point4d) -> i64 {
+    #[inline]
+    #[must_use]
+    pub const fn manhattan(&self, other: &Self) -> i64 {
         (self.x - other.x).abs()
             + (self.y - other.y).abs()
             + (self.z - other.z).abs()

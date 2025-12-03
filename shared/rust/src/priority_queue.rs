@@ -10,19 +10,22 @@ pub struct PriorityQueueItem<T: Eq> {
 }
 
 impl<T: Eq> Ord for PriorityQueueItem<T> {
+    #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         other.weight.cmp(&self.weight)
     }
 }
 
 impl<T: Eq> PartialOrd for PriorityQueueItem<T> {
+    #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl<T: Eq> PriorityQueueItem<T> {
-    pub fn new(steps: i64, data: T) -> Self {
+    #[inline]
+    pub const fn new(steps: i64, data: T) -> Self {
         Self {
             weight: steps,
             data,

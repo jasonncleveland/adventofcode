@@ -10,79 +10,94 @@ pub struct Point2d {
 }
 
 impl fmt::Display for Point2d {
+    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({}, {})", self.x, self.y)
     }
 }
 
 impl Point2d {
-    pub fn new(x: i64, y: i64) -> Point2d {
-        Point2d { x, y }
+    #[inline]
+    #[must_use]
+    pub const fn new(x: i64, y: i64) -> Self {
+        Self { y, x }
     }
 
     /// Calculate the manhattan distance between two points
     /// d(a, b) = |a₁ - b₁| + |a₂ - b₂|
-    pub fn manhattan(&self, other: &Point2d) -> i64 {
+    #[inline]
+    #[must_use]
+    pub const fn manhattan(&self, other: &Self) -> i64 {
         (self.x - other.x).abs() + (self.y - other.y).abs()
     }
 
     /// Calculate the Euclidean distance between two points
     /// d(a, b) = √(a₁ - b₁)² + (a₂ - b₂)²
-    pub fn euclidean(&self, other: &Point2d) -> f64 {
+    #[inline]
+    #[must_use]
+    pub fn euclidean(&self, other: &Self) -> f64 {
         let dx = self.x - other.x;
-        let sqdx = dx.pow(2) as f64;
+        let dx_squared = dx.pow(2) as f64;
         let dy = self.y - other.y;
-        let sqdy = dy.pow(2) as f64;
-        (sqdx + sqdy).sqrt()
+        let dy_squared = dy.pow(2) as f64;
+        (dx_squared + dy_squared).sqrt()
     }
 
     /// Calculate the angle between two points
-    pub fn angle(&self, other: &Point2d) -> f64 {
+    #[inline]
+    #[must_use]
+    pub fn angle(&self, other: &Self) -> f64 {
         let dx = self.x as f64 - other.x as f64;
         let dy = self.y as f64 - other.y as f64;
         dx.atan2(dy)
     }
 
-    pub fn next(&self, direction: &Direction) -> Point2d {
+    #[inline]
+    #[must_use]
+    pub const fn next(&self, direction: &Direction) -> Self {
         match direction {
-            Direction::Up => Point2d::new(self.x, self.y - 1),
-            Direction::Down => Point2d::new(self.x, self.y + 1),
-            Direction::Left => Point2d::new(self.x - 1, self.y),
-            Direction::Right => Point2d::new(self.x + 1, self.y),
+            Direction::Up => Self::new(self.x, self.y - 1),
+            Direction::Down => Self::new(self.x, self.y + 1),
+            Direction::Left => Self::new(self.x - 1, self.y),
+            Direction::Right => Self::new(self.x + 1, self.y),
         }
     }
 
-    pub fn neighbours(&self) -> Vec<Point2d> {
+    #[inline]
+    #[must_use]
+    pub fn neighbours(&self) -> Vec<Self> {
         vec![
             // up
-            Point2d::new(self.x, self.y - 1),
+            Self::new(self.x, self.y - 1),
             // left
-            Point2d::new(self.x - 1, self.y),
+            Self::new(self.x - 1, self.y),
             // right
-            Point2d::new(self.x + 1, self.y),
+            Self::new(self.x + 1, self.y),
             // down
-            Point2d::new(self.x, self.y + 1),
+            Self::new(self.x, self.y + 1),
         ]
     }
 
-    pub fn neighbours8(&self) -> Vec<Point2d> {
+    #[inline]
+    #[must_use]
+    pub fn neighbours8(&self) -> Vec<Self> {
         vec![
             // up left
-            Point2d::new(self.x - 1, self.y - 1),
+            Self::new(self.x - 1, self.y - 1),
             // up
-            Point2d::new(self.x, self.y - 1),
+            Self::new(self.x, self.y - 1),
             // up right
-            Point2d::new(self.x + 1, self.y - 1),
+            Self::new(self.x + 1, self.y - 1),
             // left
-            Point2d::new(self.x - 1, self.y),
+            Self::new(self.x - 1, self.y),
             // right
-            Point2d::new(self.x + 1, self.y),
+            Self::new(self.x + 1, self.y),
             // down left
-            Point2d::new(self.x - 1, self.y + 1),
+            Self::new(self.x - 1, self.y + 1),
             // down
-            Point2d::new(self.x, self.y + 1),
+            Self::new(self.x, self.y + 1),
             // down right
-            Point2d::new(self.x + 1, self.y + 1),
+            Self::new(self.x + 1, self.y + 1),
         ]
     }
 }

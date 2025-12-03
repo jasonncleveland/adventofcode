@@ -37,19 +37,19 @@ fn run_all_days(year: u16) {
 }
 
 fn run_single_day(year: u16, day: u8) {
-    trace!("Attempting to run year {:04} day {:02}", year, day);
+    trace!("Attempting to run year {year:04} day {day:02}");
 
     if let Ok(solve) = get_solve_module(day) {
         let input_timer = Instant::now();
 
-        let file_path = format!("../inputs/{}/day/{}/input", year, day);
-        trace!("Attempting to read file at `{}`", file_path);
+        let file_path = format!("../inputs/{year}/day/{day}/input");
+        trace!("Attempting to read file at `{file_path}`");
 
         let file_contents = read_file(file_path);
         debug!("File read: ({:?})", input_timer.elapsed());
 
         let solve_timer = Instant::now();
-        let (part1, part2) = solve(file_contents);
+        let (part1, part2) = solve(&file_contents);
         info!(
             "Day {:02}: ({}, {}) ({:?})",
             day,
@@ -58,6 +58,6 @@ fn run_single_day(year: u16, day: u8) {
             solve_timer.elapsed()
         );
     } else {
-        warn!("Could not find solution for day {:02}", day);
+        warn!("Could not find solution for day {day:02}");
     }
 }

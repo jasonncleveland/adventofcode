@@ -1,6 +1,8 @@
+#[inline]
+#[must_use]
 pub fn generate_permutations(input: &Vec<i64>) -> Vec<Vec<i64>> {
-    if input.len() == 1 {
-        return vec![vec![input[0]]];
+    if input.len() == 1 && let Some(&item) = input.first() {
+        return vec![vec![item]];
     }
 
     let mut permutations: Vec<Vec<i64>> = Vec::new();

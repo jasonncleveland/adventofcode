@@ -3,6 +3,8 @@
 /// .#.    .#.
 /// ..# -> #..
 /// ###    ###
+#[inline]
+#[must_use]
 pub fn flip_horizontal<T: Copy>(array: &[Vec<T>]) -> Vec<Vec<T>> {
     let mut output = array.to_owned();
     for row in 0..array.len() {
@@ -18,6 +20,8 @@ pub fn flip_horizontal<T: Copy>(array: &[Vec<T>]) -> Vec<Vec<T>> {
 /// .#.    ###
 /// ..# -> ..#
 /// ###    .#.
+#[inline]
+#[must_use]
 pub fn flip_vertical<T: Copy>(array: &[Vec<T>]) -> Vec<Vec<T>> {
     let mut output = array.to_owned();
     for column in 0..array.len() {
@@ -38,6 +42,8 @@ pub fn flip_vertical<T: Copy>(array: &[Vec<T>]) -> Vec<Vec<T>> {
 /// .#.    .#.
 /// ..# -> #..
 /// ###    ###
+#[inline]
+#[must_use]
 pub fn flip<T: Copy>(array: &[Vec<T>]) -> Vec<Vec<T>> {
     let mut output = array.to_owned();
     for row in 0..array.len() {
@@ -53,6 +59,7 @@ pub fn flip<T: Copy>(array: &[Vec<T>]) -> Vec<Vec<T>> {
 /// .#.    .#.
 /// ..# -> #..
 /// ###    ###
+#[inline]
 pub fn flip_in_place<T: Copy>(array: &mut [Vec<T>]) {
     for row in array.iter_mut() {
         let mut i = 0;
@@ -72,6 +79,8 @@ pub fn flip_in_place<T: Copy>(array: &mut [Vec<T>]) {
 /// .#.    #..
 /// ..# -> #.#
 /// ###    ##.
+#[inline]
+#[must_use]
 pub fn rotate<T: Copy>(array: &[Vec<T>]) -> Vec<Vec<T>> {
     // Transpose
     let mut transposed = array.to_owned();
@@ -91,6 +100,7 @@ pub fn rotate<T: Copy>(array: &[Vec<T>]) -> Vec<Vec<T>> {
 /// .#.    #..
 /// ..# -> #.#
 /// ###    ##.
+#[inline]
 pub fn rotate_in_place<T: Copy>(array: &mut [Vec<T>]) {
     for row in 0..array.len() - 1 {
         for column in row + 1..array.len() {
