@@ -2,7 +2,7 @@ use std::time::Instant;
 
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -18,7 +18,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-pub fn parse_input(file_contents: String) -> (i64, i64) {
+pub fn parse_input(file_contents: &str) -> (i64, i64) {
     if let Some(range) = file_contents.split_once('-')
         && let Ok(start) = range.0.parse::<i64>()
         && let Ok(end) = range.1.parse::<i64>()
@@ -136,7 +136,7 @@ mod tests {
         let expected: [i64; 8] = [0, 0, 1, 1, 0, 1, 0, 0];
 
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].to_string());
+            let parsed = parse_input(input[i]);
             assert_eq!(solve_part_1(parsed), expected[i]);
         }
     }
@@ -159,7 +159,7 @@ mod tests {
         let expected: [i64; 11] = [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1];
 
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].to_string());
+            let parsed = parse_input(input[i]);
             assert_eq!(solve_part_2(parsed), expected[i]);
         }
     }

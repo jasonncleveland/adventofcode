@@ -5,7 +5,7 @@ use aoc_helpers::direction::Direction;
 use aoc_helpers::point2d::Point2d;
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let (tracks, carts) = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -21,7 +21,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> (HashMap<Point2d, char>, Vec<Cart>) {
+fn parse_input(file_contents: &str) -> (HashMap<Point2d, char>, Vec<Cart>) {
     let mut tracks: HashMap<Point2d, char> = HashMap::new();
     let mut carts: Vec<Cart> = Vec::new();
     let mut cart_id = 1;
@@ -250,7 +250,7 @@ mod tests {
         let expected: [Point2d; 1] = [Point2d::new(7, 3)];
 
         for i in 0..input.len() {
-            let (tracks, carts) = parse_input(input[i].to_string());
+            let (tracks, carts) = parse_input(input[i]);
             assert_eq!(solve_part_1(&tracks, &carts), expected[i]);
         }
     }
@@ -267,7 +267,7 @@ mod tests {
         let expected: [Point2d; 1] = [Point2d::new(6, 4)];
 
         for i in 0..input.len() {
-            let (tracks, carts) = parse_input(input[i].to_string());
+            let (tracks, carts) = parse_input(input[i]);
             assert_eq!(solve_part_2(&tracks, &carts), expected[i]);
         }
     }

@@ -5,7 +5,7 @@ use aoc_helpers::direction::{Direction, get_directions};
 use aoc_helpers::point2d::Point2d;
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -21,7 +21,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> HashMap<Point2d, char> {
+fn parse_input(file_contents: &str) -> HashMap<Point2d, char> {
     let mut maze: HashMap<Point2d, char> = HashMap::new();
     let start = Point2d::new(0, 0);
     maze.insert(start, 'X');
@@ -198,7 +198,7 @@ mod tests {
         let expected: [i64; 5] = [3, 10, 18, 23, 31];
 
         for i in 0..input.len() {
-            let input = parse_input(input[i].to_string());
+            let input = parse_input(input[i]);
             assert_eq!(solve_part_1(&input), expected[i]);
         }
     }

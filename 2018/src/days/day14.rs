@@ -4,9 +4,9 @@ use std::time::Instant;
 use aoc_helpers::io::parse_int;
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
-    let input = parse_int(file_contents.clone());
+    let input = parse_int(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
 
     let part1_timer = Instant::now();
@@ -14,7 +14,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     debug!("Part 1: {} ({:?})", part1, part1_timer.elapsed());
 
     let part2_timer = Instant::now();
-    let part2 = solve_part_2(file_contents.clone());
+    let part2 = solve_part_2(file_contents);
     debug!("Part 2: {} ({:?})", part2, part2_timer.elapsed());
 
     (part1.to_string(), part2.to_string())
@@ -58,7 +58,7 @@ fn solve_part_1(input: i64) -> String {
     output
 }
 
-fn solve_part_2(input: String) -> usize {
+fn solve_part_2(input: &str) -> usize {
     let expected = input
         .chars()
         .map(|c| c.to_digit(10).unwrap() as usize)
@@ -119,7 +119,7 @@ mod tests {
         let expected: [&str; 4] = ["5158916779", "0124515891", "9251071085", "5941429882"];
 
         for i in 0..input.len() {
-            let input = parse_int(input[i].to_string());
+            let input = parse_int(input[i]);
             assert_eq!(solve_part_1(input), expected[i]);
         }
     }
@@ -130,7 +130,7 @@ mod tests {
         let expected: [usize; 4] = [9, 5, 18, 2018];
 
         for i in 0..input.len() {
-            assert_eq!(solve_part_2(input[i].to_string()), expected[i]);
+            assert_eq!(solve_part_2(input[i]), expected[i]);
         }
     }
 }

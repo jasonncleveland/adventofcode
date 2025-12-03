@@ -5,7 +5,7 @@ use aoc_helpers::graph::{Edge, Node};
 use aoc_helpers::point4d::Point4d;
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -17,7 +17,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), "Merry Christmas!".to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<Point4d> {
+fn parse_input(file_contents: &str) -> Vec<Point4d> {
     let mut coordinates: Vec<Point4d> = Vec::new();
     for line in file_contents.lines() {
         let mut numbers: Vec<i64> = Vec::with_capacity(4);
@@ -134,7 +134,7 @@ mod tests {
         let expected: [i64; 4] = [2, 4, 3, 8];
 
         for i in 0..input.len() {
-            let input = parse_input(input[i].to_string());
+            let input = parse_input(input[i]);
             assert_eq!(solve_part_1(&input), expected[i]);
         }
     }

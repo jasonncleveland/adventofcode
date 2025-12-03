@@ -7,7 +7,7 @@ use aoc_helpers::point2d::Point2d;
 use aoc_helpers::priority_queue::{PriorityQueue, PriorityQueueItem};
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_char_grid(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -416,7 +416,7 @@ mod tests {
         let expected: [i64; 5] = [8, 86, 132, 136, 81];
 
         for i in 0..input.len() {
-            let input = parse_char_grid(input[i].to_string());
+            let input = parse_char_grid(input[i]);
             assert_eq!(solve_part_1(&input), expected[i]);
         }
     }
@@ -458,7 +458,7 @@ mod tests {
         let expected: [i64; 4] = [8, 24, 32, 72];
 
         for i in 0..input.len() {
-            let input = parse_char_grid(input[i].to_string());
+            let input = parse_char_grid(input[i]);
             assert_eq!(solve_part_2(&input), expected[i]);
         }
     }

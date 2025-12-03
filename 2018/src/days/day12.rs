@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let (state, mutations) = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -19,7 +19,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> (Vec<char>, HashMap<String, char>) {
+fn parse_input(file_contents: &str) -> (Vec<char>, HashMap<String, char>) {
     let mut state: Vec<char> = Vec::new();
     let mut mutations: HashMap<String, char> = HashMap::new();
 
@@ -153,7 +153,7 @@ mod tests {
         let expected: [i64; 1] = [325];
 
         for i in 0..input.len() {
-            let (state, mutations) = parse_input(input[i].to_string());
+            let (state, mutations) = parse_input(input[i]);
             assert_eq!(solve_part_1(&state, &mutations), expected[i]);
         }
     }
@@ -179,7 +179,7 @@ mod tests {
         let expected: [i64; 1] = [999999999374];
 
         for i in 0..input.len() {
-            let (state, mutations) = parse_input(input[i].to_string());
+            let (state, mutations) = parse_input(input[i]);
             assert_eq!(solve_part_2(&state, &mutations), expected[i]);
         }
     }

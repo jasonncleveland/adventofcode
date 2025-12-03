@@ -6,9 +6,9 @@ use log::debug;
 
 use crate::shared::knot_hash::{calculate_knot_hash, reverse_numbers};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
-    let input = parse_int_list(file_contents.clone(), ',');
+    let input = parse_int_list(file_contents, ',');
     debug!("File parse: ({:?})", parse_timer.elapsed());
 
     let part1_timer = Instant::now();
@@ -16,7 +16,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     debug!("Part 1: {} ({:?})", part1, part1_timer.elapsed());
 
     let part2_timer = Instant::now();
-    let part2 = solve_part_2(file_contents.clone());
+    let part2 = solve_part_2(file_contents);
     debug!("Part 2: {} ({:?})", part2, part2_timer.elapsed());
 
     (part1.to_string(), part2.to_string())
@@ -38,7 +38,7 @@ fn solve_part_1(lengths: &[i64], size: i64) -> i64 {
     numbers[0] * numbers[1]
 }
 
-fn solve_part_2(input: String) -> String {
+fn solve_part_2(input: &str) -> String {
     calculate_knot_hash(input)
 }
 
@@ -51,7 +51,7 @@ mod tests {
         let data: [(&str, i64, i64); 1] = [("3,4,1,5", 5, 12)];
 
         for (input, size, expected) in data {
-            let input = parse_int_list(input.to_string(), ',');
+            let input = parse_int_list(input, ',');
             assert_eq!(solve_part_1(&input, size), expected);
         }
     }
@@ -66,7 +66,7 @@ mod tests {
         ];
 
         for (input, expected) in data {
-            assert_eq!(solve_part_2(input.to_string()), expected);
+            assert_eq!(solve_part_2(input), expected);
         }
     }
 }

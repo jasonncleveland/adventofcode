@@ -6,7 +6,7 @@ use log::{debug, trace};
 
 use crate::shared::intcode::{IntCodeComputer, IntCodeDisplay, IntCodeStatus};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_int_list(file_contents, ',');
     debug!("File parse: ({:?})", parse_timer.elapsed());

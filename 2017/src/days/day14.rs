@@ -6,27 +6,27 @@ use log::debug;
 
 use crate::shared::knot_hash::calculate_knot_hash;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     debug!("File parse: ({:?})", parse_timer.elapsed());
 
     let part1_timer = Instant::now();
-    let part1 = solve_part_1(file_contents.clone());
+    let part1 = solve_part_1(file_contents);
     debug!("Part 1: {} ({:?})", part1, part1_timer.elapsed());
 
     let part2_timer = Instant::now();
-    let part2 = solve_part_2(file_contents.clone());
+    let part2 = solve_part_2(file_contents);
     debug!("Part 2: {} ({:?})", part2, part2_timer.elapsed());
 
     (part1.to_string(), part2.to_string())
 }
 
-fn solve_part_1(input: String) -> usize {
+fn solve_part_1(input: &str) -> usize {
     let memory = generate_memory(input);
     memory.values().filter(|c| **c == '#').count()
 }
 
-fn solve_part_2(input: String) -> i64 {
+fn solve_part_2(input: &str) -> i64 {
     let memory = generate_memory(input);
 
     let mut queue: VecDeque<Point2d> = VecDeque::new();
@@ -66,13 +66,13 @@ fn solve_part_2(input: String) -> i64 {
     total
 }
 
-fn generate_memory(input: String) -> HashMap<Point2d, char> {
+fn generate_memory(input: &str) -> HashMap<Point2d, char> {
     let mut memory: HashMap<Point2d, char> = HashMap::new();
     let mut coordinate = Point2d::new(0, 0);
 
     for i in 0..128 {
         let hash_input = format!("{}-{}", input, i);
-        let knot_hash = calculate_knot_hash(hash_input);
+        let knot_hash = calculate_knot_hash(&hash_input);
 
         for hex in knot_hash.chars() {
             let binary = match hex {
@@ -114,7 +114,7 @@ mod tests {
         let data: [(&str, usize); 1] = [("flqrgnkx", 8108)];
 
         for (input, expected) in data {
-            assert_eq!(solve_part_1(input.to_string()), expected);
+            assert_eq!(solve_part_1(input), expected);
         }
     }
 
@@ -123,7 +123,7 @@ mod tests {
         let data: [(&str, i64); 1] = [("flqrgnkx", 1242)];
 
         for (input, expected) in data {
-            assert_eq!(solve_part_2(input.to_string()), expected);
+            assert_eq!(solve_part_2(input), expected);
         }
     }
 }

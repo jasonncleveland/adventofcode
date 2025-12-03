@@ -2,7 +2,7 @@ use std::time::Instant;
 
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -18,7 +18,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> (i64, i64) {
+fn parse_input(file_contents: &str) -> (i64, i64) {
     if let Some((line1, line2)) = file_contents.split_once('\n')
         && let Some(first) = line1.split_whitespace().last()
         && let Ok(a) = first.parse::<i64>()
@@ -83,7 +83,7 @@ Generator B starts with 8921",
         )];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_1(input), expected);
         }
     }
@@ -97,7 +97,7 @@ Generator B starts with 8921",
         )];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_2(input), expected);
         }
     }

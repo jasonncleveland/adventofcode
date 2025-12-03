@@ -4,7 +4,7 @@ use std::time::Instant;
 use aoc_helpers::io::parse_char_list;
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = VecDeque::from(parse_char_list(file_contents));
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -71,7 +71,7 @@ mod tests {
         let expected: [i64; 5] = [0, 0, 4, 6, 10];
 
         for i in 0..input.len() {
-            let input = VecDeque::from(parse_char_list(input[i].to_string()));
+            let input = VecDeque::from(parse_char_list(input[i]));
             assert_eq!(solve_part_1(&input), expected[i]);
         }
     }
@@ -82,7 +82,7 @@ mod tests {
         let expected: [i64; 1] = [4];
 
         for i in 0..input.len() {
-            let input = VecDeque::from(parse_char_list(input[i].to_string()));
+            let input = VecDeque::from(parse_char_list(input[i]));
             assert_eq!(solve_part_2(&input), expected[i]);
         }
     }

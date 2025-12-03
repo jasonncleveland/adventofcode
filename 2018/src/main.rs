@@ -57,7 +57,7 @@ fn run_single_day(day: u8, file_name: &str) {
 
     let day_timer = Instant::now();
     let solve = get_day_module(day);
-    let (part1, part2) = solve(file_contents);
+    let (part1, part2) = solve(&file_contents);
     info!(
         "Day {:02}: ({}, {}) ({:?})",
         day,
@@ -67,7 +67,7 @@ fn run_single_day(day: u8, file_name: &str) {
     );
 }
 
-fn get_day_module(day: u8) -> fn(String) -> (String, String) {
+fn get_day_module(day: u8) -> fn(&str) -> (String, String) {
     match day {
         1 => day01::solve,
         2 => day02::solve,

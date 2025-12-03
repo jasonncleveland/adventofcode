@@ -3,7 +3,7 @@ use std::time::Instant;
 use aoc_helpers::io::parse_int_list;
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_int_list(file_contents, '\n');
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -62,7 +62,7 @@ mod tests {
         let data: [(&str, i64); 1] = [("0\n3\n0\n1\n-3", 5)];
 
         for (input, expected) in data {
-            let input = parse_int_list(input.to_string(), '\n');
+            let input = parse_int_list(input, '\n');
             assert_eq!(solve_part_1(&input), expected);
         }
     }
@@ -72,7 +72,7 @@ mod tests {
         let data: [(&str, i64); 1] = [("0\n3\n0\n1\n-3", 10)];
 
         for (input, expected) in data {
-            let input = parse_int_list(input.to_string(), '\n');
+            let input = parse_int_list(input, '\n');
             assert_eq!(solve_part_2(&input), expected);
         }
     }

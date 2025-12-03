@@ -8,7 +8,7 @@ use aoc_helpers::point2d::Point2d;
 use aoc_helpers::priority_queue::{PriorityQueue, PriorityQueueItem};
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -24,7 +24,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> MazeInfo {
+fn parse_input(file_contents: &str) -> MazeInfo {
     let grid = parse_char_grid(file_contents);
 
     let mut portal_entrances: HashMap<String, Vec<Point2d>> = HashMap::new();
@@ -440,7 +440,7 @@ YN......#               VT..#....QG
         let expected: [i64; 2] = [23, 58];
 
         for i in 0..input.len() {
-            let input = parse_input(input[i].to_string());
+            let input = parse_input(input[i]);
             assert_eq!(solve_part_1(&input), expected[i]);
         }
     }
@@ -508,7 +508,7 @@ RE....#.#                           #......RF
         let expected: [i64; 2] = [26, 396];
 
         for i in 0..input.len() {
-            let input = parse_input(input[i].to_string());
+            let input = parse_input(input[i]);
             assert_eq!(solve_part_2(&input), expected[i]);
         }
     }

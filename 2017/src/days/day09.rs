@@ -3,7 +3,7 @@ use std::time::Instant;
 use aoc_helpers::io::parse_char_list;
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_char_list(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -94,7 +94,7 @@ mod tests {
         ];
 
         for (input, expected) in data {
-            let input = parse_char_list(input.to_string());
+            let input = parse_char_list(input);
             assert_eq!(solve_part_1(&input), expected);
         }
     }
@@ -112,7 +112,7 @@ mod tests {
         ];
 
         for (input, expected) in data {
-            let input = parse_char_list(input.to_string());
+            let input = parse_char_list(input);
             assert_eq!(solve_part_2(&input), expected);
         }
     }

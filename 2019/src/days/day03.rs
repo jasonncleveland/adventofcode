@@ -5,7 +5,7 @@ use aoc_helpers::line::LineSegment2d;
 use aoc_helpers::point2d::Point2d;
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -21,7 +21,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-pub fn parse_input(file_contents: String) -> (Vec<LineData>, Vec<LineData>) {
+pub fn parse_input(file_contents: &str) -> (Vec<LineData>, Vec<LineData>) {
     let mut first: Vec<LineData> = Vec::new();
     let mut second: Vec<LineData> = Vec::new();
     if let Some((first_line, second_line)) = file_contents.split_once('\n') {
@@ -172,7 +172,7 @@ U98,R91,D20,R16,D67,R40,U7,R15,U6,R7",
         let expected: [i64; 3] = [6, 159, 135];
 
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].to_string());
+            let parsed = parse_input(input[i]);
             assert_eq!(solve_part_1(&parsed), expected[i]);
         }
     }
@@ -190,7 +190,7 @@ U98,R91,D20,R16,D67,R40,U7,R15,U6,R7",
         let expected: [i64; 3] = [30, 610, 410];
 
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].to_string());
+            let parsed = parse_input(input[i]);
             assert_eq!(solve_part_2(&parsed), expected[i]);
         }
     }

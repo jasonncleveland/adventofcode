@@ -13,7 +13,7 @@ use attack::Attack;
 use faction::Faction;
 use group::Group;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -29,7 +29,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<Group> {
+fn parse_input(file_contents: &str) -> Vec<Group> {
     let mut groups: Vec<Group> = Vec::new();
     if let Ok(matcher) = Regex::new(
         r"(?<units>\d+) units each with (?<hp>\d+) hit points (\((?<modifiers>.*)\)\s)?with an attack that does (?<damage>\d+) (?<type>\w+) damage at initiative (?<initiative>\d+)",
@@ -282,7 +282,7 @@ Infection:
         let expected: [i64; 1] = [5216];
 
         for i in 0..input.len() {
-            let input = parse_input(input[i].to_string());
+            let input = parse_input(input[i]);
             assert_eq!(solve_part_1(&input), expected[i]);
         }
     }
@@ -301,7 +301,7 @@ Infection:
         let expected: [i64; 1] = [51];
 
         for i in 0..input.len() {
-            let input = parse_input(input[i].to_string());
+            let input = parse_input(input[i]);
             assert_eq!(solve_part_2(&input), expected[i]);
         }
     }

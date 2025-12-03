@@ -5,7 +5,7 @@ use aoc_helpers::direction::Direction;
 use aoc_helpers::point2d::Point2d;
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let (map, min_y, max_y) = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -21,7 +21,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> (HashMap<Point2d, char>, i64, i64) {
+fn parse_input(file_contents: &str) -> (HashMap<Point2d, char>, i64, i64) {
     let mut ground: HashMap<Point2d, char> = HashMap::new();
 
     let mut min_y = i64::MAX;
@@ -315,7 +315,7 @@ y=13, x=498..504"];
         let expected: [usize; 1] = [57];
 
         for i in 0..input.len() {
-            let (map, min_y, max_y) = parse_input(input[i].to_string());
+            let (map, min_y, max_y) = parse_input(input[i]);
             assert_eq!(solve_part_1(&map, min_y, max_y), expected[i]);
         }
     }
@@ -333,7 +333,7 @@ y=13, x=498..504"];
         let expected: [usize; 1] = [29];
 
         for i in 0..input.len() {
-            let (map, min_y, max_y) = parse_input(input[i].to_string());
+            let (map, min_y, max_y) = parse_input(input[i]);
             assert_eq!(solve_part_2(&map, min_y, max_y), expected[i]);
         }
     }

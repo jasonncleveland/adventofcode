@@ -4,7 +4,7 @@ use std::time::Instant;
 
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -20,7 +20,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<i64> {
+fn parse_input(file_contents: &str) -> Vec<i64> {
     let mut sequence: Vec<i64> = Vec::new();
     for line in file_contents.chars() {
         if let Some(digit) = line.to_digit(10) {
@@ -151,7 +151,7 @@ mod tests {
         let expected: [i64; 3] = [24176176, 73745418, 52432133];
 
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].to_string());
+            let parsed = parse_input(input[i]);
             assert_eq!(solve_part_1(&parsed), expected[i]);
         }
     }
@@ -166,7 +166,7 @@ mod tests {
         let expected: [i64; 3] = [84462026, 78725270, 53553731];
 
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].to_string());
+            let parsed = parse_input(input[i]);
             assert_eq!(solve_part_2(&parsed), expected[i]);
         }
     }

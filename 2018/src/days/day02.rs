@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -19,7 +19,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<String> {
+fn parse_input(file_contents: &str) -> Vec<String> {
     file_contents.lines().map(|l| l.to_string()).collect()
 }
 
@@ -86,7 +86,7 @@ mod tests {
         let expected: [i64; 1] = [12];
 
         for i in 0..input.len() {
-            let input = parse_input(input[i].to_string());
+            let input = parse_input(input[i]);
             assert_eq!(solve_part_1(&input), expected[i]);
         }
     }
@@ -97,7 +97,7 @@ mod tests {
         let expected: [&str; 1] = ["fgij"];
 
         for i in 0..input.len() {
-            let input = parse_input(input[i].to_string());
+            let input = parse_input(input[i]);
             assert_eq!(solve_part_2(&input), expected[i]);
         }
     }

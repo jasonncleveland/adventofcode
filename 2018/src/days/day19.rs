@@ -5,7 +5,7 @@ use log::{debug, trace};
 
 use crate::shared::elfcode::{Device, Instruction, parse_device_instructions};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_device_instructions(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());

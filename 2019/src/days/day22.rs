@@ -4,7 +4,7 @@ use std::time::Instant;
 
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -20,7 +20,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<Instruction> {
+fn parse_input(file_contents: &str) -> Vec<Instruction> {
     let mut instructions: Vec<Instruction> = Vec::new();
     for line in file_contents.lines() {
         if line.starts_with("cut") {
@@ -224,7 +224,7 @@ cut -1",
         ];
 
         for i in 0..input.len() {
-            let instructions = parse_input(input[i].to_string());
+            let instructions = parse_input(input[i]);
             let mut deck = (0..10).collect();
             process_instructions(&instructions, &mut deck);
             assert_eq!(deck, expected[i]);

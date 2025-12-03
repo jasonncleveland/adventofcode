@@ -6,7 +6,7 @@ use aoc_helpers::math::greatest_common_divisor;
 use aoc_helpers::point2d::Point2d;
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -22,7 +22,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<Point2d> {
+fn parse_input(file_contents: &str) -> Vec<Point2d> {
     let mut points: Vec<Point2d> = Vec::new();
     for (y, line) in file_contents.lines().enumerate() {
         for (x, c) in line.chars().enumerate() {
@@ -282,7 +282,7 @@ mod tests {
         let expected: [usize; 5] = [8, 33, 35, 41, 210];
 
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].to_string());
+            let parsed = parse_input(input[i]);
             assert_eq!(solve_part_1(&parsed).0, expected[i]);
         }
     }
@@ -315,7 +315,7 @@ mod tests {
         let expected: [i64; 1] = [802];
 
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].1.to_string());
+            let parsed = parse_input(input[i].1);
             assert_eq!(solve_part_2(&parsed, &input[i].0), expected[i]);
         }
     }

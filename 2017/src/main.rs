@@ -50,7 +50,7 @@ fn run_single_day(year: u16, day: u8) {
         debug!("File read: ({:?})", input_timer.elapsed());
 
         let solve_timer = Instant::now();
-        let (part1, part2) = solve(file_contents);
+        let (part1, part2) = solve(&file_contents);
         info!(
             "Day {:02}: ({}, {}) ({:?})",
             day,

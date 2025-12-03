@@ -5,7 +5,7 @@ use aoc_helpers::direction::Direction;
 use aoc_helpers::point2d::Point2d;
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let (battlefield, units) = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -21,7 +21,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> (HashMap<Point2d, char>, HashMap<Point2d, Unit>) {
+fn parse_input(file_contents: &str) -> (HashMap<Point2d, char>, HashMap<Point2d, Unit>) {
     let mut battlefield: HashMap<Point2d, char> = HashMap::new();
     let mut units: HashMap<Point2d, Unit> = HashMap::new();
 
@@ -341,7 +341,7 @@ mod tests {
         let expected: [i64; 6] = [27730, 36334, 39514, 27755, 28944, 18740];
 
         for i in 0..input.len() {
-            let (battlefield, units) = parse_input(input[i].to_string());
+            let (battlefield, units) = parse_input(input[i]);
             assert_eq!(solve_part_1(&battlefield, &units), expected[i]);
         }
     }
@@ -397,7 +397,7 @@ mod tests {
         let expected: [i64; 6] = [4988, 29064, 31284, 3478, 6474, 1140];
 
         for i in 0..input.len() {
-            let (battlefield, units) = parse_input(input[i].to_string());
+            let (battlefield, units) = parse_input(input[i]);
             assert_eq!(solve_part_2(&battlefield, &units), expected[i]);
         }
     }

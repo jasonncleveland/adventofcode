@@ -4,7 +4,7 @@ use std::time::Instant;
 use aoc_helpers::point2d::Point2d;
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let (points, boundaries) = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -20,7 +20,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> (Vec<Point2d>, Boundaries) {
+fn parse_input(file_contents: &str) -> (Vec<Point2d>, Boundaries) {
     let mut points: Vec<Point2d> = Vec::new();
     let mut boundaries: Boundaries = Boundaries {
         min_x: i64::MAX,
@@ -259,7 +259,7 @@ mod tests {
         let expected: [i64; 1] = [17];
 
         for i in 0..input.len() {
-            let (points, boundaries) = parse_input(input[i].to_string());
+            let (points, boundaries) = parse_input(input[i]);
             assert_eq!(solve_part_1(&points, &boundaries), expected[i]);
         }
     }
@@ -275,7 +275,7 @@ mod tests {
         let expected: [i64; 1] = [16];
 
         for i in 0..input.len() {
-            let (points, boundaries) = parse_input(input[i].to_string());
+            let (points, boundaries) = parse_input(input[i]);
             assert_eq!(solve_part_2(&points, &boundaries, 32), expected[i]);
         }
     }

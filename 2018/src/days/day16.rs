@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let (samples, instructions) = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -19,7 +19,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> (Vec<Sample>, Vec<Instruction>) {
+fn parse_input(file_contents: &str) -> (Vec<Sample>, Vec<Instruction>) {
     let mut samples: Vec<Sample> = Vec::new();
     let mut instructions: Vec<Instruction> = Vec::new();
 

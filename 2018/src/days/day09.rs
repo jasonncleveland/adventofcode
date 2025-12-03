@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let (player_count, last_marble_value) = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -19,7 +19,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> (i64, i64) {
+fn parse_input(file_contents: &str) -> (i64, i64) {
     let words = file_contents.split_whitespace().collect::<Vec<&str>>();
     if let Ok(player_count) = words[0].parse::<i64>()
         && let Ok(last_marble_value) = words[6].parse::<i64>()
@@ -87,7 +87,7 @@ mod tests {
         let expected: [i64; 6] = [32, 8317, 146373, 2764, 54718, 37305];
 
         for i in 0..input.len() {
-            let (player_count, last_marble_value) = parse_input(input[i].to_string());
+            let (player_count, last_marble_value) = parse_input(input[i]);
             assert_eq!(solve_part_1(player_count, last_marble_value), expected[i]);
         }
     }
@@ -105,7 +105,7 @@ mod tests {
         let expected: [i64; 6] = [22563, 74765078, 1406506154, 20548882, 507583214, 320997431];
 
         for i in 0..input.len() {
-            let (player_count, last_marble_value) = parse_input(input[i].to_string());
+            let (player_count, last_marble_value) = parse_input(input[i]);
             assert_eq!(solve_part_2(player_count, last_marble_value), expected[i]);
         }
     }

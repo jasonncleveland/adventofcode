@@ -5,7 +5,7 @@ use aoc_helpers::point3d::Point3d;
 use aoc_helpers::priority_queue::{PriorityQueue, PriorityQueueItem};
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -21,7 +21,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<NanoBot> {
+fn parse_input(file_contents: &str) -> Vec<NanoBot> {
     let mut bots: Vec<NanoBot> = Vec::new();
     for line in file_contents.lines() {
         let mut numbers: Vec<i64> = Vec::with_capacity(4);
@@ -133,7 +133,7 @@ pos=<1,3,1>, r=1"];
         let expected: [i64; 1] = [7];
 
         for i in 0..input.len() {
-            let input = parse_input(input[i].to_string());
+            let input = parse_input(input[i]);
             assert_eq!(solve_part_1(&input), expected[i]);
         }
     }
@@ -149,7 +149,7 @@ pos=<10,10,10>, r=5"];
         let expected: [i64; 1] = [36];
 
         for i in 0..input.len() {
-            let input = parse_input(input[i].to_string());
+            let input = parse_input(input[i]);
             assert_eq!(solve_part_2(&input), expected[i]);
         }
     }

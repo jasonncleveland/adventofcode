@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -19,7 +19,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<Vec<String>> {
+fn parse_input(file_contents: &str) -> Vec<Vec<String>> {
     let mut passphrases: Vec<Vec<String>> = Vec::new();
     for line in file_contents.lines() {
         passphrases.push(line.split_whitespace().map(String::from).collect());
@@ -74,7 +74,7 @@ mod tests {
         ];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_1(&input), expected);
         }
     }
@@ -90,7 +90,7 @@ mod tests {
         ];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_2(&input), expected);
         }
     }

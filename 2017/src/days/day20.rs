@@ -5,7 +5,7 @@ use std::time::Instant;
 use aoc_helpers::point3d::Point3d;
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -21,7 +21,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<Particle> {
+fn parse_input(file_contents: &str) -> Vec<Particle> {
     let mut particles: Vec<Particle> = Vec::new();
     for line in file_contents.lines() {
         let mut points = line.split(", ").map(|s| s.split_once('=')).map(|v| {
@@ -145,7 +145,7 @@ p=<4,0,0>, v=<0,0,0>, a=<-2,0,0>",
         )];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_1(&input), expected);
         }
     }
@@ -161,7 +161,7 @@ p=<3,0,0>, v=<-1,0,0>, a=<0,0,0>",
         )];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_2(&input), expected);
         }
     }

@@ -6,7 +6,7 @@ use aoc_helpers::io::parse_int;
 use aoc_helpers::point2d::Point2d;
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_int(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -109,7 +109,7 @@ mod tests {
         let expected: [i64; 4] = [0, 3, 2, 31];
 
         for i in 0..input.len() {
-            let input = parse_int(input[i].to_string());
+            let input = parse_int(input[i]);
             assert_eq!(solve_part_1(input), expected[i]);
         }
     }
@@ -120,7 +120,7 @@ mod tests {
         let expected: [i64; 5] = [2, 10, 54, 304, 747];
 
         for i in 0..input.len() {
-            let input = parse_int(input[i].to_string());
+            let input = parse_int(input[i]);
             assert_eq!(solve_part_2(input), expected[i]);
         }
     }

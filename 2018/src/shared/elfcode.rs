@@ -136,7 +136,7 @@ impl Device {
     }
 }
 
-pub fn parse_device_instructions(file_contents: String) -> Vec<Instruction> {
+pub fn parse_device_instructions(file_contents: &str) -> Vec<Instruction> {
     let mut instructions: Vec<Instruction> = Vec::new();
 
     // Parse instructions

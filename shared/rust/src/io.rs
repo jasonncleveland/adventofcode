@@ -24,7 +24,7 @@ pub fn read_file(file_name: String) -> String {
 /// Will panic if input string is not an integer
 #[inline]
 #[must_use]
-pub fn parse_int(file_contents: String) -> i64 {
+pub fn parse_int(file_contents: &str) -> i64 {
     file_contents
         .parse::<i64>()
         .expect("Input string is not a single number")
@@ -32,7 +32,7 @@ pub fn parse_int(file_contents: String) -> i64 {
 
 #[inline]
 #[must_use]
-pub fn parse_int_list(file_contents: String, separator: char) -> Vec<i64> {
+pub fn parse_int_list(file_contents: &str, separator: char) -> Vec<i64> {
     let mut result: Vec<i64> = Vec::new();
     for line in file_contents.split(separator) {
         if let Ok(value) = line.parse::<i64>() {
@@ -44,13 +44,13 @@ pub fn parse_int_list(file_contents: String, separator: char) -> Vec<i64> {
 
 #[inline]
 #[must_use]
-pub fn parse_char_list(file_contents: String) -> Vec<char> {
+pub fn parse_char_list(file_contents: &str) -> Vec<char> {
     file_contents.chars().collect()
 }
 
 #[inline]
 #[must_use]
-pub fn parse_char_grid(file_contents: String) -> HashMap<Point2d, char> {
+pub fn parse_char_grid(file_contents: &str) -> HashMap<Point2d, char> {
     let mut result: HashMap<Point2d, char> = HashMap::new();
     for (y, line) in file_contents.lines().enumerate() {
         for (x, c) in line.chars().enumerate() {
@@ -62,7 +62,7 @@ pub fn parse_char_grid(file_contents: String) -> HashMap<Point2d, char> {
 
 #[inline]
 #[must_use]
-pub fn parse_char_vec(file_contents: String) -> Vec<Vec<char>> {
+pub fn parse_char_vec(file_contents: &str) -> Vec<Vec<char>> {
     file_contents
         .lines()
         .map(|line| line.chars().collect())

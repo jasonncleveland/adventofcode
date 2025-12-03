@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-pub fn calculate_knot_hash(input: String) -> String {
+pub fn calculate_knot_hash(input: &str) -> String {
     let mut numbers: VecDeque<i64> = (0..256).collect();
     let mut current_position = 0;
     let mut skip_size = 0;

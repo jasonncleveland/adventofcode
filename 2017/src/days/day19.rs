@@ -6,7 +6,7 @@ use aoc_helpers::io::parse_char_grid;
 use aoc_helpers::point2d::Point2d;
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_char_grid(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -126,7 +126,7 @@ mod tests {
         )];
 
         for (input, expected) in data {
-            let input = parse_char_grid(input.to_string());
+            let input = parse_char_grid(input);
             assert_eq!(solve_part_1(&input), expected);
         }
     }
@@ -145,7 +145,7 @@ mod tests {
         )];
 
         for (input, expected) in data {
-            let input = parse_char_grid(input.to_string());
+            let input = parse_char_grid(input);
             assert_eq!(solve_part_2(&input), expected);
         }
     }

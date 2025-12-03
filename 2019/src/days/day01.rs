@@ -2,7 +2,7 @@ use std::time::Instant;
 
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -18,7 +18,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-pub fn parse_input(file_contents: String) -> Vec<i64> {
+pub fn parse_input(file_contents: &str) -> Vec<i64> {
     let mut result: Vec<i64> = Vec::new();
     for line in file_contents.lines() {
         if let Ok(value) = line.parse::<i64>() {

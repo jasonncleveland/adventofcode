@@ -9,7 +9,7 @@ use log::{debug, info};
 
 use crate::shared::intcode::{IntCodeComputer, IntCodeDisplay, IntCodeStatus};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_int_list(file_contents, ',');
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -50,7 +50,7 @@ fn run_manual(computer: &mut IntCodeComputer) -> String {
                 let output = display.to_string();
                 output.lines().for_each(|l| info!("{}", l));
                 let mut input = String::new();
-                if let Ok(_) = io::stdin().read_line(&mut input) {
+                if io::stdin().read_line(&mut input).is_ok() {
                     info!("{}", input);
                     for c in input.chars() {
                         computer.input.push_back(c as i64);
@@ -140,7 +140,7 @@ fn run(computer: &mut IntCodeComputer) -> String {
                         let next = point.next(&next_direction);
                         for item in &items {
                             let mut inv_copy = inventory.clone();
-                            if item != "" {
+                            if !item.is_empty() {
                                 inv_copy.push(item.to_owned());
                             }
                             if visited.contains(&(next, inv_copy.clone())) {
@@ -160,7 +160,7 @@ fn run(computer: &mut IntCodeComputer) -> String {
 
                             let mut computer_clone = robot.clone();
                             let mut instructions = String::new();
-                            if item != "" {
+                            if !item.is_empty() {
                                 instructions.push_str(format!("take {item}\n").as_str());
                             }
                             instructions.push_str(direction);

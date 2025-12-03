@@ -4,7 +4,7 @@ use std::time::Instant;
 use aoc_helpers::io::parse_int_list;
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_int_list(file_contents, '\t');
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -104,7 +104,7 @@ mod tests {
         let data: [(&str, i64); 1] = [("2\t4\t1\t2", 5)];
 
         for (input, expected) in data {
-            let input = parse_int_list(input.to_string(), '\t');
+            let input = parse_int_list(input, '\t');
             assert_eq!(solve_part_1(&input), expected);
         }
     }
@@ -114,7 +114,7 @@ mod tests {
         let data: [(&str, i64); 1] = [("2\t4\t1\t2", 4)];
 
         for (input, expected) in data {
-            let input = parse_int_list(input.to_string(), '\t');
+            let input = parse_int_list(input, '\t');
             assert_eq!(solve_part_2(&input), expected);
         }
     }

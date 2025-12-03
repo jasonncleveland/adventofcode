@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -19,7 +19,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<Instruction> {
+fn parse_input(file_contents: &str) -> Vec<Instruction> {
     let mut instructions: Vec<Instruction> = Vec::new();
     for line in file_contents.lines() {
         if let Some((o, c)) = line.split_once(" if ")
@@ -192,7 +192,7 @@ c inc -20 if c == 10",
         )];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_1(&input), expected);
         }
     }
@@ -208,7 +208,7 @@ c inc -20 if c == 10",
         )];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_2(&input), expected);
         }
     }

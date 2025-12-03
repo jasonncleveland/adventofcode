@@ -6,7 +6,7 @@ use aoc_helpers::math::least_common_multiple;
 use aoc_helpers::point3d::Point3d;
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -22,7 +22,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<Moon> {
+fn parse_input(file_contents: &str) -> Vec<Moon> {
     let mut points: Vec<Moon> = Vec::new();
     for line in file_contents.lines() {
         let positions = &line[1..line.len() - 1]
@@ -223,7 +223,7 @@ mod tests {
         let expected: [i64; 2] = [179, 1940];
 
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].0.to_string());
+            let parsed = parse_input(input[i].0);
             assert_eq!(solve_part_1(&parsed, input[i].1), expected[i]);
         }
     }
@@ -243,7 +243,7 @@ mod tests {
         let expected: [i64; 2] = [2772, 4686774924];
 
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].to_string());
+            let parsed = parse_input(input[i]);
             assert_eq!(solve_part_2(&parsed), expected[i]);
         }
     }

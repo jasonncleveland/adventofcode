@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use log::{debug, trace};
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
     let input = parse_input(file_contents);
     debug!("File parse: ({:?})", parse_timer.elapsed());
@@ -19,7 +19,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String) -> Vec<DanceMove> {
+fn parse_input(file_contents: &str) -> Vec<DanceMove> {
     let mut dance_moves: Vec<DanceMove> = Vec::new();
     for dance_move in file_contents.split(',') {
         let parts = dance_move.split('/').collect::<Vec<&str>>();
@@ -165,7 +165,7 @@ mod tests {
         let data: [(&str, &str); 1] = [("s1,x3/4,pe/b", "baedc")];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_1(&input, 5), expected);
         }
     }
@@ -175,7 +175,7 @@ mod tests {
         let data: [(&str, &str); 1] = [("s1,x3/4,pe/b", "abcde")];
 
         for (input, expected) in data {
-            let input = parse_input(input.to_string());
+            let input = parse_input(input);
             assert_eq!(solve_part_2(&input, 5), expected);
         }
     }

@@ -2,7 +2,7 @@ use std::time::Instant;
 
 use log::debug;
 
-pub fn solve(file_contents: String) -> (String, String) {
+pub fn solve(file_contents: &str) -> (String, String) {
     let width = 25;
     let height = 6;
 
@@ -21,7 +21,7 @@ pub fn solve(file_contents: String) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: String, width: usize, height: usize) -> Vec<Layer> {
+fn parse_input(file_contents: &str, width: usize, height: usize) -> Vec<Layer> {
     let mut layers: Vec<Layer> = Vec::new();
     let mut rows: Vec<Vec<u32>> = Vec::new();
     let mut row: Vec<u32> = Vec::new();
@@ -129,7 +129,7 @@ mod tests {
         let width = 3;
         let height = 2;
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].to_string(), width, height);
+            let parsed = parse_input(input[i], width, height);
             assert_eq!(solve_part_1(&parsed), expected[i]);
         }
     }
@@ -142,7 +142,7 @@ mod tests {
         let width = 2;
         let height = 2;
         for i in 0..input.len() {
-            let parsed = parse_input(input[i].to_string(), width, height);
+            let parsed = parse_input(input[i], width, height);
             assert_eq!(solve_part_2(&parsed, width, height), expected[i]);
         }
     }
