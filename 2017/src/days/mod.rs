@@ -24,7 +24,7 @@ mod day23;
 mod day24;
 mod day25;
 
-type SolveFunction = fn(&str) -> (String, String);
+use aoc_helpers::solve::SolveFunction;
 
 pub fn get_solve_module(day: u8) -> Result<SolveFunction, String> {
     match day {

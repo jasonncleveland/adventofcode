@@ -51,7 +51,7 @@ mod tests {
         ];
 
         for (input, expected) in data {
-            assert_eq!(calculate_knot_hash(input.to_string()), expected);
+            assert_eq!(calculate_knot_hash(input), expected);
         }
     }
 }
