@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use aoc_helpers::math::{get_digit, get_digits_count};
+use aoc_helpers::math::get_digits_count;
 use log::debug;
 
 pub fn solve(file_contents: String) -> (String, String) {
@@ -36,7 +36,7 @@ fn solve_part_1(input: &[(i64, i64)]) -> i64 {
     let mut total = 0;
 
     for &(start, end) in input {
-        'outer: for number in start..=end {
+        for number in start..=end {
             let digits_count = get_digits_count(number);
             if !digits_count.is_multiple_of(2) {
                 continue;
@@ -45,15 +45,11 @@ fn solve_part_1(input: &[(i64, i64)]) -> i64 {
             // The pattern will always be two numbers repeated,
             // so we can compare one half against the other
             let pattern_length = digits_count / 2;
-            for index in 1..=pattern_length {
-                if let Ok(left) = get_digit(number, index)
-                    && let Ok(right) = get_digit(number, pattern_length + index)
-                    && left != right
-                {
-                    continue 'outer;
-                }
+            let left = number / 10i64.pow(pattern_length);
+            let right = number % 10i64.pow(pattern_length);
+            if left == right {
+                total += number;
             }
-            total += number;
         }
     }
 
@@ -74,16 +70,18 @@ fn solve_part_2(input: &[(i64, i64)]) -> i64 {
                 }
 
                 let groups_count = digits_count / pattern_length;
-                for group in 1..groups_count {
-                    for index in 1..=pattern_length {
-                        let offset_index = group * pattern_length + index;
-                        if let Ok(left) = get_digit(number, index)
-                            && let Ok(right) = get_digit(number, offset_index)
-                            && left != right
-                        {
-                            continue 'inner;
-                        }
+                let pattern_power = 10i64.pow(pattern_length);
+                let mut divisor = 10i64.pow(pattern_length * (groups_count - 1));
+                let mut remainder = number % divisor;
+                let start_pattern = number / divisor;
+                divisor /= pattern_power;
+                for _ in 1..groups_count {
+                    let found_pattern = remainder / divisor;
+                    if found_pattern != start_pattern {
+                        continue 'inner;
                     }
+                    remainder %= divisor;
+                    divisor /= pattern_power;
                 }
 
                 total += number;
