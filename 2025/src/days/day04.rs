@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::time::Instant;
 
-use aoc_helpers::grid::get_dimensions;
 use aoc_helpers::io::parse_char_grid;
 use aoc_helpers::point2d::Point2d;
 use log::debug;
@@ -47,29 +46,23 @@ fn solve_part_1(input: &HashMap<Point2d, char>) -> i64 {
 fn solve_part_2(input: &HashMap<Point2d, char>) -> i64 {
     let mut total = 0;
 
-    let (max_x, max_y) = get_dimensions(input);
-
     let mut input_copy = input.clone();
     loop {
         let mut to_remove: Vec<Point2d> = Vec::new();
-        for y in 0..max_y {
-            for x in 0..max_x {
-                let point = Point2d::new(x, y);
-                match input_copy.get(&point) {
-                    Some('@') => (),
-                    _ => continue,
-                }
+        for (&point, &value) in &input_copy {
+            if value != '@' {
+                continue;
+            }
 
-                let mut neighbouring_rolls = 0;
-                for neighbour in point.neighbours8() {
-                    if matches!(input_copy.get(&neighbour), Some('@')) {
-                        neighbouring_rolls += 1;
-                    }
+            let mut neighbouring_rolls = 0;
+            for neighbour in point.neighbours8() {
+                if matches!(input_copy.get(&neighbour), Some('@')) {
+                    neighbouring_rolls += 1;
                 }
-                if neighbouring_rolls < 4 {
-                    total += 1;
-                    to_remove.push(point);
-                }
+            }
+            if neighbouring_rolls < 4 {
+                total += 1;
+                to_remove.push(point);
             }
         }
 
