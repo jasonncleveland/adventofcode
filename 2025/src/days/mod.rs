@@ -5,6 +5,8 @@ mod day04;
 
 use aoc_helpers::solve::SolveFunction;
 
+pub const MAX_DAY: u8 = 12;
+
 pub fn get_solve_module(day: u8) -> Result<SolveFunction, String> {
     match day {
         1 => Ok(day01::solve),

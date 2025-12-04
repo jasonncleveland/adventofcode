@@ -7,7 +7,7 @@ use std::time::Instant;
 use aoc_helpers::io::read_file;
 use log::{debug, info, trace, warn};
 
-use days::get_solve_module;
+use days::{get_solve_module, MAX_DAY};
 
 fn main() {
     env_logger::init();
@@ -31,7 +31,7 @@ fn main() {
 
 fn run_all_days(year: u16) {
     let all_days_timer = Instant::now();
-    for day in 1..=25 {
+    for day in 1..=MAX_DAY {
         run_single_day(year, day);
     }
     info!("Total runtime: ({:?})", all_days_timer.elapsed());

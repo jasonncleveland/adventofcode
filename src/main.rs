@@ -6,7 +6,7 @@ use std::time::Instant;
 use aoc_helpers::io::read_file;
 use log::{debug, info, trace, warn};
 
-use years::get_solve_module;
+use years::{get_max_days, get_solve_module, YEARS};
 
 fn main() {
     env_logger::init();
@@ -46,7 +46,7 @@ fn main() {
 fn run_all_years() {
     trace!("Attempting to run all years");
     let all_years_timer = Instant::now();
-    for year in 2015..=2025 {
+    for year in YEARS {
         run_all_days(year);
     }
     info!("Total runtime: ({:?})", all_years_timer.elapsed());
@@ -54,11 +54,15 @@ fn run_all_years() {
 
 fn run_all_days(year: u16) {
     trace!("Attempting to run all days for year {year:04}");
-    let all_days_timer = Instant::now();
-    for day in 1..=25 {
-        run_single_day(year, day);
+    if let Some(max_days) = get_max_days(year) {
+        let all_days_timer = Instant::now();
+        for day in 1..=max_days {
+            run_single_day(year, day);
+        }
+        info!("Total runtime: ({:?})", all_days_timer.elapsed());
+    } else {
+        warn!("Could not find max number of days for year {year:04}");
     }
-    info!("Total runtime: ({:?})", all_days_timer.elapsed());
 }
 
 fn run_single_day(year: u16, day: u8) {
