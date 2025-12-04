@@ -26,174 +26,45 @@ fn parse_input(file_contents: &str) -> Vec<Vec<i64>> {
     turns
 }
 
-fn solve_part_1(input: &Vec<Vec<i64>>) -> i64 {
-    let mut total = 0;
-
-    for bank in input {
-        let mut first_highest = 0;
-        let mut second_highest = 0;
-        for (i, &battery) in bank.iter().enumerate() {
-            if battery > first_highest && i != bank.len() - 1 {
-                first_highest = battery;
-                second_highest = 0;
-                continue;
-            }
-            if battery > second_highest {
-                second_highest = battery;
-            }
-        }
-        total += first_highest * 10 + second_highest;
-    }
-
-    total
+fn solve_part_1(input: &[Vec<i64>]) -> i64 {
+    input.iter().map(|bank| find_largest_number(bank, 2)).sum()
 }
 
-fn solve_part_2(input: &Vec<Vec<i64>>) -> i64 {
-    let mut total = 0;
+fn solve_part_2(input: &[Vec<i64>]) -> i64 {
+    input.iter().map(|bank| find_largest_number(bank, 12)).sum()
+}
 
-    for bank in input {
-        let mut first_highest = 0;
-        let mut second_highest = 0;
-        let mut third_highest = 0;
-        let mut fourth_highest = 0;
-        let mut fifth_highest = 0;
-        let mut sixth_highest = 0;
-        let mut seventh_highest = 0;
-        let mut eigth_highest = 0;
-        let mut ninth_highest = 0;
-        let mut tenth_highest = 0;
-        let mut eleventh_highest = 0;
-        let mut twelth_highest = 0;
-        for (i, &battery) in bank.iter().enumerate() {
-            if battery > first_highest && i < bank.len() - 11 {
-                first_highest = battery;
-                second_highest = 0;
-                third_highest = 0;
-                fourth_highest = 0;
-                fifth_highest = 0;
-                sixth_highest = 0;
-                seventh_highest = 0;
-                eigth_highest = 0;
-                ninth_highest = 0;
-                tenth_highest = 0;
-                eleventh_highest = 0;
-                twelth_highest = 0;
-                continue;
-            }
-            if battery > second_highest && i < bank.len() - 10 {
-                second_highest = battery;
-                third_highest = 0;
-                fourth_highest = 0;
-                fifth_highest = 0;
-                sixth_highest = 0;
-                seventh_highest = 0;
-                eigth_highest = 0;
-                ninth_highest = 0;
-                tenth_highest = 0;
-                eleventh_highest = 0;
-                twelth_highest = 0;
-                continue;
-            }
-            if battery > third_highest && i < bank.len() - 9 {
-                third_highest = battery;
-                fourth_highest = 0;
-                fifth_highest = 0;
-                sixth_highest = 0;
-                seventh_highest = 0;
-                eigth_highest = 0;
-                ninth_highest = 0;
-                tenth_highest = 0;
-                eleventh_highest = 0;
-                twelth_highest = 0;
-                continue;
-            }
-            if battery > fourth_highest && i < bank.len() - 8 {
-                fourth_highest = battery;
-                fifth_highest = 0;
-                sixth_highest = 0;
-                seventh_highest = 0;
-                eigth_highest = 0;
-                ninth_highest = 0;
-                tenth_highest = 0;
-                eleventh_highest = 0;
-                twelth_highest = 0;
-                continue;
-            }
-            if battery > fifth_highest && i < bank.len() - 7 {
-                fifth_highest = battery;
-                sixth_highest = 0;
-                seventh_highest = 0;
-                eigth_highest = 0;
-                ninth_highest = 0;
-                tenth_highest = 0;
-                eleventh_highest = 0;
-                twelth_highest = 0;
-                continue;
-            }
-            if battery > sixth_highest && i < bank.len() - 6 {
-                sixth_highest = battery;
-                seventh_highest = 0;
-                eigth_highest = 0;
-                ninth_highest = 0;
-                tenth_highest = 0;
-                eleventh_highest = 0;
-                twelth_highest = 0;
-                continue;
-            }
-            if battery > seventh_highest && i < bank.len() - 5 {
-                seventh_highest = battery;
-                eigth_highest = 0;
-                ninth_highest = 0;
-                tenth_highest = 0;
-                eleventh_highest = 0;
-                twelth_highest = 0;
-                continue;
-            }
-            if battery > eigth_highest && i < bank.len() - 4 {
-                eigth_highest = battery;
-                ninth_highest = 0;
-                tenth_highest = 0;
-                eleventh_highest = 0;
-                twelth_highest = 0;
-                continue;
-            }
-            if battery > ninth_highest && i < bank.len() - 3 {
-                ninth_highest = battery;
-                tenth_highest = 0;
-                eleventh_highest = 0;
-                twelth_highest = 0;
-                continue;
-            }
-            if battery > tenth_highest && i < bank.len() - 2 {
-                tenth_highest = battery;
-                eleventh_highest = 0;
-                twelth_highest = 0;
-                continue;
-            }
-            if battery > eleventh_highest && i < bank.len() - 1 {
-                eleventh_highest = battery;
-                twelth_highest = 0;
-                continue;
-            }
-            if battery > twelth_highest {
-                twelth_highest = battery;
+#[inline]
+fn find_largest_number(digits: &[i64], digits_count: usize) -> i64 {
+    // Find digits
+    let mut found_digits: Vec<i64> = Vec::new();
+    let mut index = 0;
+    let mut num_digits = digits_count;
+    for _ in 0..digits_count {
+        let to_search = digits.len() - num_digits;
+        let mut highest_digit = -1;
+        let mut highest_index = 0;
+        for i in index..=to_search {
+            if let Some(&result) = digits.get(i)
+                && result > highest_digit
+            {
+                highest_index = i;
+                highest_digit = result;
             }
         }
-        total += first_highest * 100_000_000_000;
-        total += second_highest * 10_000_000_000;
-        total += third_highest * 1_000_000_000;
-        total += fourth_highest * 100_000_000;
-        total += fifth_highest * 10_000_000;
-        total += sixth_highest * 1_000_000;
-        total += seventh_highest * 100_000;
-        total += eigth_highest * 10_000;
-        total += ninth_highest * 1000;
-        total += tenth_highest * 100;
-        total += eleventh_highest * 10;
-        total += twelth_highest;
+        found_digits.push(highest_digit);
+        index = highest_index + 1;
+        num_digits -= 1;
     }
 
-    total
+    // Compute number
+    let mut exponent = 1;
+    let mut computed_num = 0;
+    for digit in found_digits.iter().rev() {
+        computed_num += digit * exponent;
+        exponent *= 10;
+    }
+    computed_num
 }
 
 #[cfg(test)]
@@ -223,7 +94,7 @@ mod tests {
 811111111111119
 234234234234278
 818181911112111",
-            3121910778619,
+            3_121_910_778_619,
         )];
 
         for (input, expected) in data {

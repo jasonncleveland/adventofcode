@@ -7,6 +7,11 @@ use aoc_helpers::solve::SolveFunction;
 
 pub const MAX_DAY: u8 = 12;
 
+/// Returns the solve function for a given day
+///
+/// # Errors
+///
+/// Will return `Err` if there is no solution available for the given day
 pub fn get_solve_module(day: u8) -> Result<SolveFunction, String> {
     match day {
         1 => Ok(day01::solve),

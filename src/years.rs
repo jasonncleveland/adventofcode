@@ -1,11 +1,6 @@
-﻿use aoc_helpers::solve::SolveFunction;
+use aoc_helpers::solve::SolveFunction;
 
-pub const YEARS: [u16; 4] = [
-    2017,
-    2018,
-    2019,
-    2025,
-];
+pub const YEARS: [u16; 4] = [2017, 2018, 2019, 2025];
 
 pub const fn get_max_days(year: u16) -> Option<u8> {
     match year {

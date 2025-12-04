@@ -6,7 +6,7 @@ use std::time::Instant;
 use aoc_helpers::io::read_file;
 use log::{debug, info, trace, warn};
 
-use years::{get_max_days, get_solve_module, YEARS};
+use years::{YEARS, get_max_days, get_solve_module};
 
 fn main() {
     env_logger::init();
