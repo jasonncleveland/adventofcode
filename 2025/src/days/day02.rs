@@ -1,10 +1,12 @@
 use std::time::Instant;
 
+use aoc_helpers::io::parse_range_list;
+use aoc_helpers::range::Range;
 use log::debug;
 
 pub fn solve(file_contents: &str) -> (String, String) {
     let parse_timer = Instant::now();
-    let input = parse_input(file_contents);
+    let input = parse_range_list(file_contents, ',');
     debug!("File parse: ({:?})", parse_timer.elapsed());
 
     let part1_timer = Instant::now();
@@ -18,24 +20,11 @@ pub fn solve(file_contents: &str) -> (String, String) {
     (part1.to_string(), part2.to_string())
 }
 
-fn parse_input(file_contents: &str) -> Vec<(i64, i64)> {
-    let mut turns: Vec<(i64, i64)> = Vec::new();
-    for line in file_contents.split(',') {
-        if let Some((left, right)) = line.split_once('-')
-            && let Ok(l) = left.parse::<i64>()
-            && let Ok(r) = right.parse::<i64>()
-        {
-            turns.push((l, r));
-        }
-    }
-    turns
-}
-
-fn solve_part_1(input: &[(i64, i64)]) -> i64 {
+fn solve_part_1(input: &[Range]) -> i64 {
     let mut total = 0;
 
-    for &(start, end) in input {
-        for number in start..=end {
+    for range in input {
+        for number in range.start..=range.end {
             let digits_count = get_digits_count(number);
             if !digits_count.is_multiple_of(2) {
                 continue;
@@ -55,11 +44,11 @@ fn solve_part_1(input: &[(i64, i64)]) -> i64 {
     total
 }
 
-fn solve_part_2(input: &[(i64, i64)]) -> i64 {
+fn solve_part_2(input: &[Range]) -> i64 {
     let mut total = 0;
 
-    for &(start, end) in input {
-        'outer: for number in start..=end {
+    for range in input {
+        'outer: for number in range.start..=range.end {
             let digits_count = get_digits_count(number);
 
             // The max pattern length will be half of the number
@@ -117,7 +106,7 @@ mod tests {
         )];
 
         for (input, expected) in data {
-            let input = parse_input(input);
+            let input = parse_range_list(input, ',');
             assert_eq!(solve_part_1(&input), expected);
         }
     }
@@ -132,7 +121,7 @@ mod tests {
         )];
 
         for (input, expected) in data {
-            let input = parse_input(input);
+            let input = parse_range_list(input, ',');
             assert_eq!(solve_part_2(&input), expected);
         }
     }

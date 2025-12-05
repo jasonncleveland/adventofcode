@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fs::read_to_string;
 
 use super::point2d::Point2d;
+use super::range::Range;
 
 /// # Panics
 ///
@@ -46,6 +47,21 @@ pub fn parse_int_list(file_contents: &str, separator: char) -> Vec<i64> {
 #[must_use]
 pub fn parse_char_list(file_contents: &str) -> Vec<char> {
     file_contents.chars().collect()
+}
+
+#[inline]
+#[must_use]
+pub fn parse_range_list(file_contents: &str, separator: char) -> Vec<Range> {
+    let mut result: Vec<Range> = Vec::new();
+    for line in file_contents.split(separator) {
+        if let Some((left, right)) = line.split_once('-')
+            && let Ok(start) = left.parse::<i64>()
+            && let Ok(end) = right.parse::<i64>()
+        {
+            result.push(Range::new(start, end));
+        }
+    }
+    result
 }
 
 #[inline]
