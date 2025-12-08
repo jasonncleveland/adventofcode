@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct Point3d {
     pub x: i64,
     pub y: i64,
@@ -28,6 +28,20 @@ impl Point3d {
     pub const fn manhattan(&self, other: &Self) -> i64 {
         (self.x - other.x).abs() + (self.y - other.y).abs() + (self.z - other.z).abs()
     }
+
+    /// Calculate the Euclidean distance between two points
+    /// d(a, b) = √(a₁ - b₁)² + (a₂ - b₂)² + (a₃ - b₃)²
+    #[inline]
+    #[must_use]
+    pub fn euclidean(&self, other: &Self) -> f64 {
+        let dx = self.x - other.x;
+        let sqdx = dx.pow(2) as f64;
+        let dy = self.y - other.y;
+        let sqdy = dy.pow(2) as f64;
+        let dz = self.z - other.z;
+        let sqdz = dz.pow(2) as f64;
+        (sqdx + sqdy + sqdz).sqrt()
+    }
 }
 
 #[cfg(test)]
@@ -51,6 +65,21 @@ mod tests {
 
         for i in 0..input.len() {
             assert_eq!(input[i].0.manhattan(&input[i].1), expected[i]);
+        }
+    }
+
+    #[test]
+    fn test_euclidean() {
+        let input: [(Point3d, Point3d); 4] = [
+            (Point3d::new(0, 0, 0), Point3d::new(0, 5, 0)),
+            (Point3d::new(0, 0, 0), Point3d::new(3, 0, 0)),
+            (Point3d::new(0, 0, 0), Point3d::new(0, 0, 8)),
+            (Point3d::new(0, 0, 0), Point3d::new(6, 5, 4)),
+        ];
+        let expected: [f64; 4] = [5.0, 3.0, 8.0, 8.774_964_387_392_123];
+
+        for i in 0..input.len() {
+            assert_eq!(input[i].0.euclidean(&input[i].1), expected[i]);
         }
     }
 }
