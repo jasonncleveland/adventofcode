@@ -7,6 +7,7 @@ mod day06;
 mod day07;
 mod day08;
 mod day09;
+mod day10;
 
 use aoc_helpers::solve::SolveFunction;
 
@@ -28,6 +29,7 @@ pub fn get_solve_module(day: u8) -> Result<SolveFunction, String> {
         7 => Ok(day07::solve),
         8 => Ok(day08::solve),
         9 => Ok(day09::solve),
+        10 => Ok(day10::solve),
         other => Err(format!("Invalid day provided: {other}")),
     }
 }
