@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs::read_to_string;
+use std::io::Error;
 
 use super::point2d::Point2d;
 use super::range::Range;
@@ -8,16 +9,15 @@ use super::range::Range;
 ///
 /// Will panic if the file does not exist
 #[inline]
-#[must_use]
-pub fn read_file(file_name: String) -> String {
+pub fn read_file(file_name: &str) -> Result<String, Error> {
     // Some input has a Byte Order Mark at the start of the input.
     // We need to remove the BOM before parsing
     // Strip trailing newline to help parsing
-    let file_contents = read_to_string(file_name).expect("Something went wrong reading the file");
-    file_contents
+    let file_contents = read_to_string(file_name)?
         .trim_start_matches("\u{feff}")
         .trim_end_matches('\n')
-        .to_string()
+        .to_string();
+    Ok(file_contents)
 }
 
 /// # Panics

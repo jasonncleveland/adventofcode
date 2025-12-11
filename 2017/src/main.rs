@@ -46,18 +46,21 @@ fn run_single_day(year: u16, day: u8) {
         let file_path = format!("../inputs/{}/day/{}/input", year, day);
         trace!("Attempting to read file at `{}`", file_path);
 
-        let file_contents = read_file(file_path);
-        debug!("File read: ({:?})", input_timer.elapsed());
+        if let Ok(file_contents) = read_file(&file_path) {
+            debug!("File read: ({:?})", input_timer.elapsed());
 
-        let solve_timer = Instant::now();
-        let (part1, part2) = solve(&file_contents);
-        info!(
-            "Day {:02}: ({}, {}) ({:?})",
-            day,
-            part1,
-            part2,
-            solve_timer.elapsed()
-        );
+            let solve_timer = Instant::now();
+            let (part1, part2) = solve(&file_contents);
+            info!(
+                "Day {:02}: ({}, {}) ({:?})",
+                day,
+                part1,
+                part2,
+                solve_timer.elapsed()
+            );
+        } else {
+            warn!("Could not read file at {}", file_path);
+        }
     } else {
         warn!("Could not find solution for day {:02}", day);
     }
