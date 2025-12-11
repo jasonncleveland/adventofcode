@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::collections::{HashSet, VecDeque};
 use std::ops::Add;
 use std::time::Instant;
 
@@ -83,7 +83,9 @@ fn solve_part_1(input: &Vec<MachineInformation>) -> i64 {
 
     for machine in input {
         let mut queue: VecDeque<(usize, i64)> = VecDeque::new();
+        let mut visited: HashSet<usize> = HashSet::new();
         queue.push_back((0, 0));
+        visited.insert(0);
 
         while let Some((state, steps)) = queue.pop_front() {
             if state == machine.diagram {
@@ -97,7 +99,11 @@ fn solve_part_1(input: &Vec<MachineInformation>) -> i64 {
                 //     000110 (state)
                 // XOR 010111 (bitmask)
                 //   = 010001 (result)
-                queue.push_back((state ^ button, steps + 1));
+                let next_state = state ^ button;
+                if !visited.contains(&next_state) {
+                    visited.insert(next_state);
+                    queue.push_back((next_state, steps + 1));
+                }
             }
         }
     }
