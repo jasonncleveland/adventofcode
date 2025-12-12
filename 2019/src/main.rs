@@ -59,7 +59,7 @@ fn run_single_day(year: u16, day: u8) {
                 solve_timer.elapsed()
             );
         } else {
-            warn!("Could not read file at {}", file_path);
+            warn!("Could not read file at {file_path}");
         }
     } else {
         warn!("Could not find solution for day {:02}", day);
