@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/2020/">
+    <Project Path="2020/aoc2020.csproj" />
+  </Folder>
   <Folder Name="/shared/" />
   <Folder Name="/shared/dotnet/">
     <Project Path="shared/dotnet/shared.csproj" />
