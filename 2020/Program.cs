@@ -5,7 +5,7 @@ using AdventOfCode.Y2020.Days;
 
 using Microsoft.Extensions.Logging;
 
-namespace AdventOfCode2020;
+namespace AdventOfCode.Y2020;
 
 public sealed class Program
 {

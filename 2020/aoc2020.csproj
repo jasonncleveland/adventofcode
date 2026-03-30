@@ -6,6 +6,12 @@
     <StartupObject>AdventOfCode.Y2020.Program</StartupObject>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5"/>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.5"/>
