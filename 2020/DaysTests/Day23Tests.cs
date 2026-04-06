@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace AdventOfCode.Y2020.DaysTests;
 
 [TestFixture]
-public class Day23Tests
+public sealed class Day23Tests
 {
     [Test]
     public void TestSolver()
@@ -17,7 +17,7 @@ public class Day23Tests
         const string input = "389125467";
 
         var loggerMock = Substitute.For<ILogger>();
-        var solver = new Day22();
+        var solver = new Day23();
 
         (string part1, string part2) = solver.Solve(loggerMock, input);
 

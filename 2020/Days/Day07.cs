@@ -11,7 +11,7 @@ internal sealed class Day07 : AbstractDaySolver<Dictionary<string, Luggage>>
 {
     protected override Dictionary<string, Luggage> ParseInput(ILogger logger, string fileContents)
     {
-        var lines = fileContents.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+        var lines = fileContents.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
         Dictionary<string, Luggage> luggage = new();
 

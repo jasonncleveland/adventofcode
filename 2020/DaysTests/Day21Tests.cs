@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace AdventOfCode.Y2020.DaysTests;
 
 [TestFixture]
-public class Day21Tests
+public sealed class Day21Tests
 {
     [Test]
     public void TestSolver()

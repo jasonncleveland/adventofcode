@@ -15,7 +15,7 @@ internal sealed class Day10 : AbstractDaySolver<IReadOnlyList<int>>
     protected override IReadOnlyList<int> ParseInput(ILogger logger, string fileContents)
     {
         return fileContents
-            .Split("\n", StringSplitOptions.RemoveEmptyEntries)
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(int.Parse)
             .ToList()
             .AsReadOnly();

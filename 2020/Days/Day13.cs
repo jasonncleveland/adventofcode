@@ -13,7 +13,7 @@ internal sealed class Day13 : AbstractDaySolver<IReadOnlyList<string>>
     protected override IReadOnlyList<string> ParseInput(ILogger logger, string fileContents)
     {
         return fileContents
-            .Split("\n", StringSplitOptions.RemoveEmptyEntries)
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .ToList()
             .AsReadOnly();
     }

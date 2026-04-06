@@ -11,7 +11,7 @@ internal sealed class Day05 : AbstractDaySolver<IReadOnlyList<(int, int)>>
 {
     protected override IReadOnlyList<(int, int)> ParseInput(ILogger logger, string fileContents)
     {
-        var lines = fileContents.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+        var lines = fileContents.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
         var boardingPasses = new List<(int, int)>();
 
