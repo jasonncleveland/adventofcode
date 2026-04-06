@@ -6,7 +6,7 @@ namespace AdventOfCode.Y2020.Days;
 
 public static class DayConstants
 {
-    public const int MaxDay = 23;
+    public const int MaxDay = 24;
 
     public static readonly Dictionary<int, IDaySolver> Solvers = new()
     {
@@ -33,5 +33,6 @@ public static class DayConstants
         { 21, new Day21() },
         { 22, new Day22() },
         { 23, new Day23() },
+        { 24, new Day24() },
     };
 }
