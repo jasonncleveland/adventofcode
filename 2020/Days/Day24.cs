@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using AdventOfCode.Shared.Coordinates;
+using AdventOfCode.Shared.Directions;
 using AdventOfCode.Shared.Solver;
 
 using Microsoft.Extensions.Logging;
@@ -110,61 +112,5 @@ internal sealed class Day24 : AbstractDaySolver<IReadOnlyList<IReadOnlyList<HexD
         }
 
         return tiles.Count.ToString();
-    }
-}
-
-internal enum HexDirection
-{
-    NorthEast,
-    NorthWest,
-    East,
-    West,
-    SouthEast,
-    SouthWest
-}
-
-internal sealed record HexCoordinate
-{
-    public int Q { get; set; }
-    public int R { get; set; }
-    public int S { get; set; }
-
-    public HexCoordinate(int q, int r, int s)
-    {
-        Q = q;
-        R = r;
-        S = s;
-    }
-
-    public override string ToString()
-    {
-        return $"{Q},{R},{S}";
-    }
-}
-
-internal static class HexCoordinateExtensions
-{
-    public static HexCoordinate GetNextCoordinate(this HexCoordinate coordinate, HexDirection direction)
-    {
-        return direction switch
-        {
-            HexDirection.NorthEast => new HexCoordinate(coordinate.Q, coordinate.R - 1, coordinate.S + 1),
-            HexDirection.NorthWest => new HexCoordinate(coordinate.Q + 1, coordinate.R - 1, coordinate.S),
-            HexDirection.East => new HexCoordinate(coordinate.Q - 1, coordinate.R, coordinate.S + 1),
-            HexDirection.West => new HexCoordinate(coordinate.Q + 1, coordinate.R, coordinate.S - 1),
-            HexDirection.SouthEast => new HexCoordinate(coordinate.Q - 1, coordinate.R + 1, coordinate.S),
-            HexDirection.SouthWest => new HexCoordinate(coordinate.Q, coordinate.R + 1, coordinate.S - 1),
-            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
-        };
-    }
-
-    public static IEnumerable<HexCoordinate> GetNeighbours(this HexCoordinate coordinate)
-    {
-        yield return coordinate.GetNextCoordinate(HexDirection.NorthEast);
-        yield return coordinate.GetNextCoordinate(HexDirection.NorthWest);
-        yield return coordinate.GetNextCoordinate(HexDirection.East);
-        yield return coordinate.GetNextCoordinate(HexDirection.West);
-        yield return coordinate.GetNextCoordinate(HexDirection.SouthEast);
-        yield return coordinate.GetNextCoordinate(HexDirection.SouthWest);
     }
 }
