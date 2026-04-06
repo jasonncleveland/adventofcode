@@ -4,11 +4,8 @@ using AdventOfCode.Shared.Directions;
 
 namespace AdventOfCode.Shared.Coordinates;
 
-public class Point2d(long x, long y)
+public record Point2d(long X, long Y)
 {
-    public long X { get; set; } = x;
-    public long Y { get; set; } = y;
-
     public override string ToString()
     {
         return $"({X}, {Y})";

@@ -15,7 +15,7 @@ internal sealed class Day12 : AbstractDaySolver<IReadOnlyList<(Direction directi
     protected override IReadOnlyList<(Direction direction, int distance)> ParseInput(ILogger logger, string fileContents)
     {
         return fileContents
-            .Split("\n", StringSplitOptions.RemoveEmptyEntries)
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(line =>
             {
                 var direction = line[0] switch
@@ -46,16 +46,16 @@ internal sealed class Day12 : AbstractDaySolver<IReadOnlyList<(Direction directi
             switch (direction)
             {
                 case Direction.North:
-                    shipPosition.Y -= distance;
+                    shipPosition = new Point2d(shipPosition.X, shipPosition.Y - distance);
                     break;
                 case Direction.South:
-                    shipPosition.Y += distance;
+                    shipPosition = new Point2d(shipPosition.X, shipPosition.Y + distance);
                     break;
                 case Direction.West:
-                    shipPosition.X -= distance;
+                    shipPosition = new Point2d(shipPosition.X - distance, shipPosition.Y);
                     break;
                 case Direction.East:
-                    shipPosition.X += distance;
+                    shipPosition = new Point2d(shipPosition.X + distance, shipPosition.Y);
                     break;
                 case Direction.Left:
                 case Direction.Right:
@@ -87,16 +87,16 @@ internal sealed class Day12 : AbstractDaySolver<IReadOnlyList<(Direction directi
             switch (direction)
             {
                 case Direction.North:
-                    waypointPosition.Y -= distance;
+                    waypointPosition = new Point2d(waypointPosition.X, waypointPosition.Y - distance);
                     break;
                 case Direction.South:
-                    waypointPosition.Y += distance;
+                    waypointPosition = new Point2d(waypointPosition.X, waypointPosition.Y + distance);
                     break;
                 case Direction.West:
-                    waypointPosition.X -= distance;
+                    waypointPosition = new Point2d(waypointPosition.X - distance, waypointPosition.Y);
                     break;
                 case Direction.East:
-                    waypointPosition.X += distance;
+                    waypointPosition = new Point2d(waypointPosition.X + distance, waypointPosition.Y);
                     break;
                 case Direction.Left:
                 case Direction.Right:
@@ -119,17 +119,14 @@ internal sealed class Day12 : AbstractDaySolver<IReadOnlyList<(Direction directi
                             deltaY = tmp;
                         }
                     }
-                    waypointPosition.X = shipPosition.X + deltaX;
-                    waypointPosition.Y = shipPosition.Y + deltaY;
+                    waypointPosition = new Point2d(shipPosition.X + deltaX, shipPosition.Y + deltaY);
                     break;
                 case Direction.Forward:
                     // Move the waypoint the given number of times
-                    waypointPosition.X += deltaX * distance;
-                    waypointPosition.Y += deltaY * distance;
+                    waypointPosition = new Point2d(waypointPosition.X + deltaX * distance, waypointPosition.Y + deltaY * distance);
 
                     // Move the ship to the waypoint minus the delta
-                    shipPosition.X = waypointPosition.X - deltaX;
-                    shipPosition.Y = waypointPosition.Y - deltaY;
+                    shipPosition = new Point2d(waypointPosition.X - deltaX, waypointPosition.Y - deltaY);
                     break;
                 default:
                     throw new Exception($"Found invalid direction {direction}");
